@@ -1,0 +1,9 @@
+{
+  "note": "Spots a drone survey flagged (arena metres; origin = dog body centre at start, x forward, y left). 'sim_truth' is only used by --sim; delete it for real runs.",
+  "spots": [
+    {"id": "A1", "x": 1.30, "y":  0.75, "sim_truth": {"label": "mine stand-in (steel pot)", "moment": 0.05, "depth": 0.10, "dx": 0.02, "dy": -0.01}},
+    {"id": "A2", "x": 1.30, "y":  0.25, "sim_truth": {"label": "fragment (keys)", "moment": 0.004, "depth": 0.03, "dx": -0.01, "dy": 0.02}},
+    {"id": "A3", "x": 1.30, "y": -0.25},
+    {"id": "A4", "x": 1.30, "y": -0.75, "sim_truth": {"label": "fragment, magnetised sideways", "m_vec": [0.0, 0.005, 0.0], "depth": 0.04}}
+  ]
+}

@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+# per-run outputs; the committed PNGs are the reference results
+results.json
+benchmark.json
