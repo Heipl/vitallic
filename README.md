@@ -1,5 +1,7 @@
 # Vitallic: the dog that checks drone-flagged metal
 
+# SEE MASTER (NOT MAIN) FOR INTERACTIVE HTML FILES
+
 A drone survey flags every piece of metal in a field. Today a **person still has to
 walk up to each flag** to find out whether it is a mine or a tin can.
 
