@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Robot acre — priority BFS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ink:#171A21; --ink-2:#4A5060; --ink-3:#787F91;
+  --bg:#F5F6F8; --panel:#FFFFFF; --rule:#DDE0E7; --rule-2:#EDEFF3;
+  --accent:#41627F; --accent-ink:#FFFFFF;
+  --warn-bg:#FDF2E4; --warn-ink:#7A4A12; --warn-rule:#E8C79A;
+  --shell:#ECEEF2;
+  --map-ink:#E8E4D4;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ink:#E6E9EF; --ink-2:#A3AAB9; --ink-3:#727A8B;
+  --bg:#0B0D11; --panel:#14171D; --rule:#272B34; --rule-2:#1D212880;
+  --accent:#8FB2CE; --accent-ink:#0B0D11;
+  --warn-bg:#2A1F10; --warn-ink:#E8C08A; --warn-rule:#5C4420;
+  --shell:#0F1216;
+}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+h1,h2{margin:0;font-weight:600}
+.lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.app{display:grid;grid-template-rows:auto 1fr auto;height:100%;background:var(--shell)}
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:9px 16px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.brand{display:flex;align-items:baseline;gap:9px;min-width:0}
+.brand b{font-size:14px;font-weight:700}
+.brand span,.brand a{font-size:11px;color:var(--ink-3);text-decoration:none}
+.brand a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+.vintage{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:10.5px;padding:2.5px 7px;border:1px solid var(--rule);
+  border-radius:2px;color:var(--ink-2);white-space:nowrap}
+.chip.warn{background:var(--warn-bg);color:var(--warn-ink);border-color:var(--warn-rule);font-weight:500}
+.main{display:grid;grid-template-columns:300px 1fr;gap:1px;background:var(--rule);min-height:0}
+.rail{background:var(--panel);overflow-y:auto;padding:14px;display:flex;flex-direction:column}
+.grp.run{position:sticky;bottom:0;margin-top:auto;margin-bottom:0;padding-top:10px;
+  background:var(--panel);border-top:1px solid var(--rule)}
+.stage{position:relative;min-height:0;overflow:hidden;background:#1a1814}
+.stage img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;filter:saturate(.85) contrast(1.05)}
+canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
+.grp{margin-bottom:16px}
+.grp>.lbl{display:block;margin-bottom:7px}
+.note{font-size:10.5px;line-height:1.45;color:var(--ink-3);margin:5px 0 0}
+.sep{height:1px;background:var(--rule);margin:11px 0}
+.kv{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:11.5px}
+.kv dt{color:var(--ink-3)}
+.kv dd{margin:0;font-family:var(--mono);text-align:right}
+.btn{display:inline-block;padding:7px 12px;background:var(--accent);color:var(--accent-ink);
+  border-radius:2px;font-weight:600;font-size:12px;margin-right:6px;margin-top:4px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule)}
+.queue{display:grid;gap:6px}
+.qrow{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;
+  padding:7px 8px;border:1px solid var(--rule);border-radius:2px;background:var(--bg)}
+.qrow.on{border-color:var(--accent);box-shadow:inset 2px 0 0 var(--accent)}
+.qrow.done{opacity:.55}
+.qrow .rk{font-family:var(--mono);font-size:11px;font-weight:600}
+.qrow .nm{font-weight:600;font-size:12px}
+.qrow .sub{font-size:10.5px;color:var(--ink-3);font-family:var(--mono)}
+.qrow .sc{font-family:var(--mono);font-size:10.5px;text-align:right}
+.bar{height:4px;background:var(--rule);border-radius:1px;margin-top:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:#CD4071}
+.status{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:6px 16px;background:var(--panel);border-top:1px solid var(--rule);font-size:10.5px;color:var(--ink-3)}
+.status b{color:var(--warn-ink);background:var(--warn-bg);border:1px solid var(--warn-rule);
+  padding:2px 7px;border-radius:2px;font-weight:600;letter-spacing:.04em}
+.hud{position:absolute;left:12px;bottom:12px;color:var(--map-ink);font-family:var(--mono);
+  font-size:10.5px;text-shadow:0 1px 3px #000a;pointer-events:none;line-height:1.55}
+.legend-float{position:absolute;right:12px;top:12px;background:#161A21E8;color:#E6E9EF;
+  border:1px solid #2C3440;border-radius:2px;padding:8px 10px;font-size:11px;max-width:220px}
+.legend-float .t{font-weight:600;margin-bottom:4px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+@media (max-width:820px){
+  .main{grid-template-columns:1fr;grid-template-rows:auto minmax(320px,1fr)}
+  .rail{max-height:40vh}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <b>Acre survey (hypothetical)</b>
+      <span>BFS on 1×1 lattice · visit by civilian site type</span>
+      <a href="landmine-bayes.html">← national prior</a>
+    </div>
+    <div class="vintage">
+      <span class="chip">Stanitsa Luhanska backdrop · hypothetical lattice</span>
+      <span class="chip warn">Not an accredited survey product</span>
+    </div>
+  </header>
+
+  <div class="main">
+    <aside class="rail">
+      <div class="grp">
+        <span class="lbl">What this is</span>
+        <p class="note">A fake, zoomed-in acre over a satellite backdrop of
+          Stanitsa Luhanska. Four potential landmines sit on lattice
+          points taken from the user’s example coordinates. Visit <em>order</em>
+          is civilian-site priority: densely populated (B) first, then a school (C),
+          then a farm (A). D has no site icon and is last. The dog never occupies
+          a mine cell — BFS stops on a 4-neighbour. Dark overlay marks woodland,
+          built-up blocks, and the rail corridor (open fields and sandy tracks stay
+          passable). The photo is scenery only — it is not a survey of that town.</p>
+      </div>
+
+      <div class="grp">
+        <span class="lbl">Policy</span>
+        <dl class="kv">
+          <dt>Planner</dt><dd>greedy + 15% explore</dd>
+          <dt>Path</dt><dd>BFS, 4-connected</dd>
+          <dt>Lattice</dt><dd>1 × 1</dd>
+          <dt>Origin</dt><dd class="num">(0, 0)</dd>
+        </dl>
+        <p class="note">Next target = remaining mine with the lowest site-priority rank
+          (people &gt; school &gt; farm &gt; unmarked). Other mines are obstacles until visited.</p>
+        <p class="note num" id="visitOrder"></p>
+      </div>
+
+      <div class="grp">
+        <span class="lbl">Site priority</span>
+        <div class="queue" id="queue"></div>
+      </div>
+
+      <div class="grp run">
+        <span class="lbl">Run</span>
+        <button class="btn" id="play" type="button">Play</button>
+        <button class="btn ghost" id="reset" type="button">Reset</button>
+        <p class="note" id="stat">Idle.</p>
+      </div>
+    </aside>
+
+    <div class="stage" id="stage">
+      <img class="bg" src="robot/stanitsa-luhanska.png" alt="Satellite photo of Stanitsa Luhanska used as a hypothetical acre backdrop">
+      <canvas id="cv"></canvas>
+      <div class="legend-float">
+        <div class="t">Stanitsa Luhanska · overlay</div>
+        <div><span class="sw" style="background:#CD4071"></span>Potential mine</div>
+        <div><span class="sw" style="background:#8FB2CE"></span>BFS path (not a clearance)</div>
+        <div><span class="sw" style="background:#1A1F26;outline:1px solid #aaa"></span>Impassable: woodland / built-up / rail</div>
+        <div class="note" style="color:#A3AAB9;margin-top:6px">Icons: people (B) · school (C) · farm (A). D unmarked.</div>
+      </div>
+      <div class="hud" id="hud"></div>
+    </div>
+  </div>
+
+  <footer class="status">
+    <b>MODEL OUTPUT — NOT A CLEARANCE RECORD</b>
+    <span>Hypothetical lattice demo. No area on this map has been declared free of explosive ordnance. The path is not a safe route.</span>
+  </footer>
+</div>
+
+<script>
+/* Hypothetical acre lattice. Units are survey ticks; if the long side is ~64 m
+   then one tick ≈ 10 cm. Coordinates are the ones requested, not GPS. */
+const W = 640, H = 360;
+const ORIGIN = {x: 0, y: 0};
+
+/* Unique cells from dist/robot/next_mission.json, first four, mapped onto the
+   example lattice points. Scores are the real expected_find / queue index. */
+const MINES = [
+  {id:"A", x:200, y:100, queue:0,  expected_find:6.735223365689387e-5, p_any:2.3765870570321553e-4, exploration:false, cell:"(88,34)", site:"farm",     siteRank:3, siteLabel:"farm"},
+  {id:"B", x:50,  y:300, queue:13, expected_find:2.557326014479297e-5,  p_any:9.024431151206556e-5,  exploration:true,  cell:"(66,94)", site:"people",   siteRank:1, siteLabel:"densely populated"},
+  {id:"C", x:400, y:200, queue:14, expected_find:6.738518347176948e-5,  p_any:2.3777495840742878e-4, exploration:false, cell:"(69,66)", site:"school",   siteRank:2, siteLabel:"school"},
+  {id:"D", x:600, y:200, queue:22, expected_find:6.735209450560625e-5,  p_any:2.376582147531302e-4,  exploration:false, cell:"(14,27)", site:null,      siteRank:4, siteLabel:"unmarked"},
+];
+
+function findLabel(m){
+  /* Same 3-sig-fig string painted on the map and in the queue. */
+  return m.expected_find.toExponential(2);
+}
+function displayFind(m){
+  /* Rank on the painted value so 6.735e-5 and 6.739e-5 are a 6.74e-5 tie. */
+  return Number(findLabel(m));
+}
+const MAX_FIND = Math.max(...MINES.map(m => displayFind(m)));
+function better(a, b){
+  /* Lower siteRank is more important: people, school, farm, then unmarked. */
+  if (a.siteRank !== b.siteRank) return a.siteRank < b.siteRank ? a : b;
+  return a.queue <= b.queue ? a : b;
+}
+
+/* Impassable cells aligned to the satellite photo: dense woodland,
+   built-up settlement, and the rail corridor. Packed 640×360 bits,
+   row-major with lattice y increasing up, MSB first in each byte.
+   Open ground, sandy tracks, and fields stay free. A few track-width
+   corridors are punched so every mine stays 4-reachable. */
+const TERRAIN_PACKED =
+    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHwAAAAAAAAAA" +
+    "AAAAH+AAHAAAAAAAAAAAAAAAAAAAAAAAAD/4AAAAAAAAAAAAD//h///wAAAAAAAf8AAAAAAAAAAAAAAAAAAAHx///////gAfgAAAAAAAAAAAAAB/4AAYAAAA" +
+    "AAAAAAAAAAAAAAAAAAAD//gAAAAAAAAAAAAPf/H///AAAAAA///4AAAAAAAAAAAAAAAAAAAf///////+AA/AAAAAAAAAAAAAAP/AA/gAAAAAAAAAAAAAAAAA" +
+    "AAAAAAP//AAAAAAAAAAAAD9/8f//4AAAAY////wAAAAAAAAAAAAAAAAAAA////////4AD4AAAAAAAAAAAAAA/4AD8AAAAAAAAAAAAAAAAAAAAAAAA//8AAAA" +
+    "AAAAAAAwf//x///AAAABh////DAAAAAAAAAHwQAAAAAAB////////gABAAAAAAAAAAAAAAP/gAPgAAAAAAAAAAAAAAAAAAAAAAAA/+AAAAAAAAAAAD//////" +
+    "/wAAAAHH////+AAAAAAAAP/DgAAAAAAD/z/////+AAAAAAAAAAAAAAAAD/+AA8AAAAAAAAAAAAAAAAAAAAAAAAD/wAAAAAAAAAAPP//////+AAAAAcP////8" +
+    "AAAAAAAB//+AAAAAAAP/f/////4AAAAAAAAAAAAAAAAf/8APgAAAAAAAAAAAAAAAAAAAAAAAAP/AAAAAAAAAAH8///////gAAAAB4/////4AAAAAAAHx/4AA" +
+    "AAAAAf///////gAAAAAAAAAAAAAAAB3/wAwAAAAAAAAAAAAAAAAAAAAAAAAA/8AAAAAAAAAD/j//////4AAAAAHh/////gAAAAAAAeADgAAAAAAB///////+" +
+    "AAAAAAAAAAAAAAAAAP/AAAAAAAAAAAAAAAAAAAAAAAAAAAD/gAAAAAAAAAf8P/////+AAAAAAfD////2AAAAAAAA8AGAAAAAAAD///////4AAAAAAAAAAAAA" +
+    "AAAA/4AAAAAAAAAAAAAAAAAAAAAAAAAAAH8AAAAAAAAAB/w//////wAAAAAB+P///8AAAAAAAADwAAAAAAAAAP///////gAAAAAAAAAAAAAAAAD/AAAAAAAA" +
+    "AAAAAAAAAAAAAAAAAAAAfgAAAAAAAAAD/H/////+AAAAAAD8f///wAAAAAAAB/wAADAAAAAAf//////+AAAAAMAAAAAAAAAAAP88AAAAAAAAAAAAADgAAAAA" +
+    "AAAAAAAAAAAAAAAAAAP///////gAMAAAAA4////AAAAAAAAH/8AAPgMAAAB///////4gAAAAwAAAAAAAAA4A+fwAAAAAAAAAAAAB/AAAAAAAAAAAAAAAAAAA" +
+    "AAAAB/////f/4AAgAAAABj///8AAAAAAAAH/4AAfwwAAAH///////nAAAAHAAAAAAAAADgHx8AAAAAAAAAAAAAf8AAAAAAAAAAAAAAAAAAAAAAf////n4//g" +
+    "AAAAAAAAH///wAAAAAABwH/+AB/+AAAH///////+cAAAA8AAAAAAAAAeB8HgAAAAAAAAAAAAD/4AAAAAAAAAAAAAAAAAAAAAH////+f3/8AAAAAAAAAE///A" +
+    "AAAAAAPAP/8wH/4AOAf///////54AAABwAAAAAAAAH8Hg4AAAAAAAAAAAAA//wAAAAAAAAAAAAAAAAAAAAA//////3/+AAA+AAAAAAB//4AAAAHwHwA//zAf" +
+    "/g/8A////////ngAAAIAAYAAAAAB/z4PgAAAAAAAAAAAAH//gAAAAAAAAAAAAAAAAAAAAf/////+P/AAAH8AAAAAAH//gAAAB/AcAA//MAf+D/wD///////+" +
+    "OAAAAxABwAAAAAP/PA+AAAAAAGAAAAAAf/+AAAAAAAAAAAAAAAAAAAAD//////5/8AAAfwAAAAAAf/+AAAAH8PAAD/8AB/4f/AH///////4wAAAAEAHAAAAA" +
+    "D/d4DwAAAAAAcAAAAAB//8AAAAAAAAAAAAAAAAAAAAP////////AAAB/AAAAAAB//4AAAAf/4AAP/wAH/h/4Af///////nAAAAAwAcAAAAA/4/g8AAAAAABw" +
+    "AAAADA//4AAAAAAAAAAAAAAAAAAAP////////wAAAA+AAAAAAH/+AADAB//AAA//gAH8H/gD///////+OAAAAAAf/AAAAD/38PAAAAAPAHgAAAA8Af/gAAAA" +
+    "AAAAAAAAAAAAAAP//////H/+AAAAB4AAAAAAf/4AAcAD/+AAH/+AAHwf+AP///////4YAAAAAB/8AAAAP//h4AAAAA4D/AAAAPwgP/AAAAAAAAAAAAAAAAAA" +
+    "A//////4H/gAAAAAAAAAAAA//BgDwAf/4AH///gAfA/wA////////hwAAAAAH/wAAAA///PgAAAATAP+AAAB/ngH+AAAAAAAAAAAAAAAAAAP//////g/4MAA" +
+    "AAAAAAAAAAMAHAfAB///j////+B+A/AB///////+DAAAAAAf/AAAAw//f8AAAAOAAf4AAAf//wD4AAAAAAAAAAAAAAAAAD///////D+BwAAAAAAAAAAAAAAH" +
+    "B8AH////////+H4D4AH///////4AAAAAAB/wAAAHA/4/gAAAB8AB/gAAD8PHADgAAAAAAAAAAAAAAAAAf//////+AAAAAAAAAAAAAAAAAAMPwAf////////4" +
+    "fAPgAf///////gAAAAAAH/BgAA4B/B8AAAAfgAH+AAAPgcAAAAAAAAAAAAAAAAAAAAD////8f/4AAAAAAAAAAAAAAAAABh/AA/////////w4AeAB/////j/+" +
+    "AADAAAA/+GAAPAD8HgAAAH8AAf4AAA+BwFAAAAAAAAAAAAAAAAAAAH////x//AAAAAAAAAAAAAAAAAGcf8AA/////////DgAwAH////+P/4AAeAAAGf88QD+" +
+    "IPAcAAAA/AeB/4AAD4PAeAAAAAAAAAAAAAAAAAAOf////H/4wAAAAAAAAAAAAAAAAfj/wAAB///////8GAAAA/////4B/gAB8AAAY//3Af/gAAAAAAP4D8Pn" +
+    "gAAPx8BwAAAAAAAAAAAAAAAAAB///////+HAAAAAAAAAAAAAAAAD8PgAAAAH//////w4AAAP/////8D+AAGYAABz//cB/+AAAAAAB+Af/8+AAAfn4HAAAAAA" +
+    "AAAAAAAAAAAAH///////w8AAAAAAAAAAAAAAAAPh+ADAAAH//////5wAAB//////wP4AABgAAH/z/gP/oAAAAAAfgH//jwAAZ//w/4AAAAAAAAAAAAAAAAAf" +
+    "//////+AAAAAAAAAAAAAAAAAAcPwMMAAAeD/////nAAAH//////A/gcAPgAAP/H8B/8gAAAAAH8C//kGAADz+f//gAAAAAAAAAAAAAAABh///////wAAAAAA" +
+    "AAAAAAAAAAAAx/A/wAAB4H////8cAAAP/f///+AGH8A+AAAxAbgP//AAAAAA/gO/8aQAAPfx///AAAAAAAAAAAAAAAA/7//////+AAAAAAAAAAAAAAAAAAAP" +
+    "gD/AAAHgf////hwAAAH4////4AA/4BIAAAAAAD//8DgAAAP4AZ/x/AAJ//h///AAAAAAAAAAAAAAAD/v//////gAAAAAAAAAAAAAAAAAAB+AP+AAAfAP///+" +
+    "HAAAAAD////gAHgAAAGAAAAAf//geAAAD+Aw//n4AB///H//8AAAAAAAAAAAAAAAH///////8AAAAAAAAAAAAYAAAAAAP4//4AAD+AP/3/98AAAAAH///8AA" +
+    "cAAAA4AAAAD//+D4AAAfwHA//eAAH//+P//AAAAAAAAAAAAAAAAf///////gAAAAAAAAAAABwAAAAAB////AAAf8A/4f//wAAAcAAH//wABwAAB/AAAAAP//" +
+    "w/gAAB+B8D//gAH///4//4AAAAAAAAAAAAAAAA///////8AAAAAAAAAAAADgAAAAAP///wAAP/wDwB//+ABwBwAAH//AAH+AAPwAAAAD//+H+AAAPgPx4GEA" +
+    "Af///g/+AAAAAAAAAAAAAAAAD//9////gAAAAAAAAAAAAGAAAAAAw///AAA//AOAP//4B/gMAAAA//gAf4AB8AAAAA7//w/4AAH8AGfAAAAB////j+AAAAAA" +
+    "AAAAAAAAAPAP//j///8AAAAAAAAAAAAAcAAAAAAAD/8AADn+AYB///A//AQAAAB//AB+AAHgAAAAHH/+H/AAA/AAZ4AAAAH///+HAAAAAAAAAAAAAAAB8A//" +
+    "/////gAAHgAAAAAAAABwAAAAAAAP/4AACB4BA///wH/8AAAAAH/+AFwAAAAAAAA8//g/gAAD4Bh+AAAAA////wAAAAAAAAAAAAAAAAP4///////8AAA+AAAA" +
+    "AAAAAHAAAAAAAA///AAMHAAD//wA//gAAADAf/4AAAAAAAAAAH//8H8AAB+AOHwAgAAD////gAAAAAAAAAAAAAAAB/////////gAAB4AAAAAAAAAcAAAAAAA" +
+    "P//8AAAAAAAAAAD/8AAAD////wAAAAAAAAAA///g/gAAPwB9+AeAAAP////AAAAAAAAAAAAAAAAP////////4AAAGYAAAAAAAAA8AAAAAAA///gAAAAAAAAA" +
+    "Af/AAAAP////wAAAAAHAAAP/n8X+AAA8Af/wBwAAAf/j/8AAAAAAAAAAAAAAAB////////4AAAAfgAAAAAAAAD4AAAAAAP/8AAAAAAAAAAAB/8ABgA/////A" +
+    "AAAAAMAAB/+f5/wAAfgH/+AeAAAB/MD/gAAAAAAAAAAAAAAAP////////AAAAA+AAAAAAAAAfgAAAAAB//wAAAAAAAAfgAD7wAP//////8AAAAAAwAAP//8/" +
+    "/AAH8A//hx4AAAH8wPwAAAAAAAAAAAAAAAB////////4AAAABgAAAAAAAAH/AAAAAAH//AAAAAAAAB4AAADwA///////xgAAAAHgAD///j/4AAfAP/+P/AAA" +
+    "A//AeAAAAAAAAAAAAAAAAf///j///+AAAAAAAAAAAAAAA/8AAAAAAf/8AAAAAAAAAAAAAHwD///////GAAAAA+AAf//wf+AAD4D//7/4AAAP/+AcAAAAAAAA" +
+    "AAAAAAAH///4P///gAAAAAAAAAAAAAAD/wAAAAAB//8AAAAAAAAAAAAAfgP//////8YAAAAD4AD//+B/wAB/Af////AAAA//+A8AAAAAAAAAAAAAAB////h/" +
+    "//4AAAAAAAAAAAAAAAA/AAAAAAD8/wAAAAAAAAAAAAB//////////gAAAAAAAP/4wP8AAPwD////gAAAH//8B/AAAAAAAAAAAAAAP///////wAAAAAAAAAAA" +
+    "AAAAAAAAAAAAAPz/AAAAAAAAAAAAAH/////////+AAAAAAAB//hB/ggB+AP///8AAAAf/98H8AAAAAAAAAAAAAB///////wAAAAAAAAAAAAAAAAAAAAAAAAA" +
+    "fP8AAAAAAAAAAAAAH/////////4AAAAAAA+DCMf+AAPgB////gDgAAf/h8fwAAAAAAAAAAAAAf//////4B/AAAAAAAAAAAAAAAAAAAAAAAAB/gAAAAAAAAAA" +
+    "AAAP/////////gAAAAAAH4Acf/4AB8A//z/8B+AAA/+N+AAAAAAAAAAAAAAD//////8AL8AAAAAAAAAAAAAAAAAAAAAAAAH8AAAAABAAAAAAAAAP///////+" +
+    "AAAA4B8f0H4//AA/gP/+P/AP4AAD/9zwAAAAAAAAAAAAAAP//////gQDgAAAAAAAAAAAAAAAAAAAAAAAAf4AAAAACAAAABwAAA////////4AAAPwGb///n/4" +
+    "AH4B//4/wA/4AAP/+HAAAAAAAAAAAAAAB//////4PAAAAAAAAAAAAAAAAAAAAAAAAAAB/gAAAAAAAAAAH4AAD////////gAABvAB///j//AAfAf//38A//wB" +
+    "i//4AAAAAAAAAAAAAAA//////+DoAAAAAAAAAAAAAAAAAAAAAAAAAAH+AAAAABgAAAD/wAAH///////+AAAMcAP//8P/gAH4D////gH/+AHx//AAAAAAAAAA" +
+    "AAAAAD//////wcAAAAAAAAAAAAAAAAAAAAAAAAAAB/4AAAAA+AAAB/DAAAP///////4AADxwA///A/8AA+A////4AYH4AfD5wAAAAAAAAAAAAAAmH/f///+H" +
+    "AAAAAAAAAAAAAAAAAAAAAAAAAAAP/gAAAADwAAAP8MAAA////////gAAfGAD//wD/gAPwH//z/AAAP4DAfAAAAAAAAAAAAAAAP8f8////h4AAAAAAAAAAAAA" +
+    "AAAAAAAAAAAAAA/wAAAAAPAAAA/wwAAD///////+AADwAAH/+Af8AB+M///P8AAAbgED8AAAAAAAAAAAAAAB/4/////8PAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+    "B+AAAAAAsAAAD//AAAP///////4AAfAAAP/8D/AAPh///g/gAABGAAP4AAAAAAAAAAAAAAP/x/////h4AAAAAAAAAAAAAAAAAAAAAAAAAAAH4AAAAAG4AAP/" +
+    "/8AAA////////gAPwAAA/+wfwAB8f4/+D+AAAIAAAnwAAAAAAAAAAAAAB//j////8YAAAAAAAAAAAAAAAAAAAAP+AAAAAAYAAAAAAfwAA///wAAB///////+" +
+    "ABgAAAB/4D/AAPD/B/x/8AAAAAACcwAAAAAAAAAAAAAH//H////DgAAAAAAAAAAAAAAAAAAAA/4AAAAAAAAAAAAAf4AD///AAAD///////4AMAAAADfgf4AB" +
+    "4f8H///+OAAAAAJhgAAAAAAAAAAAAA//+P///wAAAAAAAAAAAAAAAAAAAAAD/4AAAAAAAAAAAAAP8AP//8AAAP///////gAAAAAAM+H+AAfB4F///8/wAAAA" +
+    "AkAAAAAAAAAAAAAAD//8f//+AAAAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAB8A/4P/8HwAAAf//////+AAYAAAAD4/wAHwHgf//4B/AAAAACYAAAAAAAAAAA" +
+    "AAAP//4///gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH8D/h//wPAAAB////n//4APgAAAAPH+AAeA+D///AF/wAAAAPgAAAAAAAAAAAAAAf//g//wAAA" +
+    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf4f///+AAAAAH///8P//gAcAAAAAA/4ADwPw///8AH/gAAADgAAAAAAAAAAAAAAAYeOAAQAAAAAAAAAAAAAAAAA" +
+    "AAAAAAAAAAAAAAAAAAAAP/////4AAAAAf//+A//+AAAAAAAAH/AB+I/D//+AAP/AAAAfAAAAAAAAAAAAHwAAB9wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+    "AAAAAAA//////AAAAAAP//wH//4BgAAAAAB/wAPg3yd//gAA58AAAD4AAAAAAAAAAAA/gAAH/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/////8" +
+    "AAAAAAff/B///nfAAAAAAP8AM8D+PgPwAACAAAAD/AAAAAAAAAAAAP/gAAf8AHgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/8fw/wAAAAAB8/4H//+" +
+    "f++AAAAA/gAwBH40AiAACIAOAA/4AAAAAAAAAAAB/+AAf/wAeAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//gAD+AAAAAAH3/////4//4AAAAD8ADgO" +
+    "f+AAAAAPwA4AD+AAAAAAAAAAAAP/wAB//AAwAAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAD/+AAP4AAAAAAf//////h/fwAAAAHwAeAf/9mAAAJ7gDgAf" +
+    "gAAAAAAAAAAAD/+AMH/8AAAAAAAAAAAAAAAAAAAAAAAAHAAAAAAAIAAAAAAAP/4AA/gAAAAAD/PP///+Ag+AAAAAIAH4D///4AAA/uAfAD8AAAAAAAAAAAAP" +
+    "/wA4f/wAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAABwAAAAAAAf/gAf+AAAAA//gd////4ABgAAAAAAA+Af//+AAAB/wD8B/AAAAAAAAAAAYA/+AH///AAAAAAA" +
+    "AAAAAAAAAAAAAAAAAA8AAAAAAHgAAAAAAB/+Af/wAAAAD/4B/////gAGAAAAAAADwD///gAAAH/kfgHwAAAAAAAAAABgD/wA///4AAAAAAAAAAAAAAAAAAAA" +
+    "AAAAB+AAAAAD+AAAAAAAH/4B//AAAAAP/AH////+AAwAAAAAAAAA///8AAAAP//8AOAAAAAAAAAAAHAPDAP///gAAAAAAAAAAAAAAAAAAAAAAAAD8AAAAAM4" +
+    "AAAAAAAf/gf/4AAAD//gH/////5gEAAAAAAAAB3/g+AAAAA///wBgAAAAAAAAAAAcB4IH///+AAAAAAAAAAAAABgAAAAAAAAAAPwAAAAAxAAAAAAAB/8D//A" +
+    "AAAP/4A//////njwAAAAAAAAP98DwAAADj/+GAwAAAAAAAAAAAD//wA////4AAAAAAAAAAADB/AAAAAAAAAAAPAAAAADsQAAAAAAH/wf/8AAAAf/gB/////+" +
+    "ffgAAAAAAAA/ngfAAAAPP/4AfAAAAAAAAAAAA///gD///8AAAAAAAAAAAAP/8AAAAAAAAAAAYAAAAD/zgAAAAAAf/D//wAAAB//Hz/////4/CAAAAAAAAx+e" +
+    "B8AABh9//gf4AAAAAAAAADwP/8eA////gAAAAAAAAAAAAf/wAAAAAAAAAAAAAAAAf/+AAAAAAB/////AAAAH/8fP/////hwAAAAAAAAH//4HwAAH///8B+AA" +
+    "AAAAAAAAfn//hwP///8AAAAABgAAAAAA/+AAAAAAAAAAAAAAAAB//gAAAAAAD/////wAAAf/x//////+DAAAAAAAAB/3/geAAIP///3fgAAAAAAAAAP///+A" +
+    "B////gAAAAB/gAAAAAD/wAAAAAAAAAAAAAAAAD/+AAAAAAAP/////gAAB//D//////4AAAAAAAAAH/P/DYABw/f///8AAAAAAAAAD////4AH///wAAAAAH+A" +
+    "AAAAAH+AAAAAAAAAAAAAAAGAP/4MAAAAAA//////BgAH/8P//////gAAAAAAAAA////8wA/H5wH/fAAAAAAAAAAf////wA////AAAAAAcAAAAAAAf4AAAAAA" +
+    "AAAAAAAAAfg/+B4AAAAA//////++AD//5//////+AAAAAAAAAH////wAH4fGAB4wAAAAAAAAAB/////gD8P/8AAAAAAgAAAAAAB/AAAAAAAAAAAAAAPx///4" +
+    "H4AAAAD///////8AP/////////4AAAAAAAAAf///8AAHhgAAACAAAAAAAAAAH////+A/w//wAAAAAAAAAAAAA/gAAADwAAAAAAAAA/////gf4AAAAH//////" +
+    "/wAB/////////gAAAAAAAB////0AAAeGAAABAAAAAAAAAA8f////4H9D//AAAAAAAAAAAAAD+AAAAf8AAAAAAAAD//7/+AHgAAAAf///////AADh///////+" +
+    "AAAAAcAAH////AAAB/AAAAMAAAAAAAAAHx/////gfAf/wAAAAAAAAAAAAGPAAAAD/wAAAAAADAH+Pv/8AOAAAAB///////4AAMD///////4AAAAfwAAD///u" +
+    "AAAH8AAAAAAAAAAAAAAf/////+B8B/wAAAAAAAAAAAAA84AAAD//AAAAAAAeAf4///wA8AAAAD///////gABwP///////gAAAH/AAAH//8YAAAPAAAAAAAAA" +
+    "AAAAAB//////4DwH/AAAAAAAAAAAAAD/gAAAf/8AAAAAAD4A/j///ADwAAAAP//////8AAOA///////+AAAA/4AAAP/34AAAA4AAAAAAAAAAAAAAH//////A" +
+    "Pgf8AAADAAAAAAAAAP+AAAD//wAAAAAA/wA/f/f+APAAAAAf//////wAAwD///////4AAAH/gGAA/+PAAAAHAAAAAAAAAAAAAAAff////4A+H/gAAA8AAAAA" +
+    "AAAB/wAAH//jAAAAAAA/AD//4/+B+AAAAB//////8AAAAH///////gAAAf/A4AA+F4AAAAeAAAAAAAAAAAAAAAgP///HAD//wAAAHgAAAAAAAAf8AAAf/4AA" +
+    "AAAAADgAPP/j/+H4AAAAH//////gAAAAf//////+AAANh8HAAB4cAAAAAwAAAAAAAAAAAAAAAAf//8cAP/+AAAA+AAAAAAAAB/wAAD//AAAAAAAAAAA8/+P/" +
+    "4PgAAAAf/////8AAAAB///////4AAB8CAYAAHhgAAAAAAAAAAAAAAAAAAAAAA///xwA//wAAAPgAAAAAAAAAAAAAP+AAAAAAAAAAABw//f/w+AAAAB//////" +
+    "gAAAAH///////gAAPwAHgAAHwAAAAAwAAAAAAAAAAAAABgAB///+AD//AAAD8AAAAAAAAAAAAAAAAAAAAAAAAAAADB/4//34AAAAB/////4AAAAA///////+" +
+    "AAA/AAfAAAfAAAAADgAAAAAAAAAAAAAGAAH///4AH/8AAAfAAAAAAAAAAAAAAAAAAAAAAAAAAAAMH/j///gAAAAD/////AAAAAD///////4ABv2AD8AAD+AA" +
+    "AAADgAAAAAAAAAAAAAcAAP//+AAf/wAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAwfmIP/+AAAAAAf///wAAAAAP///////gAf+QAP0AAP4AAAAAMAAAAAAAAA" +
+    "AAAAHwAA///wAB//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAGfgf/4AAAAAB///+AAAAAB///////+AD/+AA/8wAfgAAAAAwAAAAAAAAAAAAA/AAD//+AA" +
+    "//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAfwH+A//gAAAAAH///gAAAAAH///////4Af/4BD/ngB+AAAAAAAAAAAAAAAAAAAD/AAP//4AD//gAAAAAAAAAA" +
+    "AAAAAAAAAAAAAAAAAAAAAD/Af4DH/gAAAAAP//4AAAAAAf///////gDr/APf+eAAAAAAAAAAAAAAAAAAAAAMN+AA///AAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+    "AAAAAAAAP8A/gMf+AAAAAA///AAAAAAD///////+A8PgH//5eAAAAAAAAAAAAAAAAAAAABwjyAD/+AAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAIfwH+A" +
+    "/54AAAAAD//wAAAAAAP///////4HB8A///4+AAAABwAAAAAAAAAAAAAAf+HPYP/gAAGAAAAAAAAAAHAAAAAAAAAAAAAAAAAAAAAAAg/////4DgAAAAYP/8AA" +
+    "AAAAB////////g8PwD///38AAAAPAAAAAAAAAAAAAAH/8//g/wAAA8AAAAAAAAAAMAAAAAAAB4eAAAAAAAAAAAAfB/////8HAAAABh/8AAAAAAAP///////+" +
+    "D7/Af////wAAAf8AAAAAAAAAAAAAA////+D8BAADgAAAAAAAAAA4AAAAAAAP/4AAAAAAAAAAAB8B//////8AAAA/f/wAAAAAAB////////4H/4H/////AAAf" +
+    "/4AAAAAwwAAAAAAD////4OA8HAAAAAAAAAAAAB+AAAAAABwwAAAAAAAAAAAAH4H//////wAAAH//+AAAAAAAf////////h//g//////gAB5/gAAAAfHwAAAA" +
+    "AAf////ggPgfAAAAAAAAAAAAH4AAAAAAHDAAAAAAAAAAAAAIgf+P///+AAAA//vwAAAAAAx////////+P+AP//n/5+AADnwAAAAD//AAAAAAH////4AH8B+A" +
+    "AAAAAAAAAAAfgAAAAAAAAAAAAAAAAAAAAAyB/9////gAAAD/wAAAAAAADD////////4/sB//Of/B4AcGfAAAAD//4AAAAAD////7gAfAD4AAAAAAAAAAABwA" +
+    "AAAAAAAAAAAAAAAAAAAAH8P/////8AAAAP/AAAAAAAAcP////////n+AP/4//8HgDgeAAAAAJ//gAAAAA/////gAB4ADgAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+    "AAAAMAAf4//////gAAAA/4AAAAAAABw////////+f8Dv/3//4fAeRwAAAAAD/8AAAAAH/////AAHAAGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4AB/x////" +
+    "/4AAAAB/gAAAAAAAHD////////5/wcf////h+B/gABgAAAP/gAAAAA/////8AAYAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPwAH/j/////AAAAAAOAAAAA" +
+    "AAA8H////////j+Dw+f///P/f+AMOAAAA/4AAAAB/////+AAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAIgAA4AA//H////4AAAAAAAAAAAAAAHwf//////8G" +
+    "Hwfh4f//////wB5wAAAD4AAAAAH/////wAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAA3AADgAH/8f////AAAAAAAAAAAAAAF/j///////wY+D/Pg///////g" +
+    "/+AAAAAAAAAAAfx///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4AAOAB//4w///4AAAAAAAAAAAAAAf/////////Anwf//H///////3/gAAAAAAAAAAB" +
+    "/H///AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPjgA4AP+/wB//wAAAAAAAAAAAAAAAA9///////8GfD///////////x8AAAAAAAAAAB/8f//wAAAAAAAA" +
+    "AAAAAAAAAAAAAAAAAAAAAAAAAAA+PAHgA/5/AD/3AAAAAAAAAAAAAAAADj///////wZ4P//////v///+HAAAAAAAAAAAP/9//8AAAAAAAAAAAAAAAAAAAAAA" +
+    "AAAAAAAAAAAAAAA8AeAD//4AHmAAAAAAAAAAAAAAAAAGP///////Hnh/8f//8+f/8hwAAAAAAAAAAAB//3//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+    "Af+A8APDgAAcAAAAAAAAAAAAAAAAAAA////////+cP/7///x5//gDAAAAAAAAAAAAf/+P/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB/yD+A8OAAAAA" +
+    "AAAAAAAAAMAAAAAAAD////////5w/3///+H//+AAAAAAAAAAAAAH//w/4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/sH4Bw4AAAAAAAAAAAAAPwAAA" +
+    "AAAAP////////mA+P///Of//8AAAAAAAAAAAAB//+D+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/8APgB/wAAAAAAAAAAAAA/gAAAAAAA////////+" +
+    "AB8///wf//+MAAAAAAAAAAAAH//4PgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/wA8AH/wAAAAAAAAAAAAD/AAAAAAAH////////4AD////j///w4A" +
+    "AAAAAAAAAAA///h4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMPADgAf/4AAAAAAAAAAAAD8AAAAAAAf////////gAH////////DgAAAAAAAAAAAH//" +
+    "8eBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAOAH//wAAAAAAAAAAAAHwAAAAAAB////////+AAH///////8MAAAAAAAAAAAAf//hgfAAAAAAAAAA" +
+    "AAAAAAAAAAAAAAAAAAAAAAAAAAADAAA4B/A/AAAAAAAAAAAAAPAAAAAAAD////////4AAf///////gAAAAAAAAAAAAB//wAH8AAAAAAAAAAAAAAAAAAAAAAA" +
+    "AAAAAAAAAAAAAAAAABAf4D8AAAAAAAAAAAAAAAAAAAAAP////////gAA///////+AAAAAAAAAAAAAP/wAAxwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+    "AAAAADjgH+AAAAAAAAAAAAAAAAAAAAB////////+AAD//////54AAAAAAAAAA4AB/+AABGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAAOAAf/AAA" +
+    "AAAAAB4AAAAAAAABwP////////4AAP//////AAB8AAAAAAAHgAH/4AAGgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHgAHAAAB4AB/+AAAAAAAAP+D8AAAA" +
+    "BgPg/////////gAA//////8AAPwAAAAAAA8AA//AAAeAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAeAAAPgAH/8AAAAAA4A/8fwAAAA/A+ef///////+" +
+    "AOP//////gAB/AAAAAAAPgAP/4AAB4AAAAAAAAAAAAAAAAAAAAAAAAAAd4AAAAAAA/wA4AAA+AA//gAAAAAHwH//+AAAAD9wf7////////4B8f/////fAAD8" +
+    "AAAAAAD8AB//AAAPAAAAAAAAAAAAAAAAAAAAAAAAAAD/gAAAAAAB/AAgAAD4AP/+AAAAAA/gf//4AAAAMeB//////////gP8/////4+AAPwAAAAAAeAAP/wA" +
+    "AAcAgAAAAAAAAAAAAAAAAAAAAAAAAf8AAAAAAAH8ADwAAPwD//wAAAAAH/B///wAAAAB8H/////////+B///////j4AA/AAAAAADgAB/8AAAAAPAAAAAAAAA" +
+    "AAAAAAAAAAAAAAAD/gAAAAAAAfwAPAAADAP/+AAAAAAf8H///gAAAAHyz////////8AH//////+DAAD9wAAAAAcAA7/gAAAABnAAAAAAAAAAAAAAAAAAAAAA" +
+    "AAPgD+AAAAAB/AB4AAAAA//wAAAAAD/gB//+AAAAAf/H////////wAf//////4AAAd/gAAAADgADg4IAAAAGYAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAf+" +
+    "D/AAAAAH/+AAAAAAP8AH//4YAAAAwAP///////8AD///////gAABn+AAAAAcAAeAAAAAAAPAAAAAAAAAAAAAAAAAAAAAPwAAAA/wAAAAB/4f8AAAAA//wAAA" +
+    "AAA/gAf//ngAAAAAA////////wAf///////AAD+D4MAAAHgAD4AAAAAAA4AAAAAAAAAAAAAAAAAAAAA/AAAAA+AAAAAH///+AAAAb/+AAAAAAD8Ax///+AAA" +
+    "AAAD////////Bn///3//v+AAf4P/wAAA+AAPAAAAAAADAAAAAAAAAAAAAAAAAAAAAB8AAADDAAAAAAH///8AAADB/gAAAAAAPgD+MP/gAAAAAAf///////8G" +
+    "f//8P/gfgAB/g/wAAAD4AAYAAAAAAAYAAAAAAAAAAAAAAAAAAAAAHgAAAMAAAAAAAP4f/wAAAMD8AAAAAAA8AP4wf8AAAAAAD////////wZ//8Ax+D8AAP+A" +
+    "GAAAAZgAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAeAAAB+AAAAAAAPAn/AAAA4PAAAAAAABgA/jAAAAAAAAAP/////////n//gAB/8AAD/4AAAAABGAAAAAAA" +
+    "AAAwAAAAAAAAAAAAAAAAAAAAAB8AAAH4AAAAAAA8DB8AAAAA4AAAAAAAMAP+HAAAAAAAAA/////////+f/4AAB/AAAP/wAAAAAGcAAAAAAAAAGAAAAAAAAAA" +
+    "AAAAAAAAAAAADwAAAfAAAAAAADwMD4AAAACAAAAAAAAAB/4eAAAAAAAAB/////////5/8AfAD4AYY//gAAAAA/9wAAAAAAAAwAAAAAAAAAAAAAAAAAAAAAAO" +
+    "AAAxwAAAAAB8PAwPgAAAAAAAAAAAAAAH/h4AAAAAAAAH/////////n/gB/AAB////+AAAAAD//AAAAB4AAOAAAAAAAAAAAAAAAAAAAAAAAQAAD+AAAAA4Hx8" +
+    "AB8AAAAAAAAAAAAAAAD+AAAAAAAAAAf///////++P+AH/gAP////4AAAAH//wAAAAfgABwAAAAAAAAAAAAAAAAAAAAAAAAAAPwAAAAD///gAHgAAAAAAAAAA" +
+    "AAAAAP4AAAAAAAAAD////////74+4Af+AA/v///gAAAD//wAAAAB+AAePAAAAAAAAAAAAAAAAAAAABwAAAA/AAAAAP/v8AAcAAAAAAAAAAAAAAAAfwAAAAAA" +
+    "ADAP/////////jxgD8QAP8e//wAAAAP/wAAAAAP4ABx8AAAAAAAAAAAAAAAAAAAAH4AAB/8AAAAAf4fgAAAAAAAAAAAAAAAAAAAPAAAAAAQAcA/////////+" +
+    "PsAzwAH/5x/+AAAAB/+AAAAAADgAOPgAAAAAAAAAAAAAAAAACAA/4AAH+AAAAAB/A8AAAAAAAAAAAAAAAAAAAA+AAAAAAAAgD/////////4+AHPAA///n/AA" +
+    "AAAH/AAAcAAAAAAh8AAAAAAAAAAAAAAAAAAcAD/wAAf4AAAAAAwDgAAAA4/AD4AAAAAAAAAAD//AAAAAAAAP//H//////nwA4/AD///D4AAAAAHwAADwAAAA" +
+    "AAPwAAAAAAAAAAAAAAAAAB/AE/AAB/gAAAAAAAAAAAAD/+A/gAAAAAAAAAAf//wAAAIAE///8H/////+fADH8AP//8AAAAAAAfgAAfAAAAAAA+AAAAAAAAAA" +
+    "AAAAAAAAP/wD8AAH4AAAAAAAAAAAAAP/4H+AAAAAAAAAAx///AAAA4Af/+Dwf/////54AYeAAYAcAAAAAAAB+AAD8AOAAAADgAAAAAAAAAAAAAAAAAH//hPg" +
+    "AAfgAAAAAAAAAAOAA/+AfwAAAAAAAAHhgMH8AAAB8D//4PB//////ngDB4AAAAAAAAAAYAHAAAfwA4AAAAAAAAAAAAAAAAAAAAAAH//+H+AAA+AAAAAAAAAA" +
+    "A4AD/wA+AAAAAAAAD/iAAPwcAAH4P//g///////+OAcFgAAAAAAAAADgAQAAB/ADAAAAAAAAAAAAAAAAAAAAAAA///gf4AAD8AAAAAAAAAADgAP8AD4AAAAA" +
+    "AAB//AAA/B4AAfw//+D///////44H+AAAAAAAAAAA+AAAAAD8AMAAAAAAAAAAAAAAAAAAAAGAD//+D/AAAP4AAAAAAAAAAeAAfgePgAAAAAAD//+AAD8D4AB" +
+    "////8P///////jw/4AAAAAAAAAAP4AAAAABgBwAAAAAAAAAAAAAAAAAAAA+Af//4P4AAA/gOAAAAAAAAP4AB4B/4AAAAAAAf//4AP/4H4AP////////////+" +
+    "P//AAAAAAAAAAB/wAAAAAGAPAAAAAAAAAAAAAAAAAAAAf8B///g/gAAD/D4AAAAAAAB/AAHAD/gAAAAAAB///gA//wfgB/////////////4f/4AAAAAAAAAA" +
+    "H/AAAAAAAB+MAAAAAAAAAAAAAAAAAAB/+H//+DmAAAf//gAAAAAAAH4AA4AAeAAAAAAAP/8AAD//x/gf/////////////g//AAAAAAAAAAA/+AAAAAAAH/wA" +
+    "AAAAAAAAAAAAAAAA8//////8MAAAB//4AAAAAAAA/gAPAAA4AAAAAAA//AAAH////D/////////////+D/wAAAAAAAAAAD/4AAAAAAAP/AAAAAAAAAAAAAAA" +
+    "ADj///////xwAAAH//AAAAAAAAD+AA4AYAAAAAAAAD/8AAAf//////////////////4H+AAAAAAAAAAAD/AAAAAAAAT8AAAAAAAAAAAAAAAAff///////HAA" +
+    "AAf/8AAAAAAAAAAACADwAAAAAAAAP/wAAB///////////////////gfAAAAAAAAAAAAP8AAAAAAAAPAAAAAAAAAAAAAAAAH////////8AAAAH//wAAAAAAAA" +
+    "AAAAAPAAAAAAAAAf/4AAH//////////////////+A4AAAAAAAAAAAA/wAAAAAAAAMAAAAAAAAAAAAAAAA/////////gAAAAf//AAAAAAAAAAAAAB8AAAADAA" +
+    "AA//wAAf//////////////////4AgAAAAAAAAAAAf+AAAAAAAAAAAAAAAAAAAAAAAADD///////AMAAAAB//8AAAAAAAAAAAAzfwAYAAPAAAA//AAB//////" +
+    "/////////////gAAAAAAAAAAAAD/wAAAAAAAAAAAAAAAAAAAAAAAAf//////4AAAAAAAH//8AAAAAAAAAAADv/ABgAA8AAAD//PgD//////////////////+" +
+    "AAAAAAAAAAAAAf8AAAAAAAAAAAAAAAAAAAAAAAAB/4f/j//gAAAAAYAf//4AAAAAAAAAAAP/8AGA/DwAAAL///gH//////////////////4AAAAAAAAAAAAD" +
+    "/gAAAAAAAAAAAAAAAAAP4AAAAAH/B/+H/+AAAAABwD///wAAAAAAAAAAAfBwAYDP+AAAAHgP/wP//////////////////gAAAAAAAAAAAAf4AAAAAAAAAAAA" +
+    "AAAAAB/wAAAAB/8H/4//4AAAAAD4////AAAAAAAAAAAAAD4BgMf4AAAAMA//8///////wf/////////+AAAAAAAAAAAAH/AAAAAAAAAAAAAAAABw//AAAAAH" +
+    "/wf////gAAAAAH////8AAAAAAAAAAAAAPgeDz/wAAAAwD//x8f/////B//////////4AAAAAAAAAAAA/wAAAAAAAAAAAAwHgAH//gAAAAAf/B////8AAAAAA" +
+    "P////wAAAAAAAAAAAAA+D////gAAAAAH//gB/////wH//////////gAAAAAAAAAAAH4AAAAAAAAAAAH/A/84f/wAAAAAB/4/////wAAAAAA/////AAAAAAAA" +
+    "AAAAAD//////wBgAAAf/+AH//8f/Af/////////+AAAAAAAAAAAA8DAAAAGAAAAAAf4D//5+AAAAAAAP/3/////AAAAAAD////wAAAAAAAAAAAADf//////A" +
+    "OAAMB//4AP//wY8D//////////4AAAAAAAAAAADAcAAAAYAAAAAB8gf//DwAAAAAAH///////+AAAAAAP///+AAAAAAAAAAAAA///f/////wADwH//gA///A" +
+    "BwP//////////gAAAAAAAAAAAAPwAAAD4AAAAAHj///4AAAAAAAA///////P4AAAAAA////wAAAAAAAAAAAAD//9/+///+AAfAf/+AD//4AHA//////////+" +
+    "AAAAAAAAAAAAP/AAAAP4AAAAAef//GAAAAABwAD+D//3/4HAAAAAAD////AAAAAAwAAAAAAP////z//+AAD8B//4AP//AAcf//////////4AAAAAAAAAAAP/" +
+    "8AAAA/gAAAAAf//wAAAAAAPAAAAH/+P/AcAAAAAAP///wAAAAADgAAAAAAMf//HH//gAAP8H//gAf/AAP////////////gAAAAAAAAAAB//wAAAD/gAAAAB/" +
+    "//AAAAAAA8AAAAAP4/8HwAAAAAA///+AAAAAAOAAAAAAAB//4e//+AAA/8f/8AB/4AA////////////+AAAAAAAAAAAP//AAAAf/AAAAAHP/4AAAAAAAAAAA" +
+    "AA/j/wfAAAAAAD///AAAAAAAeAAAAAAAD//h///4AAAH///wAH/AAD////////////4AAAAAAAAAAA//8AAAD/8AAAAA4f+AAAAAAAAAAAAAAOP+D+AAAAAD" +
+    "///wAAAAAAB8AAAAAAAf/+D///gDwAf///4Af4AAP////////////gAAAAAAAAAAH/+AAAAOfwAAAADz/wAAAAAAAAAAAAAAAf4P8AAAAAP/8AAAAAAAAH8A" +
+    "AAAAAB//gH///APAAP///gB/gwB////////////+AAAAAAAAAAAf/wAAAAQ/AAAAAH/+AAAAAAAHAAAAAAAB/gfwAAAAA//gAAAAAAAAPwAAAAAAP/+AP//+" +
+    "A8AA///+AP/HAH////////////4AAAAAAAAAAB//AAAAAD4AAAAAf/wAAAAAOA+AAAAAAAD+AzAAAAAB/+AAAAAAAAAeAAAAAAA//4A////8wAD///4A/8YA" +
+    "f////////////gAAAAAAAAAAH/wAAAAAPgAAAAAf8AAAAfg//4AAAAAAAD4AAAAAAAH/8AAAAAAAAAAAAAAAAB//gDA///zAA////gB/7wD////D/////+f+" +
+    "AAAAAAAAAAAf8AAAAAI+AAAAAA/AAAAD////gAAAAAAAPgAAAAAAAf/wAAAAAAAAAAAAAAAAD/8AAD///sAH///+AH//gP///4D/////7/4AAAAAAAAAAB/g" +
+    "AAAAA/8AAAAAA8AAAH////+AAAAAAAAcAAAAAAAD/8AAAAAAAAAAAAAAP8AD/wAAP///gAf/7/wAf//A////gP///////gAAAAAAAAAAH4AAAAABxwAAAAAA" +
+    "AAAD/////4AAAAAAAAAAAAAAAB//wAAAAAAAAAAAAAH/wAH/AAB////AB9/H/ABwf+D///+A///////+AAAAAAAAAAA/AAAAAAAHAAAAAAAAAAP/////gAAA" +
+    "AAAAAAAAAAAA///AAAAAAAAAAAAAAf/AAPADA/P//8AHj8cAADB/4P///4B///////4AAAAAAAAAAD4AAAAAAAOAAAAAAAAAB//////8AAAAAAAAAAAAAAD/" +
+    "/4AAAAAAAAAAAAAB/+AAAAP/w///4j+H4AAAAH/h////gD///////gAAABwAAAAAfgAAAAAAAcAAAAAAAd//////////AAAAAAAAAAAAHx//AAAAAAAD8AAA" +
+    "AAP/4AAAA/+B///mP4PAAAAAP+P///8AH3/////+AAAA/AAAAAH+AAAAAAAAwAAAAAAD///////////AAAAAAAAAAAAfD/8AAAAAAAPgAAAAA//gAAAB/wH/" +
+    "/8cfg8AAAAA/4////AAAD/////4AAAH8AAAAA/wAAAAAAADAAAAAAAP///////////4AYAAAAAAAAB8P/wAAAAAAAcAAAAAD/8AAAAH+Af//hwOAAAAAAD/j" +
+    "///4AAAH/////gAAB/wAAAAP/AAAAAAAAMAAAAAAB/////////////338AB+AAAAA///AAAAAAAAjAAAA9//gAAAAP4A//+AAAAAAAAAP8P///AAAAP////+" +
+    "AAAf/gAAAA/8AAAAAAAAAAAAAAAP////////////////wP/gAAAB//4AAAAAAAAcAAAD//8AAAAAAAB//wAAAAAAAAA/g///4A4AA/////4AAf/+AAAAD/wA" +
+    "AAAAAAAAAAAAAA///////////////////+AAAAH/zAAAAAAAADwAAAA//wAAAAAAAD/4APwAAAAAAH8D///gPwAD/////gAH//4AAAAP8AAAAAAAAAAAAAAA" +
+    "H////8//////////////8AAAAf/AAAAAAAAAeAAAAD//AAAAAAAAAAAB/AAAAAAAfgP//8D/wAH////+AA///gAAAA/AAAAAAAAAAAAAAAAY////Bj4f////" +
+    "///////wAAAB/wAAAAAAAABwAAAAH/8AAAAAAAAAAAH4AAAAAwB8A5/+Af/gA/////4AH/8AAAAADAAAAAAAAAAAAAAAAAB///8AAAH///////////gBgAH+" +
+    "AAAAAAAAAAAAAAAf/gAAAAAAAAAAAAAAAAAHgDwDD/wB/+AD/////gAfgAAAAAA4AAAAAAAAAAAAAAAAAH///gAAAD/5//x/////+APAD/wAAAAAAAAAAAAA" +
+    "AA/+AAAAAAAAAAAAAAAAAD+APAAP+AP/4AP////+AA+AAAAAADAAAAAAAAAAAAAAAAAAf//8AAAAH/D//H/////oA+Af+AAAAAAAAAAAAAAAH/4AAAAAAAAA" +
+    "AAAAAAAAP/A+AA/4B//wB/////4AD4AAAAAAAAAAAAAAAAAAAAAAAAB/AfgAAAAP4H/8f///+cAD8H/4AAAAAAAAAAAAAAA//gAAAAAAAAAAAAAAAAA//H8A" +
+    "AAAP//gP/////gAPgAAPAAAAADAAAAAAAAAAAAAAAHAA8AAAAADADP4D///wwAPwf/AAAAAAAAAAAAAAAD/8AAAAAAAAAAAAAAAAAD///wAAAH///3/////+" +
+    "Hh+AAB+AAAAAeAAAAAAAAAAAAAAAYACAAAAAAAAAfgP//4AAAeAH4AAAAAAAAAAAAAAAP/wAAAAAAAAAAAAAAAAAH///AAAAf/////////4//4AAH4AAAAD/" +
+    "AAAAAAAAAAAAAAAAAAAAAAAAAAAeAf//gAAB4APAAAAAAAAAAADmAAA/+AAAAAAAAAAAAAAAAAAD//8AAAD//////////n//gAAfgAAAAP+AAAAAAAAAAAAA" +
+    "AAAAAAAAAAAAAA4A//+AAAHgAIAAAAAAAAAAAf8AAD/wAAAAAAAAAAAAAAAAAAH//gAAAf////D////+f/8AAD+AAAAA/4AAAAAAAAAAAAAAAAAAAAAAAAAA" +
+    "DgB//+AAB+AAgAAAAAAAAAAB/+AAH+AAAAAAAAAAAAAAAAAAAf/8AA//////8P////5//gAAPwAAAAA/8AcAAAAAAAAAAAAAAAAAAAAAAAAPAD//8AAH4AHA" +
+    "AAAAAAAAAAD/8AAfwAAAAAAAAAAAAAAAAAAA//wAH//////w/////n//AwP+AAAAAD/wBjAAAAAAAAAAMAAAAAAAAAAAAA8AH//wAAfgAfgAAAAAAAAAAD/w" +
+    "AB+AAAAAAAAAAAAAAAAAAAAf/AD////////////+f/8DB/4AAAAAP+AHcAAAAAAAAAA4AAAAAAAAAAAADAAP//AAB8AAeAAAAAAAAAAAD/AAAAAAAAAAAAAA" +
+    "AAAAAAAAAA/8Af////////////5//wMH/AAAAAA/wAfwAAAAAAAAABwAAAAAAAAAAAAAAA+B8AAHgAAwAAAAAAAAAAAH8BwAAAAAAYAAAAAAAAAAAAAAA/wP" +
+    "/////////////n/////4AAAAAD8AB/AAAAAAAAAADgGAAAAAAAAAAAAAB4HgAAAAAAAAAAAAAAAAAAf//AAAAAAP4AAHAAAAAAAAAAAA/A/////////////+" +
+    "f////+AAAAAAMAAH8AAAAAAAAAAP48AAAAAAAAAAAAAHgeAAAAAAAAAAAAAAAAAAB///4AAAAA/wAAe8AAAAAAAAAAAAB/////////////5/////wAAAAADw" +
+    "AA/AAABgeAAAAA//wAAAAAAAAAAAAAOBwAAAAAAAAAAAAAAAAAAH///gAAAAA/AAA/4AAAAAAAAAAAAA/4H//////////h+f//+AAAAAAPBg/8AAAPB+AAAA" +
+    "AH/wAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf/v//gAcAAAAAD/wAAAAAAAAAAAAAAAP/////////+H7//wwAAAAAA8H//wAAA+H8AAAAAP/wAAPgAAAAA" +
+    "AAAAAAAAAAAAAAAAAAAAAAAAB/4P/+HBwAAAAAP/AAAAAAAAAAAAAAAAP/////////4P//8AAAAAAADx//4AAAH4f+AAAAAfHgAD/AAAAAAAAAAAAAAAAAAA" +
+    "AAAAAAAAAAAH/Af////AAAAAAf8AAAAAAAAAAAB4//wf/////////gP//AAAAAAAAP///hgAAeB/8AAAAB8eAA/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf8" +
+    "A////8AAAAAB/wAAAAAAAAAAD////4/////////+A//wAAAAAAAB///+GAAB4H/wAAAAAwAA//gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB/4B////wAAAAAH+" +
+    "AAAAAAAAAAAP////x/////////4D/+AAAAAAAAP///4YAAGA//AAAAADAAH/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH/gD////gAAAAAf4AAAAAAAAAAP//" +
+    "///H/////////gP/gAAAAAAAA/////wAAZ///wAAAAAAAf+AAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAf+AH////gAAAAD/gAAAAAAAAAD/////+P////////+" +
+    "A/wAAAAAAAAH/////AAD/8H/AAAAAAAf/gAAAAAAAAAAAAAAAAAAAAAAAADAAAAAB/4Af///+AAAAAP8AAAAAAAAAAf/////8f////////5/gAAAAAAAAA//" +
+    "////AAf/wH8AAAAAAP/+AAAAAf4AAAAAAAAAAAAAAAAAAPgAAAAP/AA////4AAAAAPgAAAAAAAAAH//////5/////////n8AAAAAAAAAH/////+AD//AfAAA" +
+    "AAAA//4AAAAB/8AAAAAAAAAAAAAAAAGP/MAAHj/wAD////AwAAAA8AAAAAAAAAH///////h////////+fAAAAAAAAAAf/////8AP/8AwAAAAAAD//gAAAAH/" +
+    "4AAAAAAAAAAAAAAAA///wAAf//AB////8P+AAADwAAAAAAAAA////////h////////5wAAAAAAAAAAH/+AB/8A//wAAAAAAAAH/+AAAAAH/4AAAAAAAAAAAA" +
+    "AAADH//AAP//4AH////h/4AAGPgAAAAAAAAD///////+D////////mAAAAAAAAAAAf/4AD/wB//AAAAAAAAAP/wAAAAAH/wAAAAAAAAAAAAAAB4P/wAB///g" +
+    "Af///+H/4AAP+AAAAAAAAAH///////4D///////+AAAAAAAAAAAA//gADsAH/8AAAAAAAAA//AAAAAAf/AAAAAAAAAAAAAAAHgf4AAH//+AB///74//wAAfw" +
+    "AAAAAAAAAf///////GH///////4AAAADwAAAAAB/+AAAAD//+AAAAAAAAA/4AAAAAA/+AAAAAAAAAAAAAAAeB/gAAP//4AH///gH//AAAIAAAAAAAAHh////" +
+    "///8OH///////gAAAf/gAAAAAH/+AAAAf/84AAAAAAAAD/gAAAAAD/4AAAAAAAAAAAAAAB+H+AAA///gA/g/+A//8AAAAAAAAAAAA/H///////5+P////7/+" +
+    "AAAB//AAAAAAf//AAAB//wAAAAAAAAAH+AAAAAAP/AAAAAAAAAAAAAAAH8f4AAH//8AH+B/4D//4AAAAAAAAAAAH//////////8P////P/4AAAH/8AAAAAA/" +
+    "/8AAAP+DAAAAAAAAAAf8AAAAAA/4AAAAAAAAAAAAAAAf//gAA///gB/wG/wf//wAAAAAAAAAAAf//////////4f///8//gAAAf/wAAAAAAA/wAAD/4AAAAAA" +
+    "AAAAB/4AAAAAB+AAAAAAAAAAAAAAAB//+AAD//+AD/Af/j///gAAAAAAAAAAB///////////4f/////+AAAB/8AAAAAAAAAAAAP/gAAAAAAAAAAP/gAAAAAH" +
+    "wAAAAAAAAAAAAAAAH//wAAP//4AP8B/+P//+AAAAAAAAAAAP/////////+Pw//////4AAAP/wAAAAMAAQAAAB/+AAAAAAAAAAA/+AAAAAAYAAAAAAAAAAAAA" +
+    "AAAf//AAA///gAOBP/x///wAAAAAAAADAP//////////4fx//////gAAD//AAAeAwAB/AAAH/4AAAAAAAAAAP/4AAAAAAAAAAAAAAAAAAAAAAA//8AAB///A" +
+    "AYH/+P///AAAAAAADueA///8///////gfj/////+AAAfx8AAB4DAAD8AAAf+AAAAAAAAAAA/+AAAAAAAAAAAAAAAAAAAAAAAAf/gAAH//8PAAf/w///8AAAA" +
+    "AAAf/+H///j/7////+AfH/////4AAD/H4AAfgMAAHwAAA4AAAAAAAAAAAD/gAAAAAAAAAAAAAAAAAAAAAAAAf4AAAP///8AB/+H///gAAAAAAB//4f//+P+A" +
+    "////wAeH/////gAH/8fwAD//wAAPgAAAAAAAAAAAAAAADwAAAAAAAAAAAAAAAAAAAAAAAAB/gAAAAH//gAP/wf//8AAAAAAAH//h///4/4B////AB+P5///+" +
+    "AAf///AAP//AAA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeAAH+AAAAAf+MAA/8B///gAAAAAAAf//P///h/gD///4AD8f////4AAP//8Df//8AM" +
+    "D8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH//h/4AACAB/gAAD+AH//gAAAAAAAB//9///+D3AH///gAHw/////gAA///w////4B//4AAAAAAAAAAA" +
+    "AAAAAAAAAAAAAAAAAAAAAAAAAAA//+f/gAH4ADgAAAHgAf/wAAAAAAAAH//////4HMAH//+AAfB////+AAD///D//+PgD//gAAAAAAAAAMAAAAAAAAAAAAAA" +
+    "AAAAAAAAAAAAHH////+AAfgAAAAAAAAB/8AAAAAAAAAf//////gdwAP//4AB4B////4AAP//8A//4+AP/+AAAAAAAAD/wAAAAAAAAAAAAAAAAAAAAAAAAAP/" +
+    "/////4AB+AAAAAAAAAH/AAAAAAAAAB//////8A+AA///4f/gD////gAA//4AB///gA//4AAAAAAAAf+AAAAAA8AAAAAAAAAAAAAAAAAA////////4AAYAAAA" +
+    "AAAAAAAAAAAAAAAAD//////wA4AHn//j/+DD///+AAD//AAD//+AD/gwAAAAAAAD/8AAAAA/wAAAAAAAAAAAAAAAAAH////////wABzgAAAAAAAAAAAAAAAA" +
+    "AAAP//////ADgB+f////4eH///4AAP/8AAD//4AP8DjAAAAAAA//wAAAA//AAAAAAAAAAAAAAAAAAf/////////AH/AAAAAAAAAAAAAAAAAAAA//////8AGA" +
+    "P9//////+P///gAB//gAAF//gA/wP+AAAAAAD/+AAAAP/8Ab/AAAAAAAAAAAAAAB/////////+Af+AAAAAAAAAAAAHAAAAAAD///7//4AAA////////8P//+" +
+    "AAf/+AAAX/+AD/A/+AAAAAAH/8AAAD//4D//AAAAAAAAAAAAAAP/////////4B/wAAAAAAAAAAAf8AAAAAYP///D//wAAA//////8P4f//4AH//8AAB//4AP" +
+    "4B/4AAAAAAP/gDAAP//gP/+AAAAAAAAAAAAAB//////////gAfGAAAAAAAAAAB/wAAAAH5///8P//AAAz//////AP4///gAf//wAAPD+AADwH/AAAAAYA58A" +
+    "MAA7Abj//4AAAAAAAAAAAAAH//////////AA/4AAAAAAAAAAH8AAAA//////w//8AAH//////8APx//+AB///AAB8P4AAHAf8AAAADgDngAwADMBuf//wAAA" +
+    "AAAAAAAAAAf//////////8D/gAAAA+AAAAAfwAAMH/////////4AD///////wA/j//4AAP/wAAHw/gAAcADgAAAAOAOeADA+BwGB///AAAAAAAAAAAAAB/8/" +
+    "/////3//wP+AAAAD+AAAAA2AAB7//////////4Af///////+D/H//gAA/8AAAeD+AAAwAGAAAAA4AZ4AMD4HAYH//+AAAAAAAAAAAAAH+B+D///+P////3gA" +
+    "AAP8AAAAAAAAH///////////wH/////////w+P/+AAD8AAAD5jwAAAAAQAAwADgBnwAAPgcBAf//4AAAAAAAAAAAAAAAA4P///4///4+OAAAAf4AAAAAAAA/" +
+    "D//////////g//////////D8P/4AADgAAAP+AAAAAAAAAHgAGAEPADA7B4EB///wAAAAAAAAAAAAAAAAA//f/j///Bx4AAAB/4AAAAAAAH8P/////////+f/" +
+    "//H4P///4H4f/gAAAAAAAAwAAAAAAAAAfgAYHAAHcAcDgwH///AAAAAAAAAAAAAAAAADn4f////8Hn4AAAH/wAAAAAAAfw//////////5///8HA////Af4f+" +
+    "AAAAAAAAAAAAAAAAAAB/ABgcAAdzjzuDgf//8AAAAAAAAAAAAAAAAAMfh/////wf/wAAA//wAAAAAAB/B//////////////gAB///4A/w/4AAAAAAAAAAAAA" +
+    "AAAAAP8AGH/AH/+P///////wAAAAAAAAAAAAAAAAAB8H/////g//gAAH//AAAAAAAf//////////////8AAAB///gB/h/gAAAAAAAAAAAAAAAAAA/wAA/8Af" +
+    "/w5///////AAAAAAAAAAAAAAAAAAAAf////+A//AAA//8AAAAAAfv//////////////wAAAB//+AD+B+AAAAAAAAAAAAAAAAAAH/ABj/AB/wDn//////8AAA" +
+    "AAAAAAAAAAAAAAAAB/////4B/+AAD//wAAAAAB8f//////////////AAAAD//8AH4B4AAAAAAAAAAAAAAAAAB/8Af/4AD/AMf//////gAAAAAAAAAAAAAAAA" +
+    "AAAP/////gP/4AAf//AAAAAABx//////////////4AAAAP//4AAABgAAB4eAAAAAAAAAAAAH/8D//AAf4Ax//////4AAAAAAAAAAAAAAAAAAAA/////+B//g" +
+    "AB//4AAAAAAAD////g////////+AAAAAf//wAAACAAAP/8AAAAAAAAAAAAf/8P/4AB/jDH//////AAAAAAAAAAAAAAAAAAAAB/+D//4f//AAH//AAAAAAAAD" +
+    "///wA////////wAAAAB///gAAAAAAx//wAAAAAAAAHAAB//+//gAP+MAB/////wAAAAAAAAAAAAAAAAAAAAA/wH/////4AAf/4AAAAAAAAB/+AAAA//////w" +
+    "AABgAH//+AAAAAAH///AAAAAAAAA+AAH//8/8AB//wAA////8AAAAAAAAAAAAAAAAAAAAAAHAf/////gAB//AAAAAAAAABgAAAAAP/////AAAOAAf4/4AAAA" +
+    "AAf///AAAAAAAAH4AAf//x/wAH//8AB///4AAAAAAAAAAAAAAAAAAAAAAAAB///j/wAAP/8AAAAAAAAAAAAAAAAP//4AAAA/4AB/j/gAAAAAB////8AAAAAA" +
+    "A/AAB//4GAAA///4AGP//AAAAAAAAAAAAAAAAAAAAAAAAAH///f/AAA//wAAAAAAAAAAAAAAAAf/4AAAAH/gAH8P/AAAAAAD////4AAAAAAD8AAD//gAAAAA" +
+    "MBgAQH/8AAAAAAAAAAAAAAAAAAAAAAAAB//8H/8AAD//AAAAAAAAAAAAAAAAAAAAAAAAfwAAPgf+AAAAAAH////gAAAAAADgAAH/4AAAAAAAAABAf/gAAAAA" +
+    "AAAAAAAAAAAAAAAAAAAP/jAf/wAAP/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAcA/4AAAAAAD//+eAAAAAAAAAAAP+AAAAAAAAAHMB/8AAAAAAAAAAAAAAAAAAA" +
+    "AAAAAA9+AB//HgB//gAAAAAAAAAAAAAAAAPwAAAAAAAAAAAB/gAAAAAAAAAAAAAAAAAAAAAAfwAAAAAAAAAcwH/AAAAAAAAAAAAAAAAAAAAAAAAADzwAD/8/" +
+    "AH/+AAAAAAAAAAAAAAAAA/AAAAAAAAAAAAD+AAAAAAAAAAAAAAAAAAAAAAB+AAAAAAAAABzgf8AAAAAAAAAAAAAAAAAAAAAAAAAH+AAH/z+Af/4AAAAAAAAA" +
+    "AABwAAAB8AAAAAAAAAAAAH4AAAAAAB///8AAAAAAAAAAAPwAAAADADAAHOD/wAAAAAAAAAAAAAAAAAAAAAAAAAHwAAf+P4B//gAAAAAAAAPAf//wAAAAAAAA" +
+    "AAAAAAAAfgAAAAAAH///wAAAAAAAAAAA8AAAAAMAMAAc4P/AAAAAAAAAAAAAAAAAAAAAAAAAAfAAB/g8AH/+AAAAAAAAH/////AAAAABwYAAAAAAAAB/AAAA" +
+    "AAAf//4AAAAAAAAAAAAAAAAAA4/wAB/h/8AAAAAAAAAAAAAAAAAAAAAAAAAB8AAH+AAAf/4AAAAAAAA/////8AAAAAHj8AAAAAAAAH8AAAAAAB//4AAAAAAA" +
+    "AAAAAAAAAAAD//AADw//4AAAAAAAAAAAAAAAAOAAAAAAAAHgAAf4AAA//AAAAAAAA//////+AAAAAf/wAAAAAAAAPwAAAAAB//wAAAAAAAAAAAAAAAAAAA//" +
+    "4AAAB//wAAAAAAAAAAAAAAAA4AAAAAAAD+AAP/gAAAfAAAAAAAAP//////8AAAAB//AAAAAAAAAAAAAAAAf/+AAAAAAAAAAAAAAAAAAAH//AAAAP//gAAAAA" +
+    "AAAAAAAAAADAAAAAAAAfwAB/+AAAAYAAAAAAAA///////wAAAAf/8AAAAAAAAAAAAAAAf//8AAAAAAAAAAAAAAAAAAA//wAAAA//+AAAAAAAAAAAAAAAAcAA" +
+    "AAAAB//AP//wAAAAAAAAAAAAD///////gAAAB//gAAAAAAAAAAAAAAD///wAAAAAAAAAAAAAAAAAAH/+AAAAAP/4AAAAAAAAAAAAAAAB8MAAAAAH/8Af//AA" +
+    "AAAAAAAAAAAP///////AAAAH/8AAAAAAAAAAAAAAAf///AAAAAAAAAAAAAAAAAAA//gAAAAAf/AAAAAAAAAAAAAAAAf9+AAAAAf/4B//4AAAAAAAAAAAAB//" +
+    "/////+AAAAfBwAAAAAAAAAAAAAAH////gAAAAAAAAAAAABgAAAD/wAAAAAB/8AAAAAAAAAAAAAAAB//4AAAAA//wH//AAAAAAAAD4AAH////////+AAAAADA" +
+    "AAAAAAAAAAAAAAf////AAAAAAAAAAAAAPAAAAPwAAAAAAH/gAAAAAAAAAAAAABwH//wAAAAB/3A//8AAAAAAAA/8AAf////////4AAAAAPAAAAAAAAAAAAAA" +
+    "D////8AAAAAAAAAAAAA8AAAAAAAAAAAA/+AAAAAAAAAAAAAAPAH//AAAAAD/P///gAAAAAAAH/8AD/////////wAAAAA+AAAAAAAAAAAAAAf////wAAAAAAA" +
+    "AAAAAPwAAAAADAwAAAD/4AAAAAAAAAAAAwA4AP/8AAAAAAf//4cAAAAAAAD//4AP/////////gAAAAD4AAAAAAAAAAAAAB/////AAAAAAAAAAAAA/AAAAAf8" +
+    "D+AAAH/AAAAAAAAAAAAHADgAH/wAAAAAAf//hwAAAAAAA///gA/////////+AAAAB/gAAAAAAAAAeAAAH////8AAAAAAAAAAAAD4AAAAH/+/4AAAH4AAAAAA" +
+    "AAAAAAYAOAAf/AAAAAAAf/+AAAAAAAAH//+AD/////////4AAAwH+AAAAAAAAAD4AAA/////wAAABgAAAAAAAPgAAAAf///wAAAHgAAAAAAAAAAABgA4AB/8" +
+    "AAAAAAA//wAAAAAAAAfD/4AP/////////gAGHA/wAAAAAAAAAPwAAD/////AAAAPAAAAAAAA8AAAAB////AAAAAAAAAAAAAAAAAGADwAD/wAAAAAAH//AAAA" +
+    "AAAAD4P/gA/////////+AAccP4AAfgAAAA/5/AAAP////8AAAA+AAAAAAAAAAAAAH///4AAAAAAAAAAAAAAAAAwAPAAH/gAAAAAH//8AAAAAAAAPA/+AD///" +
+    "//////4AA///gAD/AAAAD//8AAA/////wAAAD4AAAAAAAAAAAAAf///AAAAAAHAAAAAAAAAADA34AAP+AAAAAAf//gAAAAAAAA4H/4AP/////////gAAP/+A" +
+    "AP/AAAYeD/4AAB/8D//AAAAPAAAAAAAAAAAAAB///8AAAAAAf8AAAAAAAAAMH/gAA/wAAAAAB//+AAAAAAAAAA//gA/////////+AAAP/OAA/+AAD/wD/wAA" +
+    "H+AD/+AAAB4AAAAAAAAAAAAAH///gAAAAAA//gAAAAAAABw/8AAD/AAAAAAH//wAAAAAAAAAH/+AH/////////4AAA/94AB/4AAP/AP//AAHwAH/4AAAPgAA" +
+    "AAAAAAAAAAEP//8AAAAAMD//gAAAAAAAH//wAB/8AAAAAAP/+AAAAMAAAAB//4Af/////////gAABz/gAH/wAA/8A//+AAMAAP/gAAA/AAAAAAAAAAAAAY//" +
+    "eAAAAABwf//AAAAAAAAf//AAP8AAAAAAA//wAAAB8AAAAH//AH/////////+AAAA//AAP/AAf/wD//+AAAAA/+AAAD8AAAAAAAAAAAABx8AAAAAAAP///8AA" +
+    "AAAAAA//+AA/wAAAAAAD/+AAAAfwAAAAH/8Af/////////4AAAD/+AAf/B//3AP//4AAAAB/4AAAPgAAAAAA4AAAAAHHAAAAAAAP////+AAAAAAAB//4AH/A" +
+    "AAAAAAH/wAAB//AAAAAP/wB//////////gAAAP/4AB/8H/+AB///wAAAAD/gAAAcAwAAAAPwAAAAAOAAAAAAAD/////4A/wAAAAH//AA//AAAAAAAf+AAA//" +
+    "8AAAAA//AH/////////+AAAD//gAB/w//wAH///AAAAAH+AAAAADAAAAf/wAAAAAAAAAAAAAP/////wD/AAAAAf/8AD/+AAAAAAB/gAAH//4AAAAD//wf///" +
+    "//////8AAAf//8AD+H//AAf//8AAAAABgAAAAAAAAAB//wAAAAAAAAAAAAAf/////AP4DAAAD//wP//4AAAAAAH8AAB///wAAAAf//B//////////wAADz//" +
+    "wADgf/8AB///+AAAAAAAAAAAeMAAAH//wAAAAAAAAAAAAB/////4A/APgAAf//D///gAAAAAAfgAAH///2AAAH//4H//////////AAAPP/+AAOB/HwAH///8" +
+    "AAAAAAAAAAB8wAAAP//gAAAAAAAAAAADH/////gD8A/AAB//+///+AAAAAAAAAAAf///+AAB//8A//////////8AAAA/+AAA4H8fAAP///wAAAAAAAAeAH+A" +
+    "AAA//+AAAAAAAAAAAA8f////+AHwB+DgH//////8AAAAAAAAAAD////4AAP//gD//////////wAAAD/wAAHgfw/gA////AAAAAAAAD4Af4AAAH//4AAAAAAA" +
+    "AAAAD5/////8ACAD4PAH//////wAAAAAAAAAAf////wAA//8AJ//////////AAAAH/AAA/g/B+AB///+AAAAAAAAP/B/B8Af///AAAAAAAAAAAAf//////+A" +
+    "YAPv+AD//////AAAAAAAAAAB/////AAD//gBn/////////8AAAAf4AAH/DMHwAH///4AAAAAAAA//H8H/h///4AAAAAAAAAAAB///////4DgAf/4AA/////+" +
+    "AAAAAAAAAAD////8AAP/8AO//////////wAYAA/AAA/8N4fAAf///gAAAAAAAB///gH/////AAAAAAAAAAAAH///////AMAA//gAAf////4AAAAAAAAAAP//" +
+    "//wAA//gD///////////ABgAA4AAD///h4AB///+AAAAAAAAA//+AH////4AAAAAAAAAAAAf//////4BwAD//AAA/////gAAAAAAAAAAf////AAD/8AP////" +
+    "//////8AHAAAAAA///8HgAH///4AAAAAAAAD//gAf///+AAAAAAAAAAAAP///////gAAAH/++AA////+AAwAAAAAAAAf///8AAPgAA/////////h/wAOAAAA" +
+    "AH///gcAAf///gAAAAAAB4P/8AA////gAAAAAAAAAAAA+//////+AAAAf//+DA///j4ADgAAAAAAAAAH//wAA8AAAf///////+H/AAfgAAAAf/HwAAAB///+" +
+    "AAAAAAAD7//wAA///4AAAAAAAAAAAAf5//////4AAAB/////B//8BA/+AAAAAAAAAAH//AABgAAA////////4f4AA/AAAAD/8fAABwH///4AAAAAAAP///AA" +
+    "A//+AAAAAAAAAAAAB////////wAAAD/////B/+AAD/4AAAAAAAAAAH/4AAAAAAB//////////gAB8AAAAP/x8MAHgP///gAAAAAAA///8AAA//4AAAAAAAAA" +
+    "AAAP///////34AAAP/////B/gAAP/gAAAAAAAAAAH/gAAAAAAD/////////+AAHwAAAA///xwAeA///+AAAAAAAB///gAAD9/gAAAAAADAAAAB///////8Pw" +
+    "AAAf////+D8AAAf+AAAAAAAAAAAfwAAAAAAAP/////////+AAfAAAAD///3gP4D///4AAAAAAAP//8AAAPB4AAAAAAAMAAAAH///////gfAHAD/////+HgAA" +
+    "B/8AAAAAAAAAAB+AAAAAAAA//////////4ABwAAGAH////h/AH///gAAAAAAB///gAAHwAAAAAAAAPwAAAAf//////+B4wcAf/////+AAAAB/gAAAAAAAAAA" +
+    "AAAAAAAAAD//////////gAAAAf4Af/////8AH//+AAAAAAAH//+AAAfAAAAAAAAD/AAAAx///////4HjD/3//////8AAAAB+AAAAAAAAAAAAAAAAAAAAP///" +
+    "//////gAAAAD/gB/////8AAP//4AAAAAAAf//4AAB4AAAAAAAAf8AAADJ/+P///+AccP////////8AeAAB4AAAAAADwAAAAAAAAAAAB/////////+AAAAAP8" +
+    "AH/////gAAD//gAAAAAAB///AAAAAAAAAAAAD/8AAAPn/4////4Bj9/////////4L4AABgAAAAAB/AAAAAADwAAAAH////////xwAAAAAPgAf////8AAAB/+" +
+    "AAAAAAAB//4AAAAAAAAAAAAP/wAAA+//j////g+P///////8H/h/wcGAAAAAAAD8AAAAAAfAAAAA////////+AAAAAAAOAB/////wAAAA/4AAAAYAAB//AAA" +
+    "AAAAAAAAAA//AAAB///////+Px////////wP8P/zweAAAAAAAB4AAAAAB/gAAAH////////AAAAAAAAAAH////+AAAAD/gAAAB4AAGOIAAAAAAAAAAAAB/4A" +
+    "AAH//f//////H///////+A/x///B8AAAAAAAHgAAAAAH/wAAAf///////4AAAAAAAAAAf////wAAAAP+AAAAHwAAYAAAAAAAAAAAAAADgAABg//8//////8f" +
+    "w//////4D/v//8HwAAAAAAAOAAAAAAP/AAAAf///////gAAAAAAAAAA//j/+AAAAA/4AAAAPwABgAAAAAAAAAAAAAAAAAAP/////+H///x/CD///////////" +
+    "4/AAAAAAAAAAAAAAAP4AAAAP//////+AAAAAAAAAAAB8P/4AAAAH/gAAAA/AAAAAAAAAAAAAAAAAAAAAB//////4f///HYNP///////////x/gAHgAAAAAAA" +
+    "AAAAAAAAAAf//////4AAAAAAYAAAAHg//gAY/gf+AAAADgAAAAAAAAAAAAAAAAAAAAAH//////h///8Yj/////////////H/AAPAAAAAAAAAAAAAAAAAB///" +
+    "////wAAAAABgAAAAcD/+AB/+B/4AAAAAAAAAAAAAAAAAAAAAAAAAAB///////////x3/////////////8f88AOAAAAAAAAAAAAAAAAAH///////gAABwAGAA" +
+    "AABgP/4AP/4H/gAAAAAAAAAAAAAAAAAAAAAAAAAAH///////////H//////////////5///w8AAAAAAAAAAAAAAAAAf//////+AAAPwB/gAAAOA//AB5/gf8" +
+    "AAAAAAAAAAAAAAAAAAAAAAAAAAAf+f///z////8f//////////////j///DwAAAAAAAAAAAACAAAD////////gAA/gP+AAAD4D/8AHn/AAAAAAAAAAAAAAAA" +
+    "AAAAAAAAAAAAAB/5////f//P/x/gB///////5///+P//8fAAAAAAAAAAAAAf/+D/////////AAD////AAA/gD/wwef+AAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+    "P////////8//P8AD/////5/j///4////8AAAAAAAAAAAAB//4P//////////AP///+AAD+AP/Hh//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAD/////////h/4/" +
+    "gAP/////3/P///x////wAAAAAAAAAAAAH/////////////+B////4AAP4A//+H//wAAAAAAAAAAAAAAAAAAAAAAAAAAAAf////////+H/jwAA///////////" +
+    "/H////AAAAAAAAAAAACf/////////////4D////gAA/gD//4f//AAAAAAAAAAAAAAAAAAAAAAAAAAAAf/////////wf8fAAH/v/////////+f////AAAAAAA" +
+    "AAAAA////D//////////gP/z//AAD4Af//h//4AAAAAAAAAAAAAAAAAAAAAAAAAAAD//////////h/x8AA/8f/////////4////+AAAAAAAAAABj///gH///" +
+    "//////+Af/D/+AH8AB//+H//gAAAAAAAAAAAAAAAAAAAAAAAAAAAf/////////+P/HwAH/x+f////////z////+AAAAAAAAAAH/+D8Af/////////8B/8H/4" +
+    "A/wP4f/wf/+AAAAAAB4GAAAAAAAAAAAAAAAAAAD//w////////+EfAAf//4f/////v//H////+AAAAAAAAAA//4HwB//////////4D/wP/gH/B/h/8B//4AA" +
+    "AAAAHwYAAAAAAAAAAAAAAAAAAf/8D///////94B8AB///x/////+f/8f////+AAAAAAAAAH//gAAH//////////gP/g/8Af8P+H/AH//gAAAAAAP/+AAAAAA" +
+    "AAAAAAAAAAAB//wfj//////jgH4AH///H///////8B//////gAAAAAAAA//+AAAf//////h//wA/+D/wB/////8AH/8AAAAAAB//8AAAAAAAAAAAAAAAAAP/" +
+    "/B+P//////OA/gAf//+f///////gH//////AAAAAAAAP//4AAA//////8H//AD/4P+AB/////wAf/wAAAAAAH//8AAAAAAAAAAAAAAAAA//8P5///////8D+" +
+    "AD///////////4Af/////8AAAAAAAB///gAAH//////wf/8AP/g/4AH////+AB//AAAAAAAH///gAAAAAP4AAAAAAAAD//x/////////+f4AH//////////8" +
+    "AB//////4AAAAAAAP/4AAAA///////B//wAP/D/4Af////4B//AAADAAAMPh//AAAAAA/wAAAAAAAAf///5////////5/gAf////n/////wAHz/////3AAAA" +
+    "AAA/+AAAAH//////8P//AAf8P/wB//4f/gHwAAH+OAAB58H/8AAAAAAPAAAAAAAAD///8P////////H/AB////+f/////f4P//////+AAD/AAH/4AAAA////" +
+    "///x///AAAAf/AH//g//gPAAA/48AAH+AADwAAAAAA8AAAAAAAAf///w////////8f/8H////7///////w///////8AAP8AD//AAAAH/////+f///8AAAA/7" +
+    "///+D3/AAAAD/j+AADwGAOAAAAAABwAAAAAAAD////H////////x////////////////D///////wAA/wB//8AAAAf/////5////wAAADgH///4Jf8AAAAP+" +
+    "f4AAAA4A4AAAAAADAAAAAAAAf/////////////H///////////////+P///////AAD/AP//gAAAB///////////AAAAGA/////n/wAAAB/5/AAAAD4DgAAAA" +
+    "AAAAAAAAAAD///8f////////4///////////+////4///////0AAP8A//wAAAA///////////wAAAAYH///////+AAAH/n8AAAAfgeAAAAAAAAAAAAAAH///" +
+    "/g/////////j///////////5////j//+H//+AAA////8AAAAH///////////AAAAzgf////////AAAf+fwAA+B/B4AAAAAAAAAAAAAAf///+D////////+P/" +
+    "//////////n///+P//4f//4AAD////AAAAA///////////8AAA/+D////////8AAB/5/gAH+AfHgAAAAAAAAAAAAAB////4P////////4///////////+f//" +
+    "/4///h///wAMf///gAAAAH/////////+MAAAH/4P////////gAAH/n/gAf4B/+AAAAAAAAAAAAAAH////4/////////j///////////5////z//+H///w/x/" +
+    "//+AAAAA//////////wAAAAf/gP/////8+AAAAf8f/AB/wHx4AAAAAAAAAAAAAA//////////////8f////////////////P///////z+P///4AAAAH/////" +
+    "////+AAAAD/+Af/////z4AAAD/x/8AH/AeDgAAAAAAAAAAAAAD//////////////x////////////////8/////////w////gAAAAf////////BwAAAAP/4B" +
+    "///////AAAAP+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+
+function terrainBlocked(){
+  const s = new Set();
+  const bin = atob(TERRAIN_PACKED);
+  TERRAIN_BYTES = new Uint8Array(bin.length);
+  for (let i=0;i<bin.length;i++) TERRAIN_BYTES[i] = bin.charCodeAt(i);
+  const n = W*H;
+  for (let i=0;i<n;i++){
+    if (TERRAIN_BYTES[i>>3] & (0x80 >> (i&7))){
+      s.add((i % W) + "|" + ((i / W)|0));
+    }
+  }
+  return s;
+}
+let TERRAIN_BYTES;
+const BLOCKED = terrainBlocked();
+
+function key(x,y){ return x+"|"+y; }
+function inBound(x,y){ return x>=0 && y>=0 && x<W && y<H; }
+
+function mineSet(mines){
+  const s = new Set();
+  for (const m of mines) s.add(key(m.x, m.y));
+  return s;
+}
+
+const DIRS = [[1,0],[-1,0],[0,1],[0,-1]];
+
+/** BFS on the 1×1 lattice. Never steps on blocked cells. Returns path including start. */
+function bfs(start, goals, blocked){
+  const goal = new Set(goals.map(g => key(g.x,g.y)));
+  const sk = key(start.x, start.y);
+  if (goal.has(sk)) return [start];
+  const q = [start];
+  let qi = 0;
+  const prev = new Map();
+  prev.set(sk, null);
+  while (qi < q.length){
+    const cur = q[qi++];
+    for (const [dx,dy] of DIRS){
+      const nx = cur.x+dx, ny = cur.y+dy;
+      const k = key(nx,ny);
+      if (!inBound(nx,ny) || prev.has(k) || blocked.has(k)) continue;
+      prev.set(k, cur);
+      const nxt = {x:nx, y:ny};
+      if (goal.has(k)){
+        const path = [nxt];
+        let p = cur;
+        while (p){ path.push(p); p = prev.get(key(p.x,p.y)); }
+        path.reverse();
+        return path;
+      }
+      q.push(nxt);
+    }
+  }
+  return null;
+}
+
+function approachGoals(mine, blocked){
+  const g = [];
+  for (const [dx,dy] of DIRS){
+    const x = mine.x+dx, y = mine.y+dy;
+    if (inBound(x,y) && !blocked.has(key(x,y))) g.push({x,y});
+  }
+  return g;
+}
+
+function planTour(mines){
+  const remaining = mines.slice();
+  let pos = {...ORIGIN};
+  const legs = [];
+  const order = [];
+  while (remaining.length){
+    let pick = remaining[0];
+    for (const m of remaining) pick = better(pick, m);
+    const blocked = new Set(BLOCKED);
+    for (const m of mines) blocked.add(key(m.x, m.y)); // never stand on any mine
+    const goals = approachGoals(pick, blocked);
+    const path = bfs(pos, goals, blocked);
+    if (!path) throw new Error("no BFS path to mine "+pick.id);
+    legs.push({mine: pick, path});
+    order.push(pick);
+    pos = path[path.length-1];
+    remaining.splice(remaining.indexOf(pick), 1);
+  }
+  return {legs, order};
+}
+
+/* --- render --- */
+if (!CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h){ this.rect(x,y,w,h); };
+}
+const cv = document.getElementById("cv");
+const ctx = cv.getContext("2d");
+const stage = document.getElementById("stage");
+const tour = planTour(MINES);
+document.getElementById("visitOrder").textContent =
+  "Visit order " + tour.order.map(m => m.id).join(" → ") +
+  " (people → school → farm → unmarked)";
+
+function resize(){
+  const r = stage.getBoundingClientRect();
+  const dpr = Math.max(1, devicePixelRatio||1);
+  cv.width = Math.floor(r.width*dpr);
+  cv.height = Math.floor(r.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  cssW = r.width; cssH = r.height;
+  draw();
+}
+let cssW=1, cssH=1;
+function sx(x){ return (x / (W-1)) * cssW; }
+function sy(y){ return (1 - y / (H-1)) * cssH; } // y up
+
+let anim = {t: 0, playing: false, last: 0};
+const SPEED = 90; // cells per second
+
+function flatPath(){
+  const pts = [];
+  for (let i=0;i<tour.legs.length;i++){
+    const path = tour.legs[i].path;
+    const start = (i && pts.length && path[0].x===pts.at(-1).x && path[0].y===pts.at(-1).y) ? 1 : 0;
+    for (let j=start;j<path.length;j++) pts.push({...path[j], mine: tour.legs[i].mine.id, leg:i});
+  }
+  return pts;
+}
+const FLAT = flatPath();
+
+function visitedIds(t){
+  const done = new Set();
+  let idx = 0;
+  for (let i=0;i<tour.legs.length;i++){
+    const len = tour.legs[i].path.length - (i?1:0);
+    const end = idx + len - 1;
+    if (t >= end) done.add(tour.legs[i].mine.id);
+    idx = end;
+  }
+  return done;
+}
+
+function currentLeg(t){
+  let idx = 0;
+  for (let i=0;i<tour.legs.length;i++){
+    const len = tour.legs[i].path.length - (i?1:0);
+    const end = idx + len - 1;
+    if (t <= end + 0.0001) return {i, local: t-idx, startIdx: idx, end};
+    idx = end;
+  }
+  return {i: tour.legs.length-1, local: 0, startIdx: idx, end: idx};
+}
+
+function posAt(t){
+  const tmax = FLAT.length-1;
+  const u = Math.max(0, Math.min(tmax, t));
+  const i = Math.floor(u);
+  const f = u - i;
+  const a = FLAT[i], b = FLAT[Math.min(i+1, tmax)];
+  return {x: a.x + (b.x-a.x)*f, y: a.y + (b.y-a.y)*f, heading: Math.atan2(b.y-a.y, b.x-a.x)};
+}
+
+function drawGrid(){
+  ctx.save();
+  ctx.strokeStyle = "rgba(255,255,255,.07)";
+  ctx.lineWidth = 1;
+  const step = 20;
+  for (let x=0;x<W;x+=step){
+    ctx.beginPath(); ctx.moveTo(sx(x), sy(0)); ctx.lineTo(sx(x), sy(H-1)); ctx.stroke();
+  }
+  for (let y=0;y<H;y+=step){
+    ctx.beginPath(); ctx.moveTo(sx(0), sy(y)); ctx.lineTo(sx(W-1), sy(y)); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+let blockLayer=null, blockLayerW=0, blockLayerH=0;
+function buildBlockLayer(){
+  const dpr = Math.max(1, devicePixelRatio||1);
+  blockLayer = document.createElement("canvas");
+  blockLayer.width = Math.max(1, Math.floor(cssW*dpr));
+  blockLayer.height = Math.max(1, Math.floor(cssH*dpr));
+  const c = blockLayer.getContext("2d");
+  c.setTransform(dpr,0,0,dpr,0,0);
+  const cw = cssW/(W-1), ch = cssH/(H-1);
+  c.fillStyle = "rgba(8,6,4,.48)";
+  const n = W*H;
+  for (let i=0;i<n;i++){
+    if (TERRAIN_BYTES[i>>3] & (0x80 >> (i&7))){
+      const x = i % W, y = (i / W)|0;
+      c.fillRect(sx(x)-cw*0.5, sy(y)-ch*0.5, cw+0.5, ch+0.5);
+    }
+  }
+  blockLayerW = cssW; blockLayerH = cssH;
+}
+function drawBlocked(){
+  if (!blockLayer || blockLayerW!==cssW || blockLayerH!==cssH) buildBlockLayer();
+  ctx.drawImage(blockLayer, 0, 0, cssW, cssH);
+}
+
+function drawPath(upto){
+  ctx.save();
+  ctx.strokeStyle = "#8FB2CE";
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  for (let i=0;i<=upto && i<FLAT.length;i++){
+    const p = FLAT[i];
+    const X = sx(p.x), Y = sy(p.y);
+    if (i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawPerson(x, y, s){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(s, s);
+  ctx.fillStyle = "#F4E7C8";
+  ctx.strokeStyle = "#1A140E";
+  ctx.lineWidth = 1 / s;
+  ctx.beginPath(); ctx.arc(0, -6.2, 2.6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-3.4, -2.8);
+  ctx.lineTo(3.4, -2.8);
+  ctx.lineTo(2.6, 7.5);
+  ctx.lineTo(-2.6, 7.5);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+
+function drawSchool(x, y, s){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(s, s);
+  ctx.lineWidth = 1 / s;
+  ctx.strokeStyle = "#1A140E";
+  ctx.fillStyle = "#E8D5A8";
+  ctx.beginPath();
+  ctx.moveTo(-14, -2);
+  ctx.lineTo(0, -14);
+  ctx.lineTo(14, -2);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#C9A46A";
+  ctx.fillRect(-11, -2, 22, 16);
+  ctx.strokeRect(-11, -2, 22, 16);
+  ctx.fillStyle = "#5B3A24";
+  ctx.fillRect(-2.5, 6, 5, 8);
+  ctx.fillStyle = "#8FB2CE";
+  ctx.fillRect(-8, 2, 4, 4);
+  ctx.fillRect(4, 2, 4, 4);
+  ctx.strokeRect(-8, 2, 4, 4);
+  ctx.strokeRect(4, 2, 4, 4);
+  ctx.strokeStyle = "#CD4071";
+  ctx.lineWidth = 1.4 / s;
+  ctx.beginPath(); ctx.moveTo(8, -14); ctx.lineTo(8, -22); ctx.stroke();
+  ctx.fillStyle = "#CD4071";
+  ctx.beginPath(); ctx.moveTo(8, -22); ctx.lineTo(14, -19.5); ctx.lineTo(8, -17); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+function drawFarm(x, y, s){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(s, s);
+  ctx.lineWidth = 1 / s;
+  ctx.strokeStyle = "#1A140E";
+  ctx.fillStyle = "#B56A3A";
+  ctx.beginPath();
+  ctx.moveTo(-13, -1);
+  ctx.lineTo(0, -13);
+  ctx.lineTo(13, -1);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#C47A45";
+  ctx.fillRect(-10, -1, 20, 14);
+  ctx.strokeRect(-10, -1, 20, 14);
+  ctx.fillStyle = "#8A8F7A";
+  ctx.fillRect(8, -10, 6, 23);
+  ctx.strokeRect(8, -10, 6, 23);
+  ctx.beginPath(); ctx.arc(11, -10, 3, Math.PI, 0); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#5B3A24";
+  ctx.fillRect(-3, 5, 5, 8);
+  ctx.strokeStyle = "#6B5A45";
+  ctx.beginPath();
+  ctx.moveTo(-16, 13); ctx.lineTo(16, 13);
+  for (let i=-16;i<=16;i+=4){ ctx.moveTo(i, 13); ctx.lineTo(i, 10); }
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawSiteIcons(){
+  const B = MINES.find(m => m.id==="B");
+  const C = MINES.find(m => m.id==="C");
+  const A = MINES.find(m => m.id==="A");
+  const people = [
+    [-28,-10],[-16,-22],[-4,-28],[12,-24],[24,-12],[26,4],[18,18],[4,24],
+    [-12,22],[-26,10],[-8,-8],[10,-6],[16,10],[-20,-2],[22,-22],[-30,20],
+    [0,14],[-14,8],[8,-16]
+  ];
+  const bx = sx(B.x), by = sy(B.y);
+  ctx.save();
+  ctx.fillStyle = "rgba(244,231,200,.28)";
+  ctx.beginPath(); ctx.arc(bx, by, 42, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+  for (const [dx,dy] of people) drawPerson(bx+dx*1.15, by+dy*1.15, 1.55);
+  drawSchool(sx(C.x), sy(C.y)-28, 1.45);
+  drawFarm(sx(A.x), sy(A.y)-26, 1.45);
+}
+
+function drawMines(done){
+  drawSiteIcons();
+  for (const m of MINES){
+    const r = 7;
+    const X = sx(m.x), Y = sy(m.y);
+    ctx.beginPath();
+    ctx.fillStyle = done.has(m.id) ? "#FFFFFF" : "#CD4071";
+    ctx.strokeStyle = "#0B0D10";
+    ctx.lineWidth = 1.5;
+    ctx.arc(X, Y, r, 0, Math.PI*2);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#F5F1E6";
+    ctx.font = "600 11px IBM Plex Sans, sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "bottom";
+    const tag = m.id+"  "+m.siteLabel;
+    ctx.fillText(tag, X+r+4, Y-2);
+    ctx.font = "10px IBM Plex Mono, monospace";
+    ctx.fillStyle = "rgba(245,241,230,.9)";
+    ctx.fillText("rank "+m.siteRank+" · E[find] "+findLabel(m), X+r+4, Y+12);
+  }
+  ctx.fillStyle = "#FD9668";
+  ctx.beginPath(); ctx.arc(sx(0), sy(0), 5, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = "#F5F1E6";
+  ctx.font = "600 11px IBM Plex Sans, sans-serif";
+  ctx.fillText("origin", sx(0)+8, sy(0)-6);
+}
+
+function drawDog(p){
+  const X = sx(p.x), Y = sy(p.y);
+  ctx.save();
+  ctx.translate(X,Y);
+  ctx.rotate(-p.heading); // canvas y is down; heading was in lattice (y up)
+  // body
+  ctx.fillStyle = "#C4B39A";
+  ctx.strokeStyle = "#2A241C";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.roundRect(-11, -6, 20, 12, 4);
+  ctx.fill(); ctx.stroke();
+  // head
+  ctx.fillStyle = "#A89274";
+  ctx.beginPath(); ctx.roundRect(6, -4.5, 10, 9, 3); ctx.fill(); ctx.stroke();
+  // ears
+  ctx.fillStyle = "#6B5A45";
+  ctx.fillRect(8, -7, 3, 3);
+  ctx.fillRect(8, 4, 3, 3);
+  // legs (trot)
+  const ph = (anim.t*8) % (Math.PI*2);
+  ctx.strokeStyle = "#3A3228";
+  ctx.lineWidth = 2;
+  const legs = [[-7,5],[2,5],[-7,-5],[2,-5]];
+  legs.forEach((L,i)=>{
+    const swing = Math.sin(ph + (i%2?0:Math.PI)) * 4;
+    ctx.beginPath();
+    ctx.moveTo(L[0], L[1]>0?6:-6);
+    ctx.lineTo(L[0]+swing, L[1]>0?12:-12);
+    ctx.stroke();
+  });
+  ctx.restore();
+}
+
+function draw(){
+  ctx.clearRect(0,0,cssW,cssH);
+  drawGrid();
+  drawBlocked();
+  const t = anim.t;
+  const done = visitedIds(t);
+  drawPath(Math.min(FLAT.length-1, Math.floor(t)));
+  drawMines(done);
+  drawDog(posAt(t));
+  const leg = tour.legs[currentLeg(t).i];
+  document.getElementById("hud").innerHTML =
+    "cell ("+Math.round(posAt(t).x)+", "+Math.round(posAt(t).y)+") · " +
+    "next/current "+leg.mine.id+" · path "+Math.min(FLAT.length-1, Math.floor(t))+"/"+ (FLAT.length-1);
+  paintQueue(done, leg.mine.id);
+}
+
+function paintQueue(done, currentId){
+  const el = document.getElementById("queue");
+  const ranked = MINES.slice().sort((a,b)=> a.siteRank-b.siteRank || a.queue-b.queue);
+  el.innerHTML = ranked.map((m,i)=>{
+    const cls = done.has(m.id) ? "done" : (m.id===currentId ? "on" : "");
+    const pct = (100*(5-m.siteRank)/4).toFixed(0);
+    return `<div class="qrow ${cls}">
+      <span class="rk">${m.siteRank}</span>
+      <div>
+        <div class="nm">${m.id} · ${m.siteLabel}</div>
+        <div class="sub">(${m.x},${m.y}) · ${m.site? m.site : "no icon"}</div>
+        <div class="bar"><i style="width:${pct}%"></i></div>
+      </div>
+      <div class="sc">${m.site? m.site : "—"}<br>E[find] ${findLabel(m)}</div>
+    </div>`;
+  }).join("");
+}
+
+function tick(now){
+  if (!anim.playing){ anim.last = now; return; }
+  const dt = Math.min(0.05, (now - anim.last)/1000);
+  anim.last = now;
+  anim.t += dt * SPEED;
+  if (anim.t >= FLAT.length-1){
+    anim.t = FLAT.length-1;
+    anim.playing = false;
+    document.getElementById("play").textContent = "Play";
+    document.getElementById("stat").textContent = "Tour complete. Still not a clearance.";
+  } else {
+    document.getElementById("stat").textContent = "BFS walking the lattice…";
+  }
+  draw();
+  requestAnimationFrame(tick);
+}
+
+document.getElementById("play").onclick = ()=>{
+  if (anim.t >= FLAT.length-1) anim.t = 0;
+  anim.playing = !anim.playing;
+  document.getElementById("play").textContent = anim.playing ? "Pause" : "Play";
+  anim.last = performance.now();
+  if (anim.playing) requestAnimationFrame(tick);
+};
+document.getElementById("reset").onclick = ()=>{
+  anim.playing = false; anim.t = 0;
+  document.getElementById("play").textContent = "Play";
+  document.getElementById("stat").textContent = "Reset.";
+  draw();
+};
+
+window.addEventListener("resize", resize);
+resize();
+
+// Self-check: path never occupies a mine lattice point.
+(function assertSafe(){
+  const occ = new Set(MINES.map(m => key(m.x,m.y)));
+  for (const p of FLAT){
+    if (occ.has(key(p.x,p.y))) throw new Error("path stepped on a mine at "+p.x+","+p.y);
+  }
+  const order = tour.order.map(m=>m.id).join("");
+  if (order !== "BCAD") throw new Error("unexpected visit order "+order+" (want B,C,A,D by site type)");
+  const ranks = Object.fromEntries(MINES.map(m => [m.id, m.siteRank]));
+  if (ranks.B!==1 || ranks.C!==2 || ranks.A!==3 || ranks.D!==4) {
+    throw new Error("site ranks should be B=1 C=2 A=3 D=4");
+  }
+})();
+</script>
