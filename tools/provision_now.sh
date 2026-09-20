@@ -11,13 +11,19 @@ set -u
 MAC="${GO2_MAC:-94:BA:06:F6:D6:87}"
 NAME="${GO2_NAME:-Go2_60658}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
+TETHER=0
+if [ "${1:-}" = "--tether" ]; then TETHER=1; shift; fi
 SSID="${1:-}"; PASS="${2:-}"
 ok(){ printf '  \033[32mOK\033[0m   %s\n' "$*"; }
 bad(){ printf '  \033[31mFAIL\033[0m %s\n' "$*"; }
 warn(){ printf '  \033[33mWARN\033[0m %s\n' "$*"; }
 
 if [ -z "$SSID" ] || [ -z "$PASS" ]; then
-  echo "usage: bash tools/provision_now.sh '<SSID>' '<PASSWORD>'"; exit 2
+  echo "usage: bash tools/provision_now.sh [--tether] '<SSID>' '<PASSWORD>'"
+  echo "  --tether : laptop reaches the phone's network over USB tethering, so"
+  echo "             this script never touches wifi. Phone needs hotspot ON (2.4 GHz)"
+  echo "             AND USB tethering ON. Frees the wifi radio entirely for BLE."
+  exit 2
 fi
 
 cat <<'NOTE'
@@ -50,7 +56,15 @@ bluetoothctl power on >/dev/null 2>&1
 echo
 echo "2. Freeing the antenna (BLE and 2.4 GHz wifi share it)"
 WIFI_WAS=off
-if command -v nmcli >/dev/null && [ "$(nmcli -t -f WIFI g 2>/dev/null)" = enabled ]; then
+if [ "$TETHER" = 1 ]; then
+  ok "tether mode: leaving wifi alone, the laptop is on the phone over USB"
+  if ip -4 addr show 2>/dev/null | grep -qE 'usb|rndis|enp.*u'; then
+    ok "USB tether interface is up"
+  else
+    warn "no obvious USB tether interface - is USB tethering enabled on the phone?"
+    ip -4 -br addr show 2>/dev/null | sed 's/^/       /'
+  fi
+elif command -v nmcli >/dev/null && [ "$(nmcli -t -f WIFI g 2>/dev/null)" = enabled ]; then
   WIFI_WAS=on
   nmcli radio wifi off && ok "laptop wifi off (the DOG joins the hotspot, not this laptop)"
 else
@@ -114,11 +128,12 @@ if [ $rc -ne 0 ]; then
 fi
 
 echo
-echo "5. Rejoining wifi and looking for the dog"
-if command -v nmcli >/dev/null; then
+echo "5. Looking for the dog on the network"
+if [ "$TETHER" = 1 ]; then
+  ok "tether mode: already on the phone's network, not touching wifi"
+elif command -v nmcli >/dev/null; then
   nmcli radio wifi on; sleep 3
-  nmcli dev wifi connect "$SSID" password "$PASS" 2>&1 | sed 's/^/       /' || \
-    warn "join '$SSID' manually, then re-run lan_discover_go2.py"
+  nmcli dev wifi connect "$SSID" password "$PASS" 2>&1 | sed 's/^/       /' ||     warn "join '$SSID' manually, then re-run lan_discover_go2.py"
 fi
 echo "   waiting 25s for the dog to associate..."
 sleep 25
