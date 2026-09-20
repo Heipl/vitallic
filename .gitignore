@@ -1,0 +1,3 @@
+data/tasking/
+__pycache__/
+*.pyc
