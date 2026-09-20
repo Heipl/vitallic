@@ -60,26 +60,76 @@ log(f"  ukraine grid cropped {g['width']}x{g['height']} -> {w}x{h} "
     f"({land_c.sum():,} land cells)")
 
 mean = np.where(land_c, M.mean(np.maximum(alpha_c, 1e-12), np.maximum(beta_c, 1e-12)), 0.0)
-density = mean / (res * res)                      # mines per km^2
-cvv = np.where(land_c, 1.0 / np.sqrt(np.maximum(alpha_c, 1e-12)), 0.0)
 
-# Log-quantise density: the field spans orders of magnitude, so a linear byte
-# ramp would collapse everything outside the top districts into zero.
-dmax = float(density.max())
-dens_q = np.zeros((h, w), np.uint8)
-pos = density > 0
-dens_q[pos] = np.clip(
-    np.round(255.0 * np.log1p(density[pos] / dmax * 255.0) / np.log1p(255.0)), 1, 255)
-cv_q = np.clip(np.round(np.minimum(cvv, 4.0) / 4.0 * 255.0), 0, 255).astype(np.uint8)
+# Ship the PRIOR MEAN per cell, not a quantised display raster, so the page can
+# rebuild (alpha, beta) exactly and run the conjugate update itself. Everything
+# the map draws -- density, CV, P(any) -- derives from these, which also keeps a
+# live posterior and the district tables from drifting apart.
+#
+# Land-only, in row-major order over the land mask: 40% of the grid is outside
+# Ukraine and carries nothing.
+lm = land_c.ravel()
+m_land = mean.ravel()[lm].astype(np.float32)
+a1_land = g["adm1"][r0:r1, c0:c1].ravel()[lm].astype(np.int8)
+a2_land = g["adm2"][r0:r1, c0:c1].ravel()[lm].astype(np.int16)
+assert a1_land.max() < 127 and a2_land.max() < 32767, "admin index overflows its dtype"
 
 payload["ua"] = {
     "w": w, "h": h, "res": res,
     "x0": float(g["x0"]) + c0 * res, "y0": float(g["y0"]) + r0 * res,
     "lat0": float(g["lat0"]), "lon0": float(g["lon0"]),
-    "dmax": dmax,
-    "density": b64(dens_q), "cv": b64(cv_q), "land": b64(land_c.astype(np.uint8)),
+    "land": b64(land_c.astype(np.uint8)),
+    "m": b64(m_land), "adm1": b64(a1_land), "adm2": b64(a2_land),
+    "n_land": int(lm.sum()),
+    "psi": M.PSI, "alpha_floor": M.ALPHA_FLOOR,
+    "cluster_discount": M.CLUSTER_DISCOUNT,
+    "corr_length_km": 20.0,
     "n_star": float(g["n_star"]),
 }
+log(f"  per-cell prior: {len(m_land):,} land cells, "
+    f"mean {m_land.mean():.2f} max {m_land.max():.1f} mines/cell")
+
+# Names only -- the page recomputes every district statistic from the live
+# posterior, so precomputed means would go stale the moment a user logs a
+# detection.
+# Names come from the PACKED geo files, which is the exact list build_prior.py
+# indexed cells against -- reading the source GeoJSON instead would shift every
+# index if prep_geo dropped a sliver feature.
+payload["adm1_names"] = [f["n"] for f in payload["geo_ukr_adm1"]["features"]]
+payload["adm2_names"] = [f["n"] for f in payload["geo_ukr_adm2"]["features"]]
+assert a1_land.max() < len(payload["adm1_names"]), "adm1 index exceeds the name list"
+assert a2_land.max() < len(payload["adm2_names"]), "adm2 index exceeds the name list"
+
+# --- clearance tasking layers ------------------------------------------------
+# Six of the seven criteria are static. The seventh -- mine density -- is
+# recomputed in the page from the live posterior, so logging a detection
+# reorders the tasking queue instead of leaving it frozen at the prior.
+tk_path = DATA / "out" / "tasking.json"
+if tk_path.exists():
+    tk = json.loads(tk_path.read_text(encoding="utf-8"))
+    tg = np.load(DATA / "out" / "tasking_grid.npz")
+    static = [k for k in (c["key"] for c in tk["meta"]["criteria"]) if k != "density"]
+    layers = {}
+    for k in static:
+        a = tg[k][r0:r1, c0:c1].ravel()[lm]
+        layers[k] = b64(a.astype(np.uint8))
+    payload["tasking"] = {
+        "criteria": [{k: c[k] for k in ("key", "label", "unit", "source", "note", "weight")}
+                     for c in tk["meta"]["criteria"]],
+        "breaks": tk["meta"]["tier_breaks"],
+        "reach_km": tk["meta"]["reach_km"],
+        "slope_limit_deg": tk["meta"]["slope_limit_deg"],
+        "layers": layers,
+        "oblasts": {r["name"]: {"raw": r["raw"], "anchor": r["anchor"]}
+                    for r in tk["oblasts"]},
+        "raions": {r["name"]: {"raw": r["raw"], "anchor": r["anchor"],
+                               "parent": r.get("parent", "")}
+                   for r in tk["raions"]},
+    }
+    log(f"  tasking: {len(static)} static layers + live density, "
+        f"{len(tk['raions'])} raions, {len(tk['oblasts'])} oblasts")
+else:
+    log("  tasking: no tasking.json -- priority layer will be hidden")
 
 # --- world 0.5 deg exposure --------------------------------------------------
 wg = np.load(DATA / "out" / "world_grid.npz")
