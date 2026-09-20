@@ -32,7 +32,7 @@ def load_ble(path: Path):
 async def run(args: argparse.Namespace) -> int:
     ble = load_ble(Path(args.ble_py).expanduser().resolve())
     # Do not scan-then-later-connect: BlueZ drops the device after StopDiscovery.
-    print(f"scan+connect name={args.name} mac={args.mac}")
+    print(f"scan+connect name={args.name} mac={args.mac} already={args.already_connected}")
     serial = await ble.retry(
         lambda: ble.provision_wifi(
             args.mac,
@@ -40,7 +40,8 @@ async def run(args: argparse.Namespace) -> int:
             args.password,
             args.country,
             timeout=args.timeout,
-            name=args.name,
+            name=None if args.already_connected else args.name,
+            already_connected=args.already_connected,
             on_progress=print,
         ),
         attempts=args.retries,
@@ -62,6 +63,11 @@ def main() -> int:
         "--scan",
         action="store_true",
         help="ignored; connect always re-scans so BlueZ still has the device",
+    )
+    ap.add_argument(
+        "--already-connected",
+        action="store_true",
+        help="skip scan; Bleak attaches to a bluetoothctl connection (--mac required)",
     )
     ap.add_argument("--country", default="US")
     ap.add_argument("--timeout", type=float, default=20.0)

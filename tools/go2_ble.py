@@ -24,6 +24,7 @@ flow used by the official Unitree app.
 from __future__ import annotations
 
 import asyncio
+import sys
 from collections.abc import AsyncIterator, Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any
@@ -134,6 +135,27 @@ async def _stop_stale_bluez_scan() -> None:
             proc.kill()
     except (FileNotFoundError, OSError):
         pass
+
+
+async def _run_btctl(*args: str, timeout: float = 15.0) -> str:
+    proc = await asyncio.create_subprocess_exec(
+        "bluetoothctl",
+        *args,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.STDOUT,
+    )
+    try:
+        out, _ = await asyncio.wait_for(proc.communicate(), timeout=timeout)
+    except asyncio.TimeoutError:
+        proc.kill()
+        await proc.wait()
+        raise RuntimeError(f"bluetoothctl {' '.join(args)} timed out")
+    text = (out or b"").decode("utf-8", "replace")
+    if "Connection successful" in text:
+        return text
+    if proc.returncode not in (0, None):
+        raise RuntimeError(text.strip()[:400] or f"bluetoothctl exit {proc.returncode}")
+    return text
 
 
 async def discover_ble(
@@ -252,6 +274,15 @@ def _is_target(device: Any, address: str | None, name: str | None) -> bool:
     return False
 
 
+async def _connect_already(address: str, timeout: float, on_progress: Callable[[str], None]) -> Any:
+    from bleak import BleakClient
+
+    on_progress(f"attaching to existing BlueZ connection {address}")
+    client = BleakClient(address, timeout=timeout)
+    await asyncio.wait_for(client.connect(), timeout=timeout)
+    return client
+
+
 async def _connect_once(
     address: str | None,
     name: str | None,
@@ -280,18 +311,25 @@ async def _connect_once(
         except asyncio.TimeoutError:
             raise RuntimeError(f"scan missed {name or address}; dog on and advertising?")
         device = box["dev"]
-        on_progress(f"connecting {device.name} {device.address}")
-        client = BleakClient(device, timeout=timeout)
-        try:
-            await client.connect()
-            return client
-        except Exception as exc:
-            on_progress(f"connect-while-scanning failed ({exc}); stopping scan")
-            await scanner.stop()
-            scanner = None
-            client = BleakClient(device, timeout=timeout)
-            await client.connect()
-            return client
+        on_progress(f"found {device.name} {device.address}")
+        # Bleak Device1.Connect while Discovering fails on this adapter (empty
+        # error). bluetoothctl Connect while the device is still in the object
+        # tree leaves it Connected, so BlueZ will not delete it at scan-stop.
+        if sys.platform.startswith("linux"):
+            on_progress("bluetoothctl connect (scan still on)")
+            try:
+                out = await _run_btctl("connect", device.address, timeout=timeout)
+                on_progress("bluetoothctl: " + " ".join(out.split())[:240])
+            except FileNotFoundError:
+                on_progress("bluetoothctl not found")
+            except Exception as exc:
+                on_progress(f"bluetoothctl failed: {type(exc).__name__}: {exc!r}")
+        await scanner.stop()
+        scanner = None
+        on_progress(f"bleak attach {device.address}")
+        client = BleakClient(device.address, timeout=timeout)
+        await asyncio.wait_for(client.connect(), timeout=timeout)
+        return client
     finally:
         if scanner is not None:
             try:
@@ -306,15 +344,18 @@ async def _connect_with_retry(
     attempts: int,
     on_progress: Callable[[str], None],
     name: str | None = None,
+    already_connected: bool = False,
 ) -> Any:
     """Scan until the dog is visible, then connect to that live Bleak device."""
+    if already_connected:
+        return await _connect_already(address, timeout, on_progress)
     last_exc: BaseException | None = None
     for i in range(attempts):
         try:
             return await _connect_once(address, name, timeout, on_progress)
         except Exception as e:
             last_exc = e
-            on_progress(f"connect attempt {i + 1}/{attempts} failed: {e}")
+            on_progress(f"connect attempt {i + 1}/{attempts} failed: {type(e).__name__}: {e!r}")
             if i + 1 < attempts:
                 await asyncio.sleep(1.0)
     assert last_exc is not None
@@ -331,6 +372,7 @@ async def provision_wifi(
     connect_retries: int = 3,
     on_progress: Callable[[str], None] | None = None,
     name: str | None = None,
+    already_connected: bool = False,
 ) -> str | None:
     """Provision a Unitree robot's wifi over BLE. Returns the serial number on success.
 
@@ -342,7 +384,12 @@ async def provision_wifi(
     progress = on_progress or (lambda _msg: None)
 
     client = await _connect_with_retry(
-        address, timeout, connect_retries, progress, name=name
+        address,
+        timeout,
+        connect_retries,
+        progress,
+        name=name,
+        already_connected=already_connected,
     )
     try:
         session = _Session(client)
