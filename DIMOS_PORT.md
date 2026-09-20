@@ -99,6 +99,43 @@ run so the dog's magnetism stays constant at the phones.
 PATSIUK_CMD_VEL_TOPIC=<real name> dimos run patsiuk-dimos.scan --robot-ip <IP>
 ```
 
+## `blind_move`: motion with zero telemetry
+
+`precise_move` closes its loop on `tfbuffer.get("world", "base_link")`. On a Go2
+**Air** that pose may never arrive usefully: WebRTC is limited to topics, `rt/lowcmd`
+is unsupported, and state comes only through low-frequency `rt/lf/lowstate`.
+CycloneDDS works out of the box on EDU only.
+
+`blind_move(x, y)` is the open-loop fallback. It publishes velocity in the body
+frame for a computed duration and **reads nothing back from the robot**:
+
+```
+dimos mcp call blind_move --json-args '{"x": 0.05, "y": 0.0}'
+python tools/min_move_test.py --skill blind_move
+python field_scan.py --skill blind_move --low http://... --high http://...
+```
+
+It is a method on the same `PreciseMove` module, so no blueprint change is needed,
+and it is not in `robot.py`'s `PLANNER_SKILLS`, so no `relative` argument and no
+20 cm tolerance check is applied.
+
+**Calibrate before trusting it.** Distance is `leg / (blind_speed *
+blind_speed_scale)` seconds of walking, so accuracy is entirely
+`blind_speed_scale`, which ships at 1.0 (nominal). Command a 1.00 m
+`blind_move`, measure what the dog actually walked, set
+`blind_speed_scale = measured / commanded`. Until then the reported centimetres
+are *commanded*, not measured, and the skill says so in its return string.
+
+Note what this costs: with no pose, `field_scan.py`'s recorded scan positions are
+open-loop dead reckoning, so position error accumulates across the 17 points of a
+cross and the dipole fit degrades accordingly. Prefer `precise_move` whenever pose
+is available. This exists so the scan is not blocked on pose existing at all.
+
+Still true regardless of skill: a connection is required. Velocity commands are
+fire-and-forget once a WebRTC session is up, but establishing that session needs
+the robot to answer. There is no way to command the dog without it responding at
+the transport layer.
+
 ## Missing extra on this install
 
 `dimos list` shows `unitree-go2-agentic`, but loading any Go2 blueprint currently

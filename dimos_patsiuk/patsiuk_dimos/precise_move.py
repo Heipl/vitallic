@@ -81,6 +81,10 @@ class PreciseMoveConfig(ModuleConfig):
     max_leg_m: float = 2.0         # refuse anything longer than a scan step
     timeout_s: float = 30.0
     settle_s: float = 0.4          # let the body stop swaying before measuring
+    # --- open-loop (blind_move) only ---
+    blind_speed: float = 0.15      # m/s commanded while walking
+    blind_speed_scale: float = 1.0  # measured actual/commanded; CALIBRATE THIS
+    blind_accel_s: float = 0.25    # extra seconds for the gait to spin up and settle
 
 
 def _wrap_pi(angle: float) -> float:
@@ -190,3 +194,70 @@ class PreciseMove(Module):
         drift = math.degrees(_wrap_pi(end.orientation.to_euler().yaw - yaw0))
         return (f"Moved {moved * 100:.1f} cm of a commanded {leg * 100:.1f} cm; "
                 f"heading drifted {drift:+.1f} deg.")
+
+    @skill
+    def blind_move(self, x: float = 0.0, y: float = 0.0) -> str:
+        """Move x metres forward and y metres left WITHOUT reading any pose.
+
+        Open loop: publishes velocity for a computed duration and never asks the
+        robot for anything. Use when TF/odometry is unavailable or too slow to
+        close a loop on - which is the likely case on a Go2 AIR, where WebRTC is
+        limited to topics and state arrives only via low-frequency `rt/lf/lowstate`.
+
+        Accuracy depends entirely on `blind_speed_scale`, which is a measured
+        constant, not a guess. Calibrate it before trusting a scan:
+
+            command a 1.00 m blind_move, measure what the dog actually walked,
+            then set blind_speed_scale = measured / commanded.
+
+        Until that is done the distances are nominal. `precise_move` is strictly
+        better whenever pose is available; this exists so the scan is not blocked
+        on pose existing at all.
+
+        Args:
+            x: forward in metres, negative is backward
+            y: left in metres, negative is right
+        """
+        x, y = float(x), float(y)
+        leg = math.hypot(x, y)
+        if leg > self.config.max_leg_m:
+            return (f"Refused: {leg:.2f} m is longer than max_leg_m "
+                    f"({self.config.max_leg_m:.2f} m). This skill is for scan steps.")
+        if leg < 1e-4:
+            return "Nothing to do: zero-length move."
+
+        effective = self.config.blind_speed * self.config.blind_speed_scale
+        if effective <= 0.0:
+            return "Refused: blind_speed * blind_speed_scale must be positive."
+        walk_s = leg / effective
+        if walk_s + self.config.blind_accel_s > self.config.timeout_s:
+            return (f"Refused: {leg:.2f} m at {effective:.2f} m/s needs "
+                    f"{walk_s:.1f}s, over timeout_s ({self.config.timeout_s:.0f}s).")
+
+        # Unit vector in the BODY frame. No world frame is involved, so no pose
+        # is needed - this is the whole point of the skill.
+        fwd, left = (x / leg) * self.config.blind_speed, (y / leg) * self.config.blind_speed
+        period = 1.0 / self.config.rate_hz
+        # The gait does not start or stop instantly; give it a little extra so a
+        # short leg is not swallowed entirely by ramp-up.
+        end = time.monotonic() + walk_s + self.config.blind_accel_s
+        ticks = 0
+
+        try:
+            while time.monotonic() < end:
+                # Must stay above the 5 Hz deadman floor in UnitreeConnection
+                # (cmd_vel_timeout = 0.2 s) or the dog halts between messages.
+                self.cmd_vel.publish(Twist(linear=Vector3(fwd, left, 0.0),
+                                           angular=Vector3(0.0, 0.0, 0.0)))
+                ticks += 1
+                time.sleep(period)
+        finally:
+            # A raised exception must never leave the dog walking.
+            self._halt()
+
+        time.sleep(self.config.settle_s)
+        calib = "" if self.config.blind_speed_scale != 1.0 else                 "  WARNING: blind_speed_scale is still 1.0 (uncalibrated)."
+        return (f"Blind-moved a nominal {leg * 100:.1f} cm "
+                f"(forward {x * 100:+.1f}, left {y * 100:+.1f}) at "
+                f"{effective:.2f} m/s for {walk_s:.2f}s, {ticks} velocity messages. "
+                f"No pose was read, so this distance is COMMANDED, not measured.{calib}")
