@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Put Go2_60658 on the phone hotspot over BLE. Native Linux + BlueZ.
 
-Copy onto the Linux laptop, next to go2_ble.py (the Unitree BLE helper):
+Copy this file and go2_ble.py onto the Linux laptop (same folder):
 
     python3 -m venv .venv
     .venv/bin/pip install bleak cryptography

@@ -7,10 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-BLE_PY = Path(
-    r"\\wsl$\Ubuntu\root\dimensional-applications\.venv\lib\python3.12\site-packages"
-    r"\dimos\robot\unitree\go2\cli\ble.py"
-)
+BLE_PY = Path(__file__).resolve().parent / "go2_ble.py"
 TARGET_NAME = "Go2_60658"
 KNOWN_ADDR = "94:BA:06:F6:D6:87"
 

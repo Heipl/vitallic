@@ -3,11 +3,10 @@ from __future__ import annotations
 
 import asyncio
 import importlib.util
-import os
 import sys
 from pathlib import Path
 
-BLE_PY = Path(os.environ.get("TEMP", ".")) / "go2_ble.py"
+BLE_PY = Path(__file__).resolve().parent / "go2_ble.py"
 ADDR = "94:BA:06:F6:D6:87"
 
 
