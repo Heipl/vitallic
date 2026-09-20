@@ -1,3 +1,5 @@
 data/tasking/
 __pycache__/
 *.pyc
+dist/_preview.html
+dist/shot.png
