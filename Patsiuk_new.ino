@@ -10,6 +10,10 @@
 #define MIN_DUTY              0    // motors should start at this speed (1-255)
 #define SMOOTH_SPEED          50     // ms, time for motors to reach the speed
 #define MAX_SPEED             255    // max motor speed (1-255)
+#define OBSTACLE_CM           11     // anything closer than this counts as blocking
+#define SONAR_SAMPLES         5      // pings averaged per obstacle check
+#define SONAR_MAX_CM          200    // NewPing range limit (the library caps at 500)
+#define METAL_MARGIN          8      // ADC counts above the idle baseline that is a find
 #define RIGHT_FRONT_DIRECTION NORMAL // motor direcion, NORMAL or REVERSE
 #define RIGHT_BACK_DIRECTION  NORMAL // motor direcion, NORMAL or REVERSE
 #define LEFT_FRONT_DIRECTION  NORMAL // motor direcion, NORMAL or REVERSE
@@ -24,20 +28,20 @@
 #define RIGHT_FRONT_D	    2
 
 #define RIGHT_BACK_PWM	  10
-#define RIGHT_BACK_D 	    A4
+#define RIGHT_BACK_D 	    A3
 
 #define LEFT_FRONT_PWM 	  9
 #define LEFT_FRONT_D 	    4
 
 #define LEFT_BACK_PWM 	  11
-#define LEFT_BACK_D 	    A3
+#define LEFT_BACK_D 	    A4
 
 #define RIGHT_TRIG 		    6
 #define RIGHT_ECHO 		    7
 #define RIGHT_SONAR_VCC	  5
 
-#define LEFT_TRIG 		    12
-#define LEFT_ECHO 		    13
+#define LEFT_TRIG 		    13
+#define LEFT_ECHO 		    12
 #define LEFT_SONAR_VCC 	  8
 
 #define METAL_PIN 		    A5
@@ -49,8 +53,8 @@ const char DONE_RIDING_MSG[] PROGMEM = {'e'};
 
 /*===================================LIBRARIES===================================*/
 #include <NewPing.h> 	// documentation: bitbucket.org/teckel12/arduino-new-ping/wiki/Home
-NewPing RIGHT_SONAR(RIGHT_TRIG, RIGHT_ECHO, 34463);
-NewPing LEFT_SONAR(LEFT_TRIG, LEFT_ECHO, 34463);
+NewPing RIGHT_SONAR(RIGHT_TRIG, RIGHT_ECHO, SONAR_MAX_CM);
+NewPing LEFT_SONAR(LEFT_TRIG, LEFT_ECHO, SONAR_MAX_CM);
 
 #include <GyverMotor.h>	// documentation: alexgyver.ru/gyvermotor
 GMotor RIGHT_FRONT(DRIVER2WIRE, RIGHT_FRONT_D, RIGHT_FRONT_PWM, RIGHT_FRONT_MODE);
@@ -136,21 +140,22 @@ void setup(void) {
     LEFT_BACK.setSmoothSpeed(SMOOTH_SPEED);
 
     delay(1000); // to charge capacitors on metal detector
-    smallestMetal = readMetal();
+
+    // Average the idle coil reading. A single sample can be an outlier and
+    // every later find is judged against this baseline.
+    unsigned long baseline = 0;
+    for (byte i = 0; i < 16; i++) {
+        baseline += readMetal();
+        delay(5);
+    }
+    smallestMetal = baseline / 16;
 }
 
 void loop(void) {
     parsing();
 	
     if (doneParsing) {
-            Serial.println(pgm_read_byte(&NOT_FOUND_MSG));
-            xTravel = 0;
-            yTravel = 0;
-            angle = 0;
-            stopCarBool = false;
-            avoidedObstacles = false;
-            timesAvoidedX = 0;
-            timesAvoidedY = 0;
+        Serial.println((char)pgm_read_byte(&NOT_FOUND_MSG));
 
         if (joystickMode) {
             joystickDuty();
@@ -185,7 +190,7 @@ void loop(void) {
                         } else { // (Y == 0) done riding, return home
                             if (doneReturning == false) {
                                 returnHome();
-                                Serial.println(pgm_read_byte(&FOUND_MSG));;
+                                Serial.println((char)pgm_read_byte(&DONE_RIDING_MSG));
                                 stopCar();
                             }
                         }
@@ -213,13 +218,26 @@ void loop(void) {
                 }   
             } else { // (stopCarBool)
                 stopCar();
-                Serial.println(pgm_read_byte(&FOUND_MSG));
+                Serial.println((char)pgm_read_byte(&FOUND_MSG));
                 doneParsing = false;  
             }
         }
 		
         doneParsing = false;
     }
+}
+
+// Clears the dead-reckoning and avoidance state. Only at the start of a new
+// auto run: doing it per packet would wipe the pose and unlatch a metal stop.
+void startMission(void) {
+    xTravel = 0;
+    yTravel = 0;
+    angle = 0;
+    stopCarBool = false;
+    doneReturning = false;
+    avoidedObstacles = false;
+    timesAvoidedX = 0;
+    timesAvoidedY = 0;
 }
 
 void returnHome(void) {
@@ -240,43 +258,46 @@ void returnHome(void) {
     }
 	
     // return home X
-    else if (yTravel < 0) {
-        if (angle != 270) {
-            right();
-        } else {
-            forward();  
-        }
-    }
     else if (xTravel > 0) {
         if (angle != 270) {
             right();  
         } else {
             forward();
         }
+    }
+    else if (xTravel < 0) {
+        if (angle != 90) {
+            right();
+        } else {
+            forward();  
+        }
     } else {
         doneReturning = true;
     }
 }
 
+// ping_cm() answers 0 when no echo comes back, which means "nothing in range",
+// not "an obstacle at 0 cm". Averaging those zeroes in reads a clear path as a
+// wall, so only real echoes are counted.
+unsigned int distanceTo(NewPing &sonar) {
+	// filter sonar analog noises
+    unsigned int summ = 0;
+    byte echoes = 0;
+    for (byte i = 0; i < SONAR_SAMPLES; i++) {
+        unsigned int cm = sonar.ping_cm();
+        if (cm > 0) {
+            summ += cm;
+            echoes++;
+        }
+        delay(29);  // NewPing needs >= 29 ms between pings
+    }
+    return echoes ? summ / echoes : SONAR_MAX_CM;
+}
+
 bool noObstacles(void) {
     stopCar();
-
-	// filter sonar analog noises
-    unsigned int rightSonarSumm = 0;
-    for (byte i = 0; i < 5; i++) {
-        rightSonarSumm += RIGHT_SONAR.ping_cm();
-        delay(29);
-    }
-    rightSonarSumm /= 5;
-
-    unsigned int leftSonarSumm = 0;
-    for (byte i = 0; i < 5; i++) {
-        leftSonarSumm += LEFT_SONAR.ping_cm();
-        delay(29);
-    }
-    leftSonarSumm /= 5;
 	
-	return !(rightSonarSumm <= 11 or leftSonarSumm <= 11);
+	return !(distanceTo(RIGHT_SONAR) <= OBSTACLE_CM or distanceTo(LEFT_SONAR) <= OBSTACLE_CM);
 }
 
 void right(void) {
@@ -286,8 +307,8 @@ void right(void) {
     LEFT_BACK.setSpeed(MAX_SPEED);
 
     angle += 90;
-    if (angle == 360) {
-        angle = 0;
+    if (angle >= 360) {
+        angle -= 360;
     }
 
     delay(TURNING_TIME);
@@ -300,8 +321,8 @@ void left(void) {
     LEFT_BACK.setSpeed(-MAX_SPEED);
 
     angle -= 90;
-    if (angle == 360) {
-        angle = 0;
+    if (angle < 0) {
+        angle += 360;
     }
 
     delay(TURNING_TIME);
@@ -313,17 +334,24 @@ void forward(void) {
     LEFT_FRONT.setSpeed(MAX_SPEED);
     LEFT_BACK.setSpeed(MAX_SPEED);
 
-    if (angle == 0 or angle == 90) {
+    // One heading per case, or returnHome() cannot undo the travel it records.
+    if (angle == 0) {
         yTravel++;
-    } else { // (angle == 180 or angle == 270)
+    } else if (angle == 90) {
+        xTravel++;
+    } else if (angle == 180) {
+        yTravel--;
+    } else { // (angle == 270)
         xTravel--;
     }
 
     for (unsigned int i = 0; i < RIDING_TIME; i++) {
         
-        if (readMetal() > smallestMetal) {
-            Serial.println(pgm_read_byte(&FOUND_MSG)); // Found!
+        if (foundMetal()) {
+            Serial.println((char)pgm_read_byte(&FOUND_MSG)); // Found!
             stopCarBool = true;
+            stopCar();  // do not drive on over a find
+            break;
         }
 
         delay(1);
@@ -337,8 +365,14 @@ void stopCar(void) {
     LEFT_BACK.setSpeed(0);
 }
 
-byte readMetal(){
+// analogRead() spans 0-1023, so this must not be a byte: truncating to 8 bits
+// wraps the coil reading back to 0 every 256 counts.
+unsigned int readMetal(){
 	return analogRead(METAL_PIN);
+}
+
+bool foundMetal(void) {
+	return readMetal() > smallestMetal + METAL_MARGIN;
 }
 
 void joystickDuty(void){
@@ -354,10 +388,10 @@ void joystickDuty(void){
     LEFT_BACK.smoothTick(dutyL);
 
 	Serial.flush();
-	if (readMetal() >= smallestMetal) { 
-        Serial.println(pgm_read_byte(&FOUND_MSG));
-    } else { // (readMetal() < smallestMetal)
-        Serial.println(pgm_read_byte(&NOT_FOUND_MSG));
+	if (foundMetal()) { 
+        Serial.println((char)pgm_read_byte(&FOUND_MSG));
+    } else { // (below the baseline + margin)
+        Serial.println((char)pgm_read_byte(&NOT_FOUND_MSG));
     }
 }
 
@@ -393,6 +427,7 @@ void parsing(void) {
                 X = X * 10 + 1;
                 Y = Y * 10 + 1;
                 xDuplicate = X;
+                startMission();
             }
         }
 
