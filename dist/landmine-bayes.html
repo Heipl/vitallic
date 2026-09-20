@@ -236,6 +236,11 @@ table.rank .bar{height:3px;background:var(--r4);border-radius:1px;min-width:1px}
           <div class="results" id="results" hidden></div>
         </div>
         <p class="note" id="searchnote"></p>
+        <div class="search" style="margin-top:6px">
+          <input id="qgps" type="text" autocomplete="off" spellcheck="false"
+                 placeholder="Log a find: 49.94, 36.31" aria-label="Log a find at coordinates">
+        </div>
+        <p class="note" id="gpshint"></p>
       </div>
 
       <div class="grp">
@@ -1542,6 +1547,26 @@ stage.addEventListener("click", e => {
   const f = pick(lat, lon, feats);
   if (!f) return;
   selectRegion(view === "world" ? "country" : (deep ? "adm2" : "adm1"), f.name);
+});
+/* ---- log a find by typed coordinates -------------------------------------- */
+function cellFromLatLon(lat, lon) {
+  const [x, y] = laea(lat, lon, UA.lat0, UA.lon0);
+  const cx = Math.floor((x - UA.x0) / UA.res), cy = Math.floor((y - UA.y0) / UA.res);
+  if (cx < 0 || cy < 0 || cx >= UA.w || cy >= UA.h) return -1;
+  return fullToLand[cy * UA.w + cx];
+}
+const gpsEl = $("#qgps");
+if (gpsEl) gpsEl.addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  const m = gpsEl.value.trim().match(/^\s*(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)\s*$/);
+  if (!m) { $("#gpshint").innerHTML = "Type coordinates as <b>lat, lon</b> &mdash; e.g. 49.94, 36.31"; return; }
+  const lat = +m[1], lon = +m[2];
+  const li = cellFromLatLon(lat, lon);
+  if (li < 0) { $("#gpshint").innerHTML = `${lat.toFixed(4)}, ${lon.toFixed(4)} is outside the modelled Ukraine grid.`; return; }
+  if (view !== "ua") { $("[data-nav=\"ua\"]")?.click?.(); }
+  logObservation(li);
+  $("#gpshint").innerHTML = `Logged a find at <b>${lat.toFixed(4)}, ${lon.toFixed(4)}</b> &mdash; posterior updated.`;
+  gpsEl.value = "";
 });
 stage.addEventListener("dblclick", e => {
   // Double-click logs an observation without arming the "Log on click" tool.
