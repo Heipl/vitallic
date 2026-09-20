@@ -92,7 +92,7 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
   <header class="top">
     <div class="brand">
       <b>Acre survey (hypothetical)</b>
-      <span>BFS on 1×1 lattice · visit by mission queue score</span>
+      <span>BFS on 1×1 lattice · visit by civilian site type</span>
       <a href="landmine-bayes.html">← national prior</a>
     </div>
     <div class="vintage">
@@ -107,14 +107,12 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
         <span class="lbl">What this is</span>
         <p class="note">A fake, zoomed-in acre over a satellite backdrop of
           Stanitsa Luhanska. Four potential landmines sit on lattice
-          points taken from the user’s example coordinates. Visit <em>order</em> comes from
-          the preexisting robot mission queue in <span class="num">dist/robot/next_mission.json</span>:
-          higher <span class="num">expected_find</span> is more important (compared at the
-          displayed 3 significant figures); earlier queue index breaks ties.
-          The dog never occupies a mine cell — BFS stops on a 4-neighbour.
-          Dark overlay marks woodland, built-up blocks, and the rail corridor
-          (open fields and sandy tracks stay passable). The photo is scenery
-          only — it is not a survey of that town.</p>
+          points taken from the user’s example coordinates. Visit <em>order</em>
+          is civilian-site priority: densely populated (B) first, then a school (C),
+          then a farm (A). D has no site icon and is last. The dog never occupies
+          a mine cell — BFS stops on a 4-neighbour. Dark overlay marks woodland,
+          built-up blocks, and the rail corridor (open fields and sandy tracks stay
+          passable). The photo is scenery only — it is not a survey of that town.</p>
       </div>
 
       <div class="grp">
@@ -125,14 +123,13 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
           <dt>Lattice</dt><dd>1 × 1</dd>
           <dt>Origin</dt><dd class="num">(0, 0)</dd>
         </dl>
-        <p class="note">Next target = remaining mine with max E[find] at displayed precision
-          (e.g. 6.74e-5), then min queue index. Raw extra digits do not outrank the queue.
-          Other mines are obstacles until visited.</p>
+        <p class="note">Next target = remaining mine with the lowest site-priority rank
+          (people &gt; school &gt; farm &gt; unmarked). Other mines are obstacles until visited.</p>
         <p class="note num" id="visitOrder"></p>
       </div>
 
       <div class="grp">
-        <span class="lbl">Mission queue (unique cells)</span>
+        <span class="lbl">Site priority</span>
         <div class="queue" id="queue"></div>
       </div>
 
@@ -149,9 +146,10 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
       <canvas id="cv"></canvas>
       <div class="legend-float">
         <div class="t">Stanitsa Luhanska · overlay</div>
-        <div><span class="sw" style="background:#FD9668"></span>Potential mine (size = score)</div>
+        <div><span class="sw" style="background:#CD4071"></span>Potential mine</div>
         <div><span class="sw" style="background:#8FB2CE"></span>BFS path (not a clearance)</div>
         <div><span class="sw" style="background:#1A1F26;outline:1px solid #aaa"></span>Impassable: woodland / built-up / rail</div>
+        <div class="note" style="color:#A3AAB9;margin-top:6px">Icons: people (B) · school (C) · farm (A). D unmarked.</div>
       </div>
       <div class="hud" id="hud"></div>
     </div>
@@ -172,10 +170,10 @@ const ORIGIN = {x: 0, y: 0};
 /* Unique cells from dist/robot/next_mission.json, first four, mapped onto the
    example lattice points. Scores are the real expected_find / queue index. */
 const MINES = [
-  {id:"A", x:200, y:100, queue:0,  expected_find:6.735223365689387e-5, p_any:2.3765870570321553e-4, exploration:false, cell:"(88,34)"},
-  {id:"B", x:50,  y:300, queue:13, expected_find:2.557326014479297e-5,  p_any:9.024431151206556e-5,  exploration:true,  cell:"(66,94)"},
-  {id:"C", x:400, y:200, queue:14, expected_find:6.738518347176948e-5,  p_any:2.3777495840742878e-4, exploration:false, cell:"(69,66)"},
-  {id:"D", x:600, y:200, queue:22, expected_find:6.735209450560625e-5,  p_any:2.376582147531302e-4,  exploration:false, cell:"(14,27)"},
+  {id:"A", x:200, y:100, queue:0,  expected_find:6.735223365689387e-5, p_any:2.3765870570321553e-4, exploration:false, cell:"(88,34)", site:"farm",     siteRank:3, siteLabel:"farm"},
+  {id:"B", x:50,  y:300, queue:13, expected_find:2.557326014479297e-5,  p_any:9.024431151206556e-5,  exploration:true,  cell:"(66,94)", site:"people",   siteRank:1, siteLabel:"densely populated"},
+  {id:"C", x:400, y:200, queue:14, expected_find:6.738518347176948e-5,  p_any:2.3777495840742878e-4, exploration:false, cell:"(69,66)", site:"school",   siteRank:2, siteLabel:"school"},
+  {id:"D", x:600, y:200, queue:22, expected_find:6.735209450560625e-5,  p_any:2.376582147531302e-4,  exploration:false, cell:"(14,27)", site:null,      siteRank:4, siteLabel:"unmarked"},
 ];
 
 function findLabel(m){
@@ -188,8 +186,8 @@ function displayFind(m){
 }
 const MAX_FIND = Math.max(...MINES.map(m => displayFind(m)));
 function better(a, b){
-  const da = displayFind(a) - displayFind(b);
-  if (da !== 0) return da > 0 ? a : b;
+  /* Lower siteRank is more important: people, school, farm, then unmarked. */
+  if (a.siteRank !== b.siteRank) return a.siteRank < b.siteRank ? a : b;
   return a.queue <= b.queue ? a : b;
 }
 
@@ -617,7 +615,7 @@ const stage = document.getElementById("stage");
 const tour = planTour(MINES);
 document.getElementById("visitOrder").textContent =
   "Visit order " + tour.order.map(m => m.id).join(" → ") +
-  " (displayed E[find], then earlier queue index)";
+  " (people → school → farm → unmarked)";
 
 function resize(){
   const r = stage.getBoundingClientRect();
@@ -731,9 +729,103 @@ function drawPath(upto){
   ctx.restore();
 }
 
+function drawPerson(x, y, s){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(s, s);
+  ctx.fillStyle = "#F4E7C8";
+  ctx.strokeStyle = "#1A140E";
+  ctx.lineWidth = 1 / s;
+  ctx.beginPath(); ctx.arc(0, -6.2, 2.6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-3.4, -2.8);
+  ctx.lineTo(3.4, -2.8);
+  ctx.lineTo(2.6, 7.5);
+  ctx.lineTo(-2.6, 7.5);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+
+function drawSchool(x, y, s){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(s, s);
+  ctx.lineWidth = 1 / s;
+  ctx.strokeStyle = "#1A140E";
+  ctx.fillStyle = "#E8D5A8";
+  ctx.beginPath();
+  ctx.moveTo(-14, -2);
+  ctx.lineTo(0, -14);
+  ctx.lineTo(14, -2);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#C9A46A";
+  ctx.fillRect(-11, -2, 22, 16);
+  ctx.strokeRect(-11, -2, 22, 16);
+  ctx.fillStyle = "#5B3A24";
+  ctx.fillRect(-2.5, 6, 5, 8);
+  ctx.fillStyle = "#8FB2CE";
+  ctx.fillRect(-8, 2, 4, 4);
+  ctx.fillRect(4, 2, 4, 4);
+  ctx.strokeRect(-8, 2, 4, 4);
+  ctx.strokeRect(4, 2, 4, 4);
+  ctx.strokeStyle = "#CD4071";
+  ctx.lineWidth = 1.4 / s;
+  ctx.beginPath(); ctx.moveTo(8, -14); ctx.lineTo(8, -22); ctx.stroke();
+  ctx.fillStyle = "#CD4071";
+  ctx.beginPath(); ctx.moveTo(8, -22); ctx.lineTo(14, -19.5); ctx.lineTo(8, -17); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+function drawFarm(x, y, s){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(s, s);
+  ctx.lineWidth = 1 / s;
+  ctx.strokeStyle = "#1A140E";
+  ctx.fillStyle = "#B56A3A";
+  ctx.beginPath();
+  ctx.moveTo(-13, -1);
+  ctx.lineTo(0, -13);
+  ctx.lineTo(13, -1);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#C47A45";
+  ctx.fillRect(-10, -1, 20, 14);
+  ctx.strokeRect(-10, -1, 20, 14);
+  ctx.fillStyle = "#8A8F7A";
+  ctx.fillRect(8, -10, 6, 23);
+  ctx.strokeRect(8, -10, 6, 23);
+  ctx.beginPath(); ctx.arc(11, -10, 3, Math.PI, 0); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#5B3A24";
+  ctx.fillRect(-3, 5, 5, 8);
+  ctx.strokeStyle = "#6B5A45";
+  ctx.beginPath();
+  ctx.moveTo(-16, 13); ctx.lineTo(16, 13);
+  for (let i=-16;i<=16;i+=4){ ctx.moveTo(i, 13); ctx.lineTo(i, 10); }
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawSiteIcons(){
+  const B = MINES.find(m => m.id==="B");
+  const C = MINES.find(m => m.id==="C");
+  const A = MINES.find(m => m.id==="A");
+  const people = [
+    [-28,-10],[-16,-22],[-4,-28],[12,-24],[24,-12],[26,4],[18,18],[4,24],
+    [-12,22],[-26,10],[-8,-8],[10,-6],[16,10],[-20,-2],[22,-22],[-30,20],
+    [0,14],[-14,8],[8,-16]
+  ];
+  for (const [dx,dy] of people) drawPerson(sx(B.x)+dx, sy(B.y)+dy, 1.05);
+  drawSchool(sx(C.x), sy(C.y)-22, 1.15);
+  drawFarm(sx(A.x), sy(A.y)-20, 1.15);
+}
+
 function drawMines(done){
+  drawSiteIcons();
   for (const m of MINES){
-    const r = 6 + 10 * (displayFind(m) / MAX_FIND);
+    const r = 7;
     const X = sx(m.x), Y = sy(m.y);
     ctx.beginPath();
     ctx.fillStyle = done.has(m.id) ? "#FFFFFF" : "#CD4071";
@@ -745,13 +837,12 @@ function drawMines(done){
     ctx.font = "600 11px IBM Plex Sans, sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "bottom";
-    const tag = m.id+"  q#"+m.queue+(m.exploration?" explore":"");
+    const tag = m.id+"  "+m.siteLabel;
     ctx.fillText(tag, X+r+4, Y-2);
     ctx.font = "10px IBM Plex Mono, monospace";
     ctx.fillStyle = "rgba(245,241,230,.9)";
-    ctx.fillText("E[find] "+findLabel(m), X+r+4, Y+12);
+    ctx.fillText("rank "+m.siteRank+" · E[find] "+findLabel(m), X+r+4, Y+12);
   }
-  // origin
   ctx.fillStyle = "#FD9668";
   ctx.beginPath(); ctx.arc(sx(0), sy(0), 5, 0, Math.PI*2); ctx.fill();
   ctx.fillStyle = "#F5F1E6";
@@ -811,22 +902,18 @@ function draw(){
 
 function paintQueue(done, currentId){
   const el = document.getElementById("queue");
-  const ranked = MINES.slice().sort((a,b)=>{
-    const d = displayFind(b)-displayFind(a);
-    return d!==0 ? d : a.queue-b.queue;
-  });
+  const ranked = MINES.slice().sort((a,b)=> a.siteRank-b.siteRank || a.queue-b.queue);
   el.innerHTML = ranked.map((m,i)=>{
     const cls = done.has(m.id) ? "done" : (m.id===currentId ? "on" : "");
-    const pct = (100*displayFind(m)/MAX_FIND).toFixed(0);
-    const tied = ranked.filter(o => findLabel(o) === findLabel(m)).length > 1;
+    const pct = (100*(5-m.siteRank)/4).toFixed(0);
     return `<div class="qrow ${cls}">
-      <span class="rk">${i+1}</span>
+      <span class="rk">${m.siteRank}</span>
       <div>
-        <div class="nm">${m.id} · (${m.x},${m.y}) ${m.exploration?'<span class="chip">explore</span>':''}${tied?'<span class="chip">tie → q#'+m.queue+'</span>':''}</div>
-        <div class="sub">queue index ${m.queue} · AO cell ${m.cell}</div>
+        <div class="nm">${m.id} · ${m.siteLabel}</div>
+        <div class="sub">(${m.x},${m.y}) · ${m.site? m.site : "no icon"}</div>
         <div class="bar"><i style="width:${pct}%"></i></div>
       </div>
-      <div class="sc">E[find]<br>${findLabel(m)}</div>
+      <div class="sc">${m.site? m.site : "—"}<br>E[find] ${findLabel(m)}</div>
     </div>`;
   }).join("");
 }
@@ -872,10 +959,10 @@ resize();
     if (occ.has(key(p.x,p.y))) throw new Error("path stepped on a mine at "+p.x+","+p.y);
   }
   const order = tour.order.map(m=>m.id).join("");
-  if (order !== "ACDB") throw new Error("unexpected visit order "+order+" (want A,C,D,B: 6.74e-5 tie broken by queue)");
-  const [a,c,d] = ["A","C","D"].map(id => MINES.find(m => m.id===id));
-  if (findLabel(a) !== "6.74e-5" || findLabel(a) !== findLabel(c) || findLabel(c) !== findLabel(d)) {
-    throw new Error("A/C/D should display as the same 6.74e-5 so A (queue 0) ranks first");
+  if (order !== "BCAD") throw new Error("unexpected visit order "+order+" (want B,C,A,D by site type)");
+  const ranks = Object.fromEntries(MINES.map(m => [m.id, m.siteRank]));
+  if (ranks.B!==1 || ranks.C!==2 || ranks.A!==3 || ranks.D!==4) {
+    throw new Error("site ranks should be B=1 C=2 A=3 D=4");
   }
 })();
 </script>
