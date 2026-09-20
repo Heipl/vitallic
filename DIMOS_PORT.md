@@ -181,6 +181,67 @@ then `python dimos_vitallic/check_install.py` should print OK.
 Also: `dimos whoami` currently says not logged in. Run `dimos login` before the
 agentic blueprint.
 
+## WSL setup, verified working
+
+The dimOS side is fully working in WSL now. Four things had to be fixed; all of
+them look like "the robot is broken" from the outside.
+
+**1. WSL filesystem I/O errors.** After the host disk hit 100%, every binary in
+the distro returned `Input/output error` - `/bin/ls`, `/usr/bin/tail`, everything.
+The distro was not corrupt, just wedged. `wsl --shutdown` and a reconnect cleared
+it completely. Try that before concluding anything is damaged.
+
+**2. The venv has neither pip nor uv.** `/root/dimensional-applications/.venv`
+was created by uv, which is not on PATH, so there is no obvious way to install
+into it. Bootstrap pip from the standard library, which needs no network:
+
+```bash
+/root/dimensional-applications/.venv/bin/python -m ensurepip --upgrade
+```
+
+**3. The editable install kept advertising the old blueprint.** After the
+Patsiuk -> Vitallic rename, `dimos list` still showed `patsiuk-dimos.scan`,
+pointing at a directory that no longer existed. Setuptools editable installs
+leave a `.pth`, a finder module and a `dist-info` behind; uninstall and reinstall:
+
+```bash
+V=/root/dimensional-applications/.venv
+$V/bin/python -m pip uninstall -y patsiuk-dimos
+$V/bin/python -m pip install -e /mnt/c/Users/aliek/shit/vitallic/dimos_vitallic     --no-build-isolation --no-deps
+```
+
+**4. WSL was behind NAT and could never have reached the robot.** WSL sat on
+`172.18.244.87/20` with gateway `172.18.240.1` - its own private network - while
+the host was on the LAN. No route existed between dimOS and the dog regardless of
+which network the dog joined. Fixed with `%USERPROFILE%\.wslconfig`:
+
+```ini
+[wsl2]
+networkingMode=mirrored
+dnsTunneling=true
+```
+
+then `wsl --shutdown`. WSL now shares the host's interfaces (confirmed: it picked
+up `10.94.158.1/24` and pings the LAN gateway). Needs Windows 11 22H2 / build
+22621 or newer.
+
+### Verified state
+
+```
+vitallic-dimos.scan        registered in `dimos list`
+unitree_webrtc_connect     importable (was the blocker before)
+blueprint                  COMPOSES - "loaded: Blueprint"
+precise_move(x, y)         present
+blind_move(x, y)           present, blind_speed=0.15 scale=1.0 rate=20 Hz
+CMD_VEL_TOPIC              tele_cmd_vel  (still unconfirmed against `dimos spy`)
+dimos whoami               NOT logged in - run `dimos login` if the agentic
+                           blueprint needs cloud auth
+```
+
+The only thing still missing is the robot itself: `dimos go2tool discover --lan`
+and `tools/lan_discover_go2.py` both return nothing, because the Go2 is not on
+any network the host can see. Everything downstream of that is ready.
+
 ## Bringing it up (tomorrow)
 
 ```bash
