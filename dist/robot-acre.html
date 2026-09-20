@@ -124,6 +124,7 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
         <p class="note">Next target = remaining mine with max E[find] at displayed precision
           (e.g. 6.74e-5), then min queue index. Raw extra digits do not outrank the queue.
           Other mines are obstacles until visited.</p>
+        <p class="note num" id="visitOrder"></p>
       </div>
 
       <div class="grp">
@@ -173,9 +174,13 @@ const MINES = [
   {id:"D", x:600, y:200, queue:22, expected_find:6.735209450560625e-5,  p_any:2.376582147531302e-4,  exploration:false, cell:"(14,27)"},
 ];
 
+function findLabel(m){
+  /* Same 3-sig-fig string painted on the map and in the queue. */
+  return m.expected_find.toExponential(2);
+}
 function displayFind(m){
-  /* Same 3-sig-fig string the labels use, so 6.735e-5 and 6.739e-5 are a tie. */
-  return Number(m.expected_find.toExponential(2));
+  /* Rank on the painted value so 6.735e-5 and 6.739e-5 are a 6.74e-5 tie. */
+  return Number(findLabel(m));
 }
 const MAX_FIND = Math.max(...MINES.map(m => displayFind(m)));
 function better(a, b){
@@ -277,6 +282,9 @@ const cv = document.getElementById("cv");
 const ctx = cv.getContext("2d");
 const stage = document.getElementById("stage");
 const tour = planTour(MINES);
+document.getElementById("visitOrder").textContent =
+  "Visit order " + tour.order.map(m => m.id).join(" → ") +
+  " (displayed E[find], then earlier queue index)";
 
 function resize(){
   const r = stage.getBoundingClientRect();
@@ -392,7 +400,7 @@ function drawMines(done){
     ctx.fillText(tag, X+r+4, Y-2);
     ctx.font = "10px IBM Plex Mono, monospace";
     ctx.fillStyle = "rgba(245,241,230,.9)";
-    ctx.fillText("E[find] "+m.expected_find.toExponential(2), X+r+4, Y+12);
+    ctx.fillText("E[find] "+findLabel(m), X+r+4, Y+12);
   }
   // origin
   ctx.fillStyle = "#FD9668";
@@ -461,14 +469,15 @@ function paintQueue(done, currentId){
   el.innerHTML = ranked.map((m,i)=>{
     const cls = done.has(m.id) ? "done" : (m.id===currentId ? "on" : "");
     const pct = (100*displayFind(m)/MAX_FIND).toFixed(0);
+    const tied = ranked.filter(o => findLabel(o) === findLabel(m)).length > 1;
     return `<div class="qrow ${cls}">
       <span class="rk">${i+1}</span>
       <div>
-        <div class="nm">${m.id} · (${m.x},${m.y}) ${m.exploration?'<span class="chip">explore</span>':''}</div>
+        <div class="nm">${m.id} · (${m.x},${m.y}) ${m.exploration?'<span class="chip">explore</span>':''}${tied?'<span class="chip">tie → q#'+m.queue+'</span>':''}</div>
         <div class="sub">queue index ${m.queue} · AO cell ${m.cell}</div>
         <div class="bar"><i style="width:${pct}%"></i></div>
       </div>
-      <div class="sc">E[find]<br>${m.expected_find.toExponential(2)}</div>
+      <div class="sc">E[find]<br>${findLabel(m)}</div>
     </div>`;
   }).join("");
 }
@@ -515,5 +524,9 @@ resize();
   }
   const order = tour.order.map(m=>m.id).join("");
   if (order !== "ACDB") throw new Error("unexpected visit order "+order+" (want A,C,D,B: 6.74e-5 tie broken by queue)");
+  const [a,c,d] = ["A","C","D"].map(id => MINES.find(m => m.id===id));
+  if (findLabel(a) !== "6.74e-5" || findLabel(a) !== findLabel(c) || findLabel(c) !== findLabel(d)) {
+    throw new Error("A/C/D should display as the same 6.74e-5 so A (queue 0) ranks first");
+  }
 })();
 </script>
