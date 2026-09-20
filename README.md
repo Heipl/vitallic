@@ -73,6 +73,8 @@ classifier's: at 300 trials neither method can see what the phones cannot reach.
   object and a small shallow one with the **same peak signal**, told apart by the fit.
 - `benchmark.py` — the numbers above. `python benchmark.py --trials 60` for a quick check.
 - `phones.py` — phyphox reader and live hand-test tool
+- `PHONE_SETUP.md` — **how to connect the phones**, step by step, with a check at
+  each step and the measured numbers to expect. Start here on the day.
 - `robot.py` — dimOS mover (Go2) and manual mover (handheld rig)
 - `dimos_vitallic/` — dimOS module + blueprint that adds the `precise_move` skill
 - `sim.py` — fake world, phones and dog
