@@ -1,9 +1,9 @@
-# Patsiuk: the dog that checks drone-flagged metal
+# Vitallic: the dog that checks drone-flagged metal
 
 A drone survey flags every piece of metal in a field. Today a **person still has to
 walk up to each flag** to find out whether it is a mine or a tin can.
 
-Patsiuk does that step instead. It walks to each flagged spot, scans it at ground
+Vitallic does that step instead. It walks to each flagged spot, scans it at ground
 level with two phones used as a gradiometer, fits a magnetic dipole to the readings,
 and sorts it:
 
@@ -37,7 +37,7 @@ deliberately unfair in its favour:
 | On the 122 objects above the detection floor | Correct | Scrap called a mine |
 |---|---|---|
 | Peak-signal threshold (what a metal detector gives you) | 93/122 (76%) | 15/44 |
-| **Patsiuk dipole fit** | **121/122 (99%)** | **1/44** |
+| **Vitallic dipole fit** | **121/122 (99%)** | **1/44** |
 
 Depth error on those objects: median 0.5 cm, RMS 1.6 cm.
 `benchmark.png` shows why — on peak signal the two classes overlap completely; on
@@ -72,7 +72,7 @@ classifier's: at 300 trials neither method can see what the phones cannot reach.
 - `benchmark.py` — the numbers above. `python benchmark.py --trials 60` for a quick check.
 - `phones.py` — phyphox reader and live hand-test tool
 - `robot.py` — dimOS mover (Go2) and manual mover (handheld rig)
-- `dimos_patsiuk/` — dimOS module + blueprint that adds the `precise_move` skill
+- `dimos_vitallic/` — dimOS module + blueprint that adds the `precise_move` skill
 - `sim.py` — fake world, phones and dog
 - `flagged_spots.json` — the "drone survey" input (remove `sim_truth` for real runs)
 - `unoq/` — optional Arduino UNO Q status display (App Lab app: `sketch/` + `python/`)
@@ -97,8 +97,8 @@ classifier's: at 300 trials neither method can see what the phones cannot reach.
    hardware**. Install the scan blueprint into the dimOS venv, then:
 
    ```
-   VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install -e dimos_patsiuk
-   dimos run patsiuk-dimos.scan --robot-ip <DOG_IP>
+   VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install -e dimos_vitallic
+   dimos run vitallic-dimos.scan --robot-ip <DOG_IP>
    dimos mcp list-tools | grep precise_move
    python tools/min_move_test.py --dimos /root/dimensional-applications/.venv/bin/dimos
    ```

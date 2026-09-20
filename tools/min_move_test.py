@@ -3,7 +3,7 @@ min_move_test.py - measure the SMALLEST move the dog actually executes.
 
 This is the one number the scan design depends on.
 
-Default skill is precise_move (dimos run patsiuk-dimos.scan). That bypasses the
+Default skill is precise_move (dimos run vitallic-dimos.scan). That bypasses the
 planner, so a 5 cm step is *supposed* to work; this test is how you find out
 whether it actually did.
 
@@ -16,7 +16,7 @@ WITHOUT THE DOG MOVING AT ALL.
     python tools/min_move_test.py --dry-run            # print the commands only
 
 Before running: clear ~2 m in front of the dog, have it standing, and know how to stop it.
-Start dimOS first:   dimos run patsiuk-dimos.scan --robot-ip <DOG_IP>
+Start dimOS first:   dimos run vitallic-dimos.scan --robot-ip <DOG_IP>
 Check it is up:      dimos mcp status
                      dimos mcp list-tools | grep precise_move
 """
@@ -112,7 +112,7 @@ def main():
         print("  Check the dog is actually connected (dimos mcp status) before concluding.")
         if a.skill == "precise_move":
             print("  If precise_move is missing from `dimos mcp list-tools`, you started")
-            print("  the stock blueprint. Use: dimos run patsiuk-dimos.scan --robot-ip <IP>")
+            print("  the stock blueprint. Use: dimos run vitallic-dimos.scan --robot-ip <IP>")
     else:
         smallest = min(r["commanded_cm"] for r in moved)
         print(f"\n  Smallest step the dog actually executes: {smallest:.0f} cm")

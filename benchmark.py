@@ -261,10 +261,10 @@ def main():
     cut, base = best_baseline(rows)
     s_base = print_table(f"BASELINE  peak-signal threshold at {cut:.2f} uT "
                          f"(best possible, chosen on this data)", truths, base)
-    s_fit = print_table("PATSIUK   dipole fit on the same scans", truths,
+    s_fit = print_table("VITALLIC   dipole fit on the same scans", truths,
                         [r["label"] for r in rows])
 
-    for nm, lab in (("BASELINE", base), ("PATSIUK ", [r["label"] for r in rows])):
+    for nm, lab in (("BASELINE", base), ("VITALLIC ", [r["label"] for r in rows])):
         d = detected_score(rows, lab)
         if d:
             print(f"  {nm} on the {d['n']} objects above the detection floor: "
@@ -287,7 +287,7 @@ def main():
 
     save_plot(a.plot, rows, a.threshold, cut)
     json.dump({"config": {**cfg, "trials": a.trials, "seed": a.seed},
-               "baseline": {"cut_uT": cut, **s_base}, "patsiuk": s_fit,
+               "baseline": {"cut_uT": cut, **s_base}, "vitallic": s_fit,
                "rows": rows}, open(a.out, "w"), indent=1, default=float)
     print(f"\nplot: {a.plot}   data: {a.out}")
     print(f"\nHEADLINE: peak threshold misses {s_base['missed_mines']}/{s_base['n_mines']} mines "

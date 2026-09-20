@@ -8,9 +8,9 @@ Verified against dimos 0.0.14 (the real install in WSL), not guessed:
   - stock Go2 move skill is `move_to` (relative=True: x forward, y left, metres).
   - `move_to` always goes through the A* planner, whose 0.20 m arrival tolerance
     silently accepts a 5 cm step without the dog moving. See DIMOS_PORT.md.
-  - the scan therefore defaults to `precise_move`, a skill from dimos_patsiuk that
+  - the scan therefore defaults to `precise_move`, a skill from dimos_vitallic that
     publishes tele_cmd_vel in-process (the 0.2 s deadman timer rules out CLI
-    velocity). Start that blueprint:  dimos run patsiuk-dimos.scan --robot-ip <IP>
+    velocity). Start that blueprint:  dimos run vitallic-dimos.scan --robot-ip <IP>
   - `observe` exists but returns an IMAGE, not text.
 
 If you pass --skill move_to, `move()` still refuses legs shorter than 0.20 m
@@ -66,7 +66,7 @@ class DimosMover:
             raise RuntimeError(
                 f"dimOS does not expose a skill called '{self.skill}'.\n"
                 f"Skills it does expose:\n{out}\n"
-                "Start the right blueprint (`dimos run patsiuk-dimos.scan "
+                "Start the right blueprint (`dimos run vitallic-dimos.scan "
                 "--robot-ip <DOG_IP>`) or pass --skill.")
         if self.observe_skill not in out:
             print(f"  note: no '{self.observe_skill}' skill - photos at finds will be skipped")
@@ -88,7 +88,7 @@ class DimosMover:
                 f"{self.GOAL_TOLERANCE_M * 100:.0f} cm arrival tolerance - the planner "
                 "would report 'goal reached' without the dog moving, and every scan point "
                 "would be measured from the same spot.\n"
-                "Default is --skill precise_move (dimos run patsiuk-dimos.scan), which "
+                "Default is --skill precise_move (dimos run vitallic-dimos.scan), which "
                 "does not have this trap. If you insist on move_to, measure the real "
                 "minimum with `python tools/min_move_test.py --skill move_to` and either "
                 "raise --step above it or pass --allow-small-moves.")

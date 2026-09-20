@@ -13,7 +13,7 @@ one at the wrong moment.
 ```bash
 uv pip install "dimos[unitree]"   # or pip; fixes ModuleNotFoundError: unitree_webrtc_connect
 dimos login                        # dimos whoami was reporting not logged in
-python dimos_patsiuk/check_install.py
+python dimos_vitallic/check_install.py
 ```
 
 Without the first, `dimos run` fails on a perfectly reachable dog. This is the
@@ -59,7 +59,7 @@ A blueprint that starts cleanly is **not** a connected dog. This is what caught
 you tonight.
 
 ```bash
-dimos run patsiuk-dimos.scan --robot-ip <IP>
+dimos run vitallic-dimos.scan --robot-ip <IP>
 dimos mcp list-tools      # expect precise_move, blind_move, move_to, observe
 dimos spy                 # topics must be TICKING with live data
 ```
@@ -74,7 +74,7 @@ live name differs they publish into the void and the dog never moves - and it
 will look exactly like the dog ignoring you.
 
 ```bash
-PATSIUK_CMD_VEL_TOPIC=<real name> dimos run patsiuk-dimos.scan --robot-ip <IP>
+VITALLIC_CMD_VEL_TOPIC=<real name> dimos run vitallic-dimos.scan --robot-ip <IP>
 ```
 
 **b. Does pose arrive, and how fast?** `precise_move` closes its loop on

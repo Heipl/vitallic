@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vitallic Live</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --line:#30363d; --text:#e6edf3; --dim:#8b949e;
+    --mine:#f85149; --frag:#8b949e; --none:#3fb950; --rescan:#d29922; --skip:#a371f7;
+    --accent:#58a6ff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+    font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif}
+  #wrap{display:grid;grid-template-columns:1fr 380px;height:100vh}
+  #map{height:100vh;background:#0d1117}
+  #side{background:var(--panel);border-left:1px solid var(--line);
+    overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
+  h1{font-size:17px;margin:0;letter-spacing:.3px}
+  .sub{font-size:11px;color:var(--dim);margin-top:3px;line-height:1.45}
+  .card{background:#0d1117;border:1px solid var(--line);border-radius:8px;padding:12px}
+  .card h2{font-size:10px;text-transform:uppercase;letter-spacing:.9px;
+    color:var(--dim);margin:0 0 9px}
+  .big{font-size:30px;font-weight:650;line-height:1;font-variant-numeric:tabular-nums}
+  .unit{font-size:12px;color:var(--dim);font-weight:400;margin-left:5px}
+  .ci{font-size:11px;color:var(--dim);margin-top:6px;font-variant-numeric:tabular-nums}
+  .row{display:flex;justify-content:space-between;align-items:baseline;
+    padding:5px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .row:last-child{border-bottom:none}
+  .row .k{color:var(--dim)}
+  .row .v{font-variant-numeric:tabular-nums;font-weight:600}
+  #state{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600}
+  #dot{width:11px;height:11px;border-radius:50%;background:var(--dim);flex:none}
+  #dot.live{animation:pulse 1.1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  #alert{display:none;background:rgba(248,81,73,.13);border:1px solid var(--mine);
+    color:var(--mine);border-radius:8px;padding:11px;font-weight:650;font-size:13px}
+  #alert.on{display:block;animation:flash .7s 3}
+  @keyframes flash{0%,100%{opacity:1}50%{opacity:.45}}
+  table{width:100%;border-collapse:collapse;font-size:11px}
+  th{text-align:left;color:var(--dim);font-weight:500;padding:4px 3px;
+    border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.5px}
+  td{padding:5px 3px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:none}
+  .tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:650}
+  .t-MINE_SIZED{background:rgba(248,81,73,.18);color:var(--mine)}
+  .t-FRAGMENT{background:rgba(139,148,158,.18);color:var(--frag)}
+  .t-NO_TARGET{background:rgba(63,185,80,.15);color:var(--none)}
+  .t-RESCAN{background:rgba(210,153,34,.16);color:var(--rescan)}
+  .t-SKIPPED{background:rgba(163,113,247,.16);color:var(--skip)}
+  .caveat{font-size:10px;color:var(--dim);line-height:1.5;margin-top:8px;
+    padding-top:8px;border-top:1px solid var(--line)}
+  .off{color:var(--rescan);font-size:11px}
+  @media(max-width:900px){#wrap{grid-template-columns:1fr;grid-template-rows:55vh 45vh}
+    #map{height:55vh}}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="map"></div>
+  <div id="side">
+    <div>
+      <h1>Vitallic &mdash; live survey</h1>
+      <div class="sub">Two-phone gradiometer on a Unitree Go2.
+        Every flagged spot is scanned, a magnetic dipole is fitted, and the
+        posterior over contamination updates as the dog walks.</div>
+    </div>
+
+    <div id="state"><span id="dot"></span><span id="stateText">connecting&hellip;</span></div>
+    <div id="alert"></div>
+
+    <div class="card">
+      <h2>Spots classified</h2>
+      <div class="row"><span class="k">Mine-sized (to EOD)</span><span class="v" id="cMine" style="color:var(--mine)">0</span></div>
+      <div class="row"><span class="k">Fragment / scrap</span><span class="v" id="cFrag">0</span></div>
+      <div class="row"><span class="k">No target</span><span class="v" id="cNone" style="color:var(--none)">0</span></div>
+      <div class="row"><span class="k">Rescan / skipped</span><span class="v" id="cOther">0</span></div>
+      <div class="row"><span class="k">Area swept</span><span class="v" id="cArea">0 m&sup2;</span></div>
+    </div>
+
+    <div class="card">
+      <h2>P(mine | flagged spot) &mdash; Beta-Binomial</h2>
+      <div class="big" id="hitMean">&mdash;<span class="unit">%</span></div>
+      <div class="ci" id="hitCI">95% credible interval &mdash;</div>
+    </div>
+
+    <div class="card">
+      <h2>Contamination density &mdash; Gamma-Poisson</h2>
+      <div class="big" id="denMean">&mdash;<span class="unit">/ hectare</span></div>
+      <div class="ci" id="denCI">95% credible interval &mdash;</div>
+    </div>
+
+    <div class="card">
+      <h2>If this density held over&hellip;</h2>
+      <table><thead><tr><th>Region</th><th style="text-align:right">Expected mines</th></tr></thead>
+        <tbody id="regions"><tr><td colspan="2" style="color:var(--dim)">awaiting data</td></tr></tbody>
+      </table>
+      <div class="caveat" id="caveat">
+        Posterior predictive (Negative Binomial), so the interval carries our
+        uncertainty in the rate. It assumes density is uniform across the region,
+        which it is not &mdash; that assumption, not the counting statistics,
+        dominates the real error.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Detections</h2>
+      <table><thead><tr><th>ID</th><th>Label</th><th style="text-align:right">Depth</th><th style="text-align:right">Moment</th></tr></thead>
+        <tbody id="rows"><tr><td colspan="4" style="color:var(--dim)">no spots scanned yet</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const COLORS = {MINE_SIZED:'#f85149', FRAGMENT:'#8b949e', NO_TARGET:'#3fb950',
+                RESCAN:'#d29922', SKIPPED:'#a371f7', CALIBRATION:'#58a6ff'};
+const map = L.map('map', {zoomControl:true}).setView([42.3601,-71.0942], 19);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  maxZoom: 22, attribution:'&copy; OpenStreetMap &copy; CARTO'
+}).addTo(map);
+
+const markers = new Map();     // id -> leaflet marker
+let centred = false, lastMine = 0;
+
+function fmt(n, d=0){ return Number(n).toLocaleString(undefined,{maximumFractionDigits:d}); }
+
+function upsert(rec){
+  if (rec.lat == null || rec.lon == null) return;
+  const colour = COLORS[rec.label] || '#8b949e';
+  const isMine = rec.label === 'MINE_SIZED';
+  const depth = rec.fit && rec.fit.depth != null ? (rec.fit.depth*100).toFixed(0)+' cm' : '—';
+  const html = `<b>${rec.id}</b> &mdash; ${rec.label}<br>`
+             + `${rec.lat.toFixed(6)}, ${rec.lon.toFixed(6)}<br>`
+             + (rec.fit && rec.fit.depth!=null
+                ? `depth ${depth}, moment ${rec.fit.moment.toFixed(4)} A·m²` : '');
+  if (markers.has(rec.id)){
+    const m = markers.get(rec.id);
+    m.setLatLng([rec.lat, rec.lon]);
+    m.setStyle({color:colour, fillColor:colour});
+    m.setRadius(isMine ? 11 : 7);
+    m.getPopup().setContent(html);
+  } else {
+    const m = L.circleMarker([rec.lat, rec.lon], {
+      radius: isMine ? 11 : 7, color: colour, fillColor: colour,
+      fillOpacity: .75, weight: 2
+    }).addTo(map).bindPopup(html);
+    markers.set(rec.id, m);
+    if (isMine) L.circle([rec.lat, rec.lon], {radius:1.5, color:colour,
+      fillColor:colour, fillOpacity:.12, weight:1}).addTo(map);
+  }
+  if (!centred){ map.setView([rec.lat, rec.lon], 21); centred = true; }
+}
+
+function render(d){
+  document.getElementById('stateText').textContent = d.state + (d.spot ? ' · ' + d.spot : '');
+  const dot = document.getElementById('dot');
+  const active = ['SCAN','BASELINE','CALIBRATION'].includes(d.state);
+  dot.style.background = COLORS[d.state] || (active ? '#58a6ff' : '#8b949e');
+  dot.classList.toggle('live', active);
+
+  const res = d.results || [];
+  const c = {MINE_SIZED:0, FRAGMENT:0, NO_TARGET:0, other:0};
+  res.forEach(r => { if (c[r.label]!==undefined) c[r.label]++; else c.other++; });
+  cMine.textContent = c.MINE_SIZED; cFrag.textContent = c.FRAGMENT;
+  cNone.textContent = c.NO_TARGET;  cOther.textContent = c.other;
+
+  res.forEach(upsert);
+
+  // Mine alert
+  if (c.MINE_SIZED > lastMine){
+    const a = document.getElementById('alert');
+    const last = [...res].reverse().find(r => r.label==='MINE_SIZED');
+    a.textContent = `⚠ MINE-SIZED at ${last && last.lat ? last.lat.toFixed(5)+', '+last.lon.toFixed(5) : last.id} — sent to EOD`;
+    a.classList.add('on'); setTimeout(()=>a.classList.remove('on'), 6000);
+    lastMine = c.MINE_SIZED;
+  }
+
+  const b = d.bayes;
+  if (b){
+    cArea.textContent = fmt(b.density.area_swept_m2,1) + ' m²';
+    hitMean.innerHTML = fmt(b.hit_rate.mean*100,0) + '<span class="unit">%</span>';
+    hitCI.textContent = `95% CI  ${fmt(b.hit_rate.lo*100,0)}–${fmt(b.hit_rate.hi*100,0)}%`
+                      + `   ·   ${b.hit_rate.n_mines}/${b.hit_rate.n_spots} spots`;
+    denMean.innerHTML = fmt(b.density.per_hectare_mean,0) + '<span class="unit">/ hectare</span>';
+    denCI.textContent = `95% CI  ${fmt(b.density.per_hectare_lo,0)}–${fmt(b.density.per_hectare_hi,0)} per hectare`;
+    if (b.regions && b.regions.length){
+      document.getElementById('regions').innerHTML = b.regions.map(r =>
+        `<tr><td>${r.region}<br><span style="color:var(--dim);font-size:10px">${fmt(r.region_area_km2,2)} km²</span></td>`
+        + `<td style="text-align:right"><b>${fmt(r.expected)}</b>`
+        + `<br><span style="color:var(--dim);font-size:10px">${fmt(r.lo)}–${fmt(r.hi)}</span></td></tr>`
+      ).join('');
+    }
+  }
+
+  const shown = res.filter(r => r.label !== 'NO_TARGET').slice(-12).reverse();
+  document.getElementById('rows').innerHTML = shown.length ? shown.map(r => {
+    const dep = r.fit && r.fit.depth!=null ? (r.fit.depth*100).toFixed(0)+' cm' : '—';
+    const mom = r.fit && r.fit.moment!=null ? r.fit.moment.toFixed(4) : '—';
+    return `<tr><td>${r.id}</td><td><span class="tag t-${r.label}">${r.label}</span></td>`
+         + `<td style="text-align:right">${dep}</td><td style="text-align:right">${mom}</td></tr>`;
+  }).join('') : '<tr><td colspan="4" style="color:var(--dim)">no spots scanned yet</td></tr>';
+}
+
+async function poll(){
+  try{
+    const r = await fetch('/api', {cache:'no-store'});
+    render(await r.json());
+    document.getElementById('stateText').classList.remove('off');
+  }catch(e){
+    document.getElementById('stateText').textContent = 'scan offline — retrying';
+    document.getElementById('stateText').classList.add('off');
+  }
+}
+poll(); setInterval(poll, 1000);
+</script>
+</body>
+</html>

@@ -140,7 +140,7 @@ sleep 25
 python3 "$HERE/lan_discover_go2.py" && {
   echo
   ok "Dog is on the LAN. Next:"
-  echo "     dimos run patsiuk-dimos.scan --robot-ip <the ip above>"
+  echo "     dimos run vitallic-dimos.scan --robot-ip <the ip above>"
   echo "     dimos spy        # confirm telemetry is actually flowing"
 } || {
   echo

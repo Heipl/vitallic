@@ -1,5 +1,5 @@
 """
-field_scan.py - Patsiuk: the dog visits every "drone-flagged" spot, scans it with the
+field_scan.py - Vitallic: the dog visits every "drone-flagged" spot, scans it with the
 two-phone gradiometer, fits a magnetic dipole, and sorts it into
 MINE_SIZED / FRAGMENT / NO_TARGET / RESCAN. Only MINE_SIZED spots go to a human.
 
@@ -15,6 +15,7 @@ Examples
 """
 import argparse
 import json
+import os
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -22,6 +23,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import numpy as np
 
 import dipole
+from bayes import REGIONS_M2, SurveyPosterior
+from geo import ArenaGeo
 from phones import PhyphoxPhone, phone_to_arena, read_pair
 
 SKIPPED = "SKIPPED"  # no safe path to this spot; never means "clear"
@@ -30,22 +33,36 @@ SKIPPED = "SKIPPED"  # no safe path to this spot; never means "clear"
 
 
 class StatusBoard:
-    """GET /state -> plain text state (for the UNO Q). GET / -> JSON of everything."""
+    """Live server for the scan.
 
-    def __init__(self, port):
+      GET /state  -> plain text state       (the UNO Q LED display polls this)
+      GET /api    -> JSON: state, results with lat/lon, Bayesian posterior
+      GET /       -> live_map.html          (map + posterior, polls /api)
+    """
+
+    def __init__(self, port, geo=None, posterior=None, regions=None):
         self.state, self.spot, self.results = "IDLE", "", []
+        self.geo, self.posterior, self.regions = geo, posterior, regions
         board = self
+        page = os.path.join(os.path.dirname(os.path.abspath(__file__)), "live_map.html")
 
         class Handler(BaseHTTPRequestHandler):
             def do_GET(self):
                 if self.path.startswith("/state"):
                     body, ctype = board.state.encode(), "text/plain"
+                elif self.path.startswith("/api"):
+                    body, ctype = json.dumps(board.payload()).encode(), "application/json"
                 else:
-                    body = json.dumps({"state": board.state, "spot": board.spot,
-                                       "results": board.results}).encode()
-                    ctype = "application/json"
+                    try:
+                        with open(page, "rb") as fh:
+                            body = fh.read()
+                        ctype = "text/html; charset=utf-8"
+                    except OSError:
+                        body = b"live_map.html not found next to field_scan.py"
+                        ctype = "text/plain"
                 self.send_response(200)
                 self.send_header("Content-Type", ctype)
+                self.send_header("Cache-Control", "no-store")
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(body)
@@ -55,6 +72,14 @@ class StatusBoard:
 
         self.httpd = ThreadingHTTPServer(("0.0.0.0", port), Handler)
         threading.Thread(target=self.httpd.serve_forever, daemon=True).start()
+
+    def payload(self):
+        out = {"state": self.state, "spot": self.spot, "results": self.results}
+        if self.geo is not None:
+            out["geo"] = self.geo.as_dict()
+        if self.posterior is not None:
+            out["bayes"] = self.posterior.snapshot(self.regions)
+        return out
 
     def set(self, state, spot=""):
         self.state, self.spot = state, spot
@@ -120,7 +145,7 @@ def save_map(path, spots, results, body_start):
     ax.set_aspect("equal")
     ax.margins(0.2)
     ax.grid(alpha=.3)
-    ax.set_title("Patsiuk: flagged spots, classified")
+    ax.set_title("Vitallic: flagged spots, classified")
     fig.tight_layout()
     fig.savefig(path, dpi=130)
     plt.close(fig)
@@ -149,7 +174,7 @@ def main():
     ap.add_argument("--calibrate", action="store_true", help="just print fits for known objects")
     ap.add_argument("--skill", default="precise_move",
                     help="dimOS move skill. Default precise_move bypasses the 20 cm "
-                         "planner trap (requires: dimos run patsiuk-dimos.scan). "
+                         "planner trap (requires: dimos run vitallic-dimos.scan). "
                          "Pass move_to to use the stock planner skill.")
     ap.add_argument("--observe-skill", default="observe")
     ap.add_argument("--dimos", default="dimos",
@@ -159,6 +184,12 @@ def main():
                     help="permit legs below dimOS's 20 cm arrival tolerance. Only pass this if "
                          "tools/min_move_test.py proved your dog really executes them.")
     ap.add_argument("--status-port", type=int, default=8765)
+    ap.add_argument("--lat", type=float, default=42.3601,
+                    help="latitude of the arena origin (dog start), for the live map")
+    ap.add_argument("--lon", type=float, default=-71.0942,
+                    help="longitude of the arena origin")
+    ap.add_argument("--heading", type=float, default=0.0,
+                    help="compass bearing of arena +x: 0=north, 90=east")
     ap.add_argument("--out", default="results.json")
     ap.add_argument("--map", default="results_map.png")
     a = ap.parse_args()
@@ -196,7 +227,7 @@ def main():
                     f"{DimosMover.GOAL_TOLERANCE_M:.2f} m arrival tolerance, so "
                     f"{a.skill} would never actually move between scan points.\n"
                     "Default is --skill precise_move: start "
-                    "`dimos run patsiuk-dimos.scan --robot-ip <DOG_IP>` and leave "
+                    "`dimos run vitallic-dimos.scan --robot-ip <DOG_IP>` and leave "
                     "--skill alone. If you insist on move_to, run "
                     "`python tools/min_move_test.py --skill move_to` first.")
             mover = DimosMover(skill=a.skill, observe_skill=a.observe_skill, dimos=a.dimos,
@@ -213,8 +244,14 @@ def main():
                              "Check phyphox is open on Magnetometer with remote access on, "
                              "and that both phones and this laptop are on ONE hotspot.")
 
-    board = StatusBoard(a.status_port)
+    geo = ArenaGeo(a.lat, a.lon, a.heading)
+    posterior = SurveyPosterior()
+    # Ground each scan clears: the cross/grid footprint plus a half-step margin.
+    span = (a.points - 1) * a.step + a.step
+    spot_area = span * span if a.pattern == "grid" else span * a.step * 2
+    board = StatusBoard(a.status_port, geo=geo, posterior=posterior, regions=REGIONS_M2)
     print(f"status server on :{a.status_port}  (UNO Q polls /state)")
+    print(f"LIVE MAP  ->  http://localhost:{a.status_port}/")
 
     # Baseline over clean ground: gives the Earth-field direction for the fit.
     board.set("BASELINE")
@@ -260,7 +297,9 @@ def main():
             # SKIPPED is never "clear" - it still goes to a human.
             print(f'[{s["id"]}] SKIPPED: {exc}')
             board.set(SKIPPED, s["id"])
+            slat, slon = geo.to_latlon(center[0], center[1])
             results.append({"id": s["id"], "label": SKIPPED, "reason": str(exc),
+                            "lat": slat, "lon": slon,
                             "scan_seconds": round(time.time() - t0, 1)})
             board.results = [{k: v for k, v in r.items() if k != "raw"} for r in results]
             json.dump(results, open(a.out, "w"), indent=1)
@@ -268,10 +307,17 @@ def main():
             continue
         board.set(label, s["id"])
         photo = mover.observe() if label in (dipole.MINE, dipole.RESCAN) else ""
+        # Fit the object where it actually is, not where the drone guessed.
+        lat, lon = geo.to_latlon(fit.x, fit.y)
         rec = {"id": s["id"], "label": label, "noise_uT": noise, "fit": fit.as_dict(),
+               "lat": lat, "lon": lon,
                "scan_seconds": round(time.time() - t0, 1), "observe": photo,
                "raw": {"xy": xy.tolist(), "t_low": tl.tolist(), "t_high": th.tolist()}}
         results.append(rec)
+        # Evidence for the live posterior. --calibrate is a bench measurement,
+        # not a survey, so it must not pollute the contamination estimate.
+        if not a.calibrate:
+            posterior.observe(label == dipole.MINE, area_m2=spot_area)
         board.results = [{k: v for k, v in r.items() if k != "raw"} for r in results]
         if label == dipole.NONE:
             print(f'[{s["id"]}] NO_TARGET: signal {fit.p2p_uT:.2f} uT p2p vs noise {noise:.2f} uT')

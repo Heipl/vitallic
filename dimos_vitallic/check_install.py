@@ -1,4 +1,4 @@
-"""Offline check that dimOS can find and build the patsiuk blueprint.
+"""Offline check that dimOS can find and build the vitallic blueprint.
 
 Nothing here needs a dog or a running dimOS instance: it only proves the entry
 point resolves, the module imports, and the blueprint composes. Run it after
@@ -12,7 +12,7 @@ import sys
 
 def check_module() -> bool:
     """The parts that do not depend on the Go2 connection stack."""
-    from patsiuk_dimos.precise_move import CMD_VEL_TOPIC, PreciseMove, PreciseMoveConfig
+    from vitallic_dimos.precise_move import CMD_VEL_TOPIC, PreciseMove, PreciseMoveConfig
 
     cfg = PreciseMoveConfig()
     print(f"  cmd_vel remapped to: {CMD_VEL_TOPIC!r}  "
@@ -42,7 +42,7 @@ def main() -> int:
 
     print("1. entry point registered")
     names = list_external_blueprint_names()
-    if "patsiuk-dimos.scan" not in names:
+    if "vitallic-dimos.scan" not in names:
         print(f"  FAIL: not in {names}. Install into the dimOS venv:")
         print("    VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install -e .")
         return 1
@@ -57,7 +57,7 @@ def main() -> int:
 
     print("3. blueprint composes (needs the Go2 connection stack)")
     try:
-        blueprint = resolve_external_blueprint_by_name("patsiuk-dimos.scan")
+        blueprint = resolve_external_blueprint_by_name("vitallic-dimos.scan")
         print(f"  loaded: {type(blueprint).__name__}")
     except Exception as exc:
         if "unitree_webrtc_connect" in str(exc):
@@ -74,7 +74,7 @@ def main() -> int:
         return 1
 
     print("\nOK. Start it with:")
-    print("  dimos run patsiuk-dimos.scan --robot-ip <DOG_IP>")
+    print("  dimos run vitallic-dimos.scan --robot-ip <DOG_IP>")
     print("then confirm the skill is live with:")
     print("  dimos mcp list-tools | grep precise_move")
     return 0

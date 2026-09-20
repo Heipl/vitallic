@@ -1,0 +1,379 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1760 1240" width="1760" height="1240" xmlns:c2pa="http://c2pa.org/manifest"><metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTo0YjNiODc0MS02YTlhLTRjMGMtOGFkZC1kMmNlOWNiOTkzN2EAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaF5dPjp/k4JFWyreZQwKuGkAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDo3M2ExODQxMy00MWIxLTQzYzctOWMzMi1lODM5MDQwNWM2ZTdscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoyP6KmarOrIy3x01etpcjEgAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFgg2SOqLJxFYuBH/fXYfzj2VolzzFt8K5pwA9GIOGWMcJOkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaJ1AO7aRG2Hwkj3EKr+hRdcAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRNAAAAAAAAAAAAAAAAAGRoYXNoWCDlUbCG07ipyH/n7iwSuxzzQFkME6BpXuWhhlJBO5Nu52RuYW1lbmp1bWJmIG1hbmlmZXN0amV4Y2x1c2lvbnOBomVzdGFydBiaZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjRiM2I4NzQxLTZhOWEtNGMwYy04YWRkLWQyY2U5Y2I5OTM3YS9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOmU2MmIyMjdhLTcwZGMtNGEwYy04NzBlLWQwZGQ2Y2E1MDRlZHJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCDZI6osnEVi4Ef99dh/OPZWiXPMW3wrmnAD0Yg4ZYxwk6JjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggeBtWGXIuim58uMTazIqGZXD7gK97P/2BlZU/riD0r96iY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggrhJ9B1iUjuqXUER7rxV4Zdiv83mCEYSrZ7zW58dkX0F0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQMNm2RkGQX5yfX/dmEjF00zdaaxWrLzbJ41sIM6DiCl07FGCUJ46FCrCXQeYGbeE7bpx5txxZcj6vn90wJP+f90=</c2pa:manifest></metadata>
+<rect x="0" y="0" width="1760" height="1240" fill="#ffffff"/>
+<text x="30" y="44" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="28" text-anchor="start" font-weight="bold" fill="#1a1acc">Vitallic-2 — HackMIT 2026 wiring (Arduino UNO Q)</text>
+<text x="30" y="70" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="start" font-weight="normal" fill="#444">Net labels with the same name are connected. ● = junction.  × = not connected.  Orange = new metal-detector circuit, grey = pins freed by the port.</text>
+<rect x="660" y="130" width="280" height="640" rx="6" fill="#fff" stroke="#8b1a1a" stroke-width="2.5"/>
+<text x="800.0" y="360" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="40" text-anchor="middle" font-weight="bold" fill="#1a1acc">Arduino</text>
+<text x="800.0" y="408" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="40" text-anchor="middle" font-weight="bold" fill="#1a1acc">UNO Q</text>
+<text x="800.0" y="450" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#555">MCU: STM32U585 · 3.3 V I/O</text>
+<text x="800.0" y="470" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#555">(5 V-tolerant except A0/A1)</text>
+<text x="800.0" y="490" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#555">MPU: QRB2210 Debian Linux</text>
+<text x="800.0" y="510" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#555">Wi-Fi 5 + Bluetooth 5.1</text>
+<text x="930" y="185" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="end" font-weight="normal" fill="#8b1a1a">D13</text>
+<line x1="940" y1="180" x2="976" y2="180" stroke="#1f5fd6" stroke-width="2" stroke-linecap="round"/>
+<rect x="976" y="169.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1f5fd6" stroke-width="2"/>
+<text x="1007.4" y="184.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1f5fd6">L_TRIG</text>
+<text x="930" y="225" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="end" font-weight="normal" fill="#8b1a1a">D12</text>
+<line x1="940" y1="220" x2="976" y2="220" stroke="#1f5fd6" stroke-width="2" stroke-linecap="round"/>
+<rect x="976" y="209.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1f5fd6" stroke-width="2"/>
+<text x="1007.4" y="224.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1f5fd6">L_ECHO</text>
+<text x="930" y="265" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="end" font-weight="normal" fill="#8b1a1a">D11~</text>
+<line x1="940" y1="260" x2="976" y2="260" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="976" y="249.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1b8a1b" stroke-width="2"/>
+<text x="1007.4" y="264.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1b8a1b">LB_PWM</text>
+<text x="930" y="305" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="end" font-weight="normal" fill="#8b1a1a">D10~</text>
+<line x1="940" y1="300" x2="976" y2="300" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="976" y="289.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1b8a1b" stroke-width="2"/>
+<text x="1007.4" y="304.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1b8a1b">RB_PWM</text>
+<text x="930" y="345" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="end" font-weight="normal" fill="#8b1a1a">D9~</text>
+<line x1="940" y1="340" x2="976" y2="340" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="976" y="329.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1b8a1b" stroke-width="2"/>
+<text x="1007.4" y="344.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1b8a1b">LF_PWM</text>
+<text x="930" y="385" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="end" font-weight="normal" fill="#8b1a1a">D8</text>
+<line x1="940" y1="380" x2="960" y2="380" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<line x1="955" y1="375" x2="965" y2="385" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<line x1="955" y1="385" x2="965" y2="375" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<text x="972" y="384" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#999" font-style="italic">(was L sonar VCC)</text>
+<text x="930" y="425" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="end" font-weight="normal" fill="#8b1a1a">D7</text>
+<line x1="940" y1="420" x2="976" y2="420" stroke="#1f5fd6" stroke-width="2" stroke-linecap="round"/>
+<rect x="976" y="409.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1f5fd6" stroke-width="2"/>
+<text x="1007.4" y="424.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1f5fd6">R_ECHO</text>
+<text x="930" y="465" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="end" font-weight="normal" fill="#8b1a1a">D6~</text>
+<line x1="940" y1="460" x2="976" y2="460" stroke="#1f5fd6" stroke-width="2" stroke-linecap="round"/>
+<rect x="976" y="449.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1f5fd6" stroke-width="2"/>
+<text x="1007.4" y="464.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1f5fd6">R_TRIG</text>
+<text x="930" y="505" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="end" font-weight="normal" fill="#8b1a1a">D5~</text>
+<line x1="940" y1="500" x2="960" y2="500" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<line x1="955" y1="495" x2="965" y2="505" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<line x1="955" y1="505" x2="965" y2="495" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<text x="972" y="504" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#999" font-style="italic">(was R sonar VCC)</text>
+<text x="930" y="545" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="end" font-weight="normal" fill="#8b1a1a">D4</text>
+<line x1="940" y1="540" x2="976" y2="540" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="976" y="529.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1b8a1b" stroke-width="2"/>
+<text x="1007.4" y="544.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1b8a1b">LF_DIR</text>
+<text x="930" y="585" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="end" font-weight="normal" fill="#8b1a1a">D3~</text>
+<line x1="940" y1="580" x2="976" y2="580" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="976" y="569.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1b8a1b" stroke-width="2"/>
+<text x="1007.4" y="584.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1b8a1b">RF_PWM</text>
+<text x="930" y="625" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="end" font-weight="normal" fill="#8b1a1a">D2</text>
+<line x1="940" y1="620" x2="976" y2="620" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="976" y="609.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1b8a1b" stroke-width="2"/>
+<text x="1007.4" y="624.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1b8a1b">RF_DIR</text>
+<text x="930" y="665" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="end" font-weight="normal" fill="#8b1a1a">D1</text>
+<line x1="940" y1="660" x2="960" y2="660" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<line x1="955" y1="655" x2="965" y2="665" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<line x1="955" y1="665" x2="965" y2="655" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<text x="972" y="664" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#999" font-style="italic">(was HC-05)</text>
+<text x="930" y="705" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="end" font-weight="normal" fill="#8b1a1a">D0</text>
+<line x1="940" y1="700" x2="960" y2="700" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<line x1="955" y1="695" x2="965" y2="705" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<line x1="955" y1="705" x2="965" y2="695" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<text x="972" y="704" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#999" font-style="italic">(was HC-05)</text>
+<text x="670" y="205" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="start" font-weight="normal" fill="#8b1a1a">VIN</text>
+<line x1="660" y1="200" x2="640" y2="200" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<line x1="635" y1="195" x2="645" y2="205" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<line x1="635" y1="205" x2="645" y2="195" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<text x="670" y="245" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="start" font-weight="normal" fill="#8b1a1a">5V</text>
+<line x1="660" y1="240" x2="624" y2="240" stroke="#d11" stroke-width="2" stroke-linecap="round"/>
+<rect x="584.6" y="229.0" width="39.4" height="22" rx="10" fill="#fff" stroke="#d11" stroke-width="2"/>
+<text x="604.3000000000001" y="244.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#d11">+5V</text>
+<text x="670" y="285" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="start" font-weight="normal" fill="#8b1a1a">3V3</text>
+<line x1="660" y1="280" x2="640" y2="280" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<line x1="635" y1="275" x2="645" y2="285" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<line x1="635" y1="285" x2="645" y2="275" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<text x="670" y="325" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="start" font-weight="normal" fill="#8b1a1a">GND</text>
+<line x1="660" y1="320" x2="624" y2="320" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+<rect x="584.6" y="309.0" width="39.4" height="22" rx="10" fill="#fff" stroke="#222" stroke-width="2"/>
+<text x="604.3000000000001" y="324.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#222">GND</text>
+<text x="670" y="425" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="start" font-weight="normal" fill="#8b1a1a">A0</text>
+<line x1="660" y1="420" x2="624" y2="420" stroke="#e0701a" stroke-width="2" stroke-linecap="round"/>
+<rect x="530.0" y="409.0" width="94.0" height="22" rx="10" fill="#fff" stroke="#e0701a" stroke-width="2"/>
+<text x="577.0" y="424.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#e0701a">COIL_PULSE</text>
+<text x="670" y="465" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="start" font-weight="normal" fill="#8b1a1a">A1</text>
+<line x1="660" y1="460" x2="640" y2="460" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<line x1="635" y1="455" x2="645" y2="465" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<line x1="635" y1="465" x2="645" y2="455" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<text x="670" y="505" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="start" font-weight="normal" fill="#8b1a1a">A2</text>
+<line x1="660" y1="500" x2="640" y2="500" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<line x1="635" y1="495" x2="645" y2="505" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<line x1="635" y1="505" x2="645" y2="495" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+<text x="670" y="545" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="start" font-weight="normal" fill="#8b1a1a">A3</text>
+<line x1="660" y1="540" x2="624" y2="540" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="561.2" y="529.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1b8a1b" stroke-width="2"/>
+<text x="592.6" y="544.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1b8a1b">RB_DIR</text>
+<text x="670" y="585" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="start" font-weight="normal" fill="#8b1a1a">A4</text>
+<line x1="660" y1="580" x2="624" y2="580" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="561.2" y="569.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1b8a1b" stroke-width="2"/>
+<text x="592.6" y="584.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1b8a1b">LB_DIR</text>
+<text x="670" y="625" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="start" font-weight="normal" fill="#8b1a1a">A5</text>
+<line x1="660" y1="620" x2="624" y2="620" stroke="#e0701a" stroke-width="2" stroke-linecap="round"/>
+<rect x="530.0" y="609.0" width="94.0" height="22" rx="10" fill="#fff" stroke="#e0701a" stroke-width="2"/>
+<text x="577.0" y="624.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#e0701a">COIL_SENSE</text>
+<text x="580" y="224" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="end" font-weight="normal" fill="#d11" font-style="italic">5 V out (sonars)</text>
+<rect x="760.0" y="764" width="80" height="16" rx="3" fill="#eee" stroke="#8b1a1a" stroke-width="2"/>
+<text x="810.0" y="800" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#8b1a1a">USB-C  (power in, PD 5 V/3 A)</text>
+<rect x="150" y="230" width="210" height="280" rx="6" fill="#fff" stroke="#8b1a1a" stroke-width="2.5"/>
+<text x="255.0" y="364.0" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="30" text-anchor="middle" font-weight="bold" fill="#1a1acc">L298N</text>
+<text x="255.0" y="390.0" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="middle" font-weight="bold" fill="#444">#1 — BACK motors</text>
+<text x="255.0" y="410.0" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#666" font-style="italic">remove 5V-EN jumper</text>
+<text x="350" y="275" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="end" font-weight="normal" fill="#8b1a1a">ENA</text>
+<polyline points="360,270 374,270 374,258 360,258" fill="none" stroke="#1b8a1b" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="390.8" y="268" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="10" text-anchor="start" font-weight="normal" fill="#666" font-style="italic">jumper</text>
+<text x="350" y="315" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="end" font-weight="normal" fill="#8b1a1a">IN1</text>
+<line x1="360" y1="310" x2="396" y2="310" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="396" y="299.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1b8a1b" stroke-width="2"/>
+<text x="427.4" y="314.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1b8a1b">LB_PWM</text>
+<text x="350" y="355" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="end" font-weight="normal" fill="#8b1a1a">IN2</text>
+<line x1="360" y1="350" x2="396" y2="350" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="396" y="339.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1b8a1b" stroke-width="2"/>
+<text x="427.4" y="354.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1b8a1b">LB_DIR</text>
+<text x="350" y="395" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="end" font-weight="normal" fill="#8b1a1a">IN3</text>
+<line x1="360" y1="390" x2="396" y2="390" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="396" y="379.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1b8a1b" stroke-width="2"/>
+<text x="427.4" y="394.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1b8a1b">RB_DIR</text>
+<text x="350" y="435" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="end" font-weight="normal" fill="#8b1a1a">IN4</text>
+<line x1="360" y1="430" x2="396" y2="430" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="396" y="419.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1b8a1b" stroke-width="2"/>
+<text x="427.4" y="434.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1b8a1b">RB_PWM</text>
+<text x="350" y="475" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="end" font-weight="normal" fill="#8b1a1a">ENB</text>
+<polyline points="360,470 374,470 374,458 360,458" fill="none" stroke="#1b8a1b" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="390.8" y="468" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="10" text-anchor="start" font-weight="normal" fill="#666" font-style="italic">jumper</text>
+<text x="160" y="325" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="start" font-weight="normal" fill="#8b1a1a">12V</text>
+<line x1="150" y1="320" x2="120" y2="320" stroke="#b0006e" stroke-width="2" stroke-linecap="round"/>
+<rect x="49.400000000000006" y="309.0" width="70.6" height="22" rx="10" fill="#fff" stroke="#b0006e" stroke-width="2"/>
+<text x="84.7" y="324.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#b0006e">+5V_MOT</text>
+<text x="160" y="370" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="start" font-weight="normal" fill="#8b1a1a">GND</text>
+<line x1="150" y1="365" x2="120" y2="365" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+<rect x="80.6" y="354.0" width="39.4" height="22" rx="10" fill="#fff" stroke="#222" stroke-width="2"/>
+<text x="100.3" y="369.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#222">GND</text>
+<text x="160" y="415" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="start" font-weight="normal" fill="#8b1a1a">5V</text>
+<line x1="150" y1="410" x2="120" y2="410" stroke="#b0006e" stroke-width="2" stroke-linecap="round"/>
+<rect x="49.400000000000006" y="399.0" width="70.6" height="22" rx="10" fill="#fff" stroke="#b0006e" stroke-width="2"/>
+<text x="84.7" y="414.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#b0006e">+5V_MOT</text>
+<text x="220" y="252" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#8b1a1a">OUT1</text>
+<text x="290" y="252" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#8b1a1a">OUT2</text>
+<text x="220" y="500" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#8b1a1a">OUT3</text>
+<text x="290" y="500" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#8b1a1a">OUT4</text>
+<line x1="220" y1="230" x2="220" y2="140" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="290" y1="230" x2="290" y2="140" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<circle cx="255.0" cy="140" r="20" fill="#fff" stroke="#8b1a1a" stroke-width="2"/>
+<text x="255.0" y="145" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="middle" font-weight="bold" fill="#8b1a1a">M</text>
+<line x1="220" y1="140" x2="235.0" y2="140" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="275.0" y1="140" x2="290" y2="140" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="220" y1="185" x2="250.0" y2="185" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="260.0" y1="185" x2="290" y2="185" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="250.0" y1="176" x2="250.0" y2="194" stroke="#8b1a1a" stroke-width="3" stroke-linecap="round"/>
+<line x1="260.0" y1="176" x2="260.0" y2="194" stroke="#8b1a1a" stroke-width="3" stroke-linecap="round"/>
+<circle cx="220" cy="185" r="4" fill="#c00" stroke="#c00" stroke-width="1"/>
+<circle cx="290" cy="185" r="4" fill="#c00" stroke="#c00" stroke-width="1"/>
+<text x="255.0" y="209" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#8b1a1a">104</text>
+<text x="255.0" y="110" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="middle" font-weight="bold" fill="#1a1acc">Left-back (TT)</text>
+<line x1="220" y1="510" x2="220" y2="600" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="290" y1="510" x2="290" y2="600" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<circle cx="255.0" cy="600" r="20" fill="#fff" stroke="#8b1a1a" stroke-width="2"/>
+<text x="255.0" y="605" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="middle" font-weight="bold" fill="#8b1a1a">M</text>
+<line x1="220" y1="600" x2="235.0" y2="600" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="275.0" y1="600" x2="290" y2="600" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="220" y1="555" x2="250.0" y2="555" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="260.0" y1="555" x2="290" y2="555" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="250.0" y1="546" x2="250.0" y2="564" stroke="#8b1a1a" stroke-width="3" stroke-linecap="round"/>
+<line x1="260.0" y1="546" x2="260.0" y2="564" stroke="#8b1a1a" stroke-width="3" stroke-linecap="round"/>
+<circle cx="220" cy="555" r="4" fill="#c00" stroke="#c00" stroke-width="1"/>
+<circle cx="290" cy="555" r="4" fill="#c00" stroke="#c00" stroke-width="1"/>
+<text x="255.0" y="541" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#8b1a1a">104</text>
+<text x="255.0" y="638" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="middle" font-weight="bold" fill="#1a1acc">Right-back (TT)</text>
+<rect x="1250" y="230" width="210" height="280" rx="6" fill="#fff" stroke="#8b1a1a" stroke-width="2.5"/>
+<text x="1355.0" y="364.0" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="30" text-anchor="middle" font-weight="bold" fill="#1a1acc">L298N</text>
+<text x="1355.0" y="390.0" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="middle" font-weight="bold" fill="#444">#2 — FRONT motors</text>
+<text x="1355.0" y="410.0" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#666" font-style="italic">remove 5V-EN jumper</text>
+<text x="1260" y="275" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="start" font-weight="normal" fill="#8b1a1a">ENA</text>
+<polyline points="1250,270 1236,270 1236,258 1250,258" fill="none" stroke="#1b8a1b" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="1219.2" y="268" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="10" text-anchor="end" font-weight="normal" fill="#666" font-style="italic">jumper</text>
+<text x="1260" y="315" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="start" font-weight="normal" fill="#8b1a1a">IN1</text>
+<line x1="1250" y1="310" x2="1214" y2="310" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="1151.2" y="299.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1b8a1b" stroke-width="2"/>
+<text x="1182.6000000000001" y="314.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1b8a1b">LF_PWM</text>
+<text x="1260" y="355" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="start" font-weight="normal" fill="#8b1a1a">IN2</text>
+<line x1="1250" y1="350" x2="1214" y2="350" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="1151.2" y="339.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1b8a1b" stroke-width="2"/>
+<text x="1182.6000000000001" y="354.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1b8a1b">LF_DIR</text>
+<text x="1260" y="395" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="start" font-weight="normal" fill="#8b1a1a">IN3</text>
+<line x1="1250" y1="390" x2="1214" y2="390" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="1151.2" y="379.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1b8a1b" stroke-width="2"/>
+<text x="1182.6000000000001" y="394.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1b8a1b">RF_DIR</text>
+<text x="1260" y="435" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="start" font-weight="normal" fill="#8b1a1a">IN4</text>
+<line x1="1250" y1="430" x2="1214" y2="430" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="1151.2" y="419.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1b8a1b" stroke-width="2"/>
+<text x="1182.6000000000001" y="434.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1b8a1b">RF_PWM</text>
+<text x="1260" y="475" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="start" font-weight="normal" fill="#8b1a1a">ENB</text>
+<polyline points="1250,470 1236,470 1236,458 1250,458" fill="none" stroke="#1b8a1b" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="1219.2" y="468" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="10" text-anchor="end" font-weight="normal" fill="#666" font-style="italic">jumper</text>
+<text x="1450" y="325" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="end" font-weight="normal" fill="#8b1a1a">12V</text>
+<line x1="1460" y1="320" x2="1490" y2="320" stroke="#b0006e" stroke-width="2" stroke-linecap="round"/>
+<rect x="1490" y="309.0" width="70.6" height="22" rx="10" fill="#fff" stroke="#b0006e" stroke-width="2"/>
+<text x="1525.3" y="324.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#b0006e">+5V_MOT</text>
+<text x="1450" y="370" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="end" font-weight="normal" fill="#8b1a1a">GND</text>
+<line x1="1460" y1="365" x2="1490" y2="365" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+<rect x="1490" y="354.0" width="39.4" height="22" rx="10" fill="#fff" stroke="#222" stroke-width="2"/>
+<text x="1509.7" y="369.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#222">GND</text>
+<text x="1450" y="415" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="end" font-weight="normal" fill="#8b1a1a">5V</text>
+<line x1="1460" y1="410" x2="1490" y2="410" stroke="#b0006e" stroke-width="2" stroke-linecap="round"/>
+<rect x="1490" y="399.0" width="70.6" height="22" rx="10" fill="#fff" stroke="#b0006e" stroke-width="2"/>
+<text x="1525.3" y="414.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#b0006e">+5V_MOT</text>
+<text x="1320" y="252" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#8b1a1a">OUT1</text>
+<text x="1390" y="252" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#8b1a1a">OUT2</text>
+<text x="1320" y="500" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#8b1a1a">OUT3</text>
+<text x="1390" y="500" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#8b1a1a">OUT4</text>
+<line x1="1320" y1="230" x2="1320" y2="140" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="1390" y1="230" x2="1390" y2="140" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<circle cx="1355.0" cy="140" r="20" fill="#fff" stroke="#8b1a1a" stroke-width="2"/>
+<text x="1355.0" y="145" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="middle" font-weight="bold" fill="#8b1a1a">M</text>
+<line x1="1320" y1="140" x2="1335.0" y2="140" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="1375.0" y1="140" x2="1390" y2="140" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="1320" y1="185" x2="1350.0" y2="185" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="1360.0" y1="185" x2="1390" y2="185" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="1350.0" y1="176" x2="1350.0" y2="194" stroke="#8b1a1a" stroke-width="3" stroke-linecap="round"/>
+<line x1="1360.0" y1="176" x2="1360.0" y2="194" stroke="#8b1a1a" stroke-width="3" stroke-linecap="round"/>
+<circle cx="1320" cy="185" r="4" fill="#c00" stroke="#c00" stroke-width="1"/>
+<circle cx="1390" cy="185" r="4" fill="#c00" stroke="#c00" stroke-width="1"/>
+<text x="1355.0" y="209" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#8b1a1a">104</text>
+<text x="1355.0" y="110" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="middle" font-weight="bold" fill="#1a1acc">Left-front (TT)</text>
+<line x1="1320" y1="510" x2="1320" y2="600" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="1390" y1="510" x2="1390" y2="600" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<circle cx="1355.0" cy="600" r="20" fill="#fff" stroke="#8b1a1a" stroke-width="2"/>
+<text x="1355.0" y="605" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="middle" font-weight="bold" fill="#8b1a1a">M</text>
+<line x1="1320" y1="600" x2="1335.0" y2="600" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="1375.0" y1="600" x2="1390" y2="600" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="1320" y1="555" x2="1350.0" y2="555" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="1360.0" y1="555" x2="1390" y2="555" stroke="#1b8a1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="1350.0" y1="546" x2="1350.0" y2="564" stroke="#8b1a1a" stroke-width="3" stroke-linecap="round"/>
+<line x1="1360.0" y1="546" x2="1360.0" y2="564" stroke="#8b1a1a" stroke-width="3" stroke-linecap="round"/>
+<circle cx="1320" cy="555" r="4" fill="#c00" stroke="#c00" stroke-width="1"/>
+<circle cx="1390" cy="555" r="4" fill="#c00" stroke="#c00" stroke-width="1"/>
+<text x="1355.0" y="541" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#8b1a1a">104</text>
+<text x="1355.0" y="638" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="middle" font-weight="bold" fill="#1a1acc">Right-front (TT)</text>
+<rect x="1590" y="40" width="150" height="190" rx="6" fill="#fff" stroke="#8b1a1a" stroke-width="2.5"/>
+<circle cx="1687.0" cy="100" r="26" fill="#fff" stroke="#8b1a1a" stroke-width="2"/>
+<circle cx="1687.0" cy="100" r="12" fill="#fff" stroke="#8b1a1a" stroke-width="1.5"/>
+<circle cx="1687.0" cy="170" r="26" fill="#fff" stroke="#8b1a1a" stroke-width="2"/>
+<circle cx="1687.0" cy="170" r="12" fill="#fff" stroke="#8b1a1a" stroke-width="1.5"/>
+<text x="1665.0" y="28" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="middle" font-weight="bold" fill="#1a1acc">HC-SR04  LEFT</text>
+<text x="1598" y="85" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#8b1a1a">VCC</text>
+<line x1="1590" y1="80" x2="1560" y2="80" stroke="#d11" stroke-width="2" stroke-linecap="round"/>
+<rect x="1520.6" y="69.0" width="39.4" height="22" rx="10" fill="#fff" stroke="#d11" stroke-width="2"/>
+<text x="1540.3" y="84.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#d11">+5V</text>
+<text x="1598" y="123" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#8b1a1a">TRIG</text>
+<line x1="1590" y1="118" x2="1560" y2="118" stroke="#1f5fd6" stroke-width="2" stroke-linecap="round"/>
+<rect x="1497.2" y="107.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1f5fd6" stroke-width="2"/>
+<text x="1528.6000000000001" y="122.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1f5fd6">L_TRIG</text>
+<text x="1598" y="161" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#8b1a1a">ECHO</text>
+<line x1="1590" y1="156" x2="1560" y2="156" stroke="#1f5fd6" stroke-width="2" stroke-linecap="round"/>
+<rect x="1497.2" y="145.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1f5fd6" stroke-width="2"/>
+<text x="1528.6000000000001" y="160.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1f5fd6">L_ECHO</text>
+<text x="1598" y="199" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#8b1a1a">GND</text>
+<line x1="1590" y1="194" x2="1560" y2="194" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+<rect x="1520.6" y="183.0" width="39.4" height="22" rx="10" fill="#fff" stroke="#222" stroke-width="2"/>
+<text x="1540.3" y="198.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#222">GND</text>
+<rect x="1590" y="560" width="150" height="190" rx="6" fill="#fff" stroke="#8b1a1a" stroke-width="2.5"/>
+<circle cx="1687.0" cy="620" r="26" fill="#fff" stroke="#8b1a1a" stroke-width="2"/>
+<circle cx="1687.0" cy="620" r="12" fill="#fff" stroke="#8b1a1a" stroke-width="1.5"/>
+<circle cx="1687.0" cy="690" r="26" fill="#fff" stroke="#8b1a1a" stroke-width="2"/>
+<circle cx="1687.0" cy="690" r="12" fill="#fff" stroke="#8b1a1a" stroke-width="1.5"/>
+<text x="1665.0" y="548" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="middle" font-weight="bold" fill="#1a1acc">HC-SR04  RIGHT</text>
+<text x="1598" y="605" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#8b1a1a">VCC</text>
+<line x1="1590" y1="600" x2="1560" y2="600" stroke="#d11" stroke-width="2" stroke-linecap="round"/>
+<rect x="1520.6" y="589.0" width="39.4" height="22" rx="10" fill="#fff" stroke="#d11" stroke-width="2"/>
+<text x="1540.3" y="604.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#d11">+5V</text>
+<text x="1598" y="643" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#8b1a1a">TRIG</text>
+<line x1="1590" y1="638" x2="1560" y2="638" stroke="#1f5fd6" stroke-width="2" stroke-linecap="round"/>
+<rect x="1497.2" y="627.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1f5fd6" stroke-width="2"/>
+<text x="1528.6000000000001" y="642.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1f5fd6">R_TRIG</text>
+<text x="1598" y="681" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#8b1a1a">ECHO</text>
+<line x1="1590" y1="676" x2="1560" y2="676" stroke="#1f5fd6" stroke-width="2" stroke-linecap="round"/>
+<rect x="1497.2" y="665.0" width="62.8" height="22" rx="10" fill="#fff" stroke="#1f5fd6" stroke-width="2"/>
+<text x="1528.6000000000001" y="680.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#1f5fd6">R_ECHO</text>
+<text x="1598" y="719" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#8b1a1a">GND</text>
+<line x1="1590" y1="714" x2="1560" y2="714" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+<rect x="1520.6" y="703.0" width="39.4" height="22" rx="10" fill="#fff" stroke="#222" stroke-width="2"/>
+<text x="1540.3" y="718.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#222">GND</text>
+<text x="1665" y="775" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#666" font-style="italic">replaces US-025 · same pinout</text>
+<text x="1665" y="250" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#666" font-style="italic">ECHO is 5 V → D12 is 5 V-tolerant</text>
+<rect x="30" y="870" width="560" height="330" rx="8" fill="#fff8f1" stroke="#e0701a" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="44" y="896" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="16" text-anchor="start" font-weight="bold" fill="#e0701a">Search-coil metal detector  (replaces MDS-60)</text>
+<rect x="50" y="929.0" width="94.0" height="22" rx="10" fill="#fff" stroke="#e0701a" stroke-width="2"/>
+<text x="97.0" y="944.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#e0701a">COIL_PULSE</text>
+<line x1="144.0" y1="940" x2="174.0" y2="940" stroke="#e0701a" stroke-width="2" stroke-linecap="round"/>
+<polyline points="174.0,940 180.0,932 190.0,948 200.0,932 210.0,948 220.0,932 230.0,948 240.0,940" fill="none" stroke="#8b1a1a" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="207.0" y="924" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="normal" fill="#8b1a1a">220 Ω</text>
+<line x1="240.0" y1="940" x2="284.0" y2="940" stroke="#e0701a" stroke-width="2" stroke-linecap="round"/>
+<circle cx="284.0" cy="940" r="4" fill="#c00" stroke="#c00" stroke-width="1"/>
+<line x1="284.0" y1="940" x2="284.0" y2="960" stroke="#e0701a" stroke-width="2" stroke-linecap="round"/>
+<path d="M 284 960 a 9 9 0 0 1 0 18 a 9 9 0 0 1 0 18 a 9 9 0 0 1 0 18 a 9 9 0 0 1 0 18" fill="none" stroke="#8b1a1a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<line x1="284.0" y1="1032" x2="284.0" y2="1050" stroke="#e0701a" stroke-width="2" stroke-linecap="round"/>
+<line x1="284.0" y1="1050" x2="284.0" y2="1058" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+<line x1="272.0" y1="1058" x2="296.0" y2="1058" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+<line x1="277.0" y1="1063" x2="291.0" y2="1063" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+<line x1="281.0" y1="1068" x2="287.0" y2="1068" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+<text x="266.0" y="990" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="end" font-weight="normal" fill="#8b1a1a">coil: 20 turns 30 AWG</text>
+<text x="266.0" y="1006" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="end" font-weight="normal" fill="#8b1a1a">Ø ≈ 10 cm magnet wire</text>
+<line x1="284.0" y1="940" x2="324.0" y2="940" stroke="#e0701a" stroke-width="2" stroke-linecap="round"/>
+<path d="M 324.0 929 L 324.0 951 L 346.0 940 Z" fill="#fff" stroke="#8b1a1a" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<line x1="346.0" y1="929" x2="346.0" y2="951" stroke="#8b1a1a" stroke-width="3" stroke-linecap="round"/>
+<text x="335.0" y="922" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#8b1a1a">diode</text>
+<line x1="346.0" y1="940" x2="404.0" y2="940" stroke="#e0701a" stroke-width="2" stroke-linecap="round"/>
+<circle cx="404.0" cy="940" r="4" fill="#c00" stroke="#c00" stroke-width="1"/>
+<line x1="404.0" y1="940" x2="434.0" y2="940" stroke="#e0701a" stroke-width="2" stroke-linecap="round"/>
+<rect x="434.0" y="929.0" width="94.0" height="22" rx="10" fill="#fff" stroke="#e0701a" stroke-width="2"/>
+<text x="481.0" y="944.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#e0701a">COIL_SENSE</text>
+<line x1="404.0" y1="940" x2="404.0" y2="980" stroke="#e0701a" stroke-width="2" stroke-linecap="round"/>
+<line x1="390.0" y1="980" x2="418.0" y2="980" stroke="#8b1a1a" stroke-width="3" stroke-linecap="round"/>
+<line x1="390.0" y1="990" x2="418.0" y2="990" stroke="#8b1a1a" stroke-width="3" stroke-linecap="round"/>
+<line x1="404.0" y1="990" x2="404.0" y2="1010" stroke="#e0701a" stroke-width="2" stroke-linecap="round"/>
+<line x1="404.0" y1="1010" x2="404.0" y2="1018" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+<line x1="392.0" y1="1018" x2="416.0" y2="1018" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+<line x1="397.0" y1="1023" x2="411.0" y2="1023" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+<line x1="401.0" y1="1028" x2="407.0" y2="1028" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+<text x="424.0" y="990" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#8b1a1a">100 nF (104)</text>
+<text x="44" y="1120" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#555">Diode: PN2222 base–collector junction (B = anode, C = cathode, E open),</text>
+<text x="44" y="1139" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#555">or a 1N4007 (slower, less sensitive). Both from the ELEGOO starter kits.</text>
+<text x="44" y="1158" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#555">Mount the coil on a foam-board boom ≥10 cm ahead of the motors,</text>
+<text x="44" y="1177" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#555">1–2 cm above the floor and below the sonar beams.</text>
+<rect x="640" y="870" width="520" height="330" rx="8" fill="#fff5fa" stroke="#b0006e" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="654" y="896" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="16" text-anchor="start" font-weight="bold" fill="#b0006e">Power</text>
+<rect x="670" y="990" width="170" height="110" rx="8" fill="#fff" stroke="#8b1a1a" stroke-width="2.5"/>
+<text x="755" y="1030" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="14" text-anchor="middle" font-weight="bold" fill="#1a1acc">USB power bank</text>
+<text x="755" y="1050" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="middle" font-weight="normal" fill="#444">10 000 mAh · 30 W</text>
+<text x="755" y="1068" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#666" font-style="italic">(HackMIT, Restricted)</text>
+<polyline points="755,990 755,930 800.0,930 800.0,780" fill="none" stroke="#b0006e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="765" y="950" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#b0006e">USB-C PD cable → UNO Q USB-C</text>
+<line x1="840" y1="1020" x2="880" y2="1020" stroke="#b0006e" stroke-width="2" stroke-linecap="round"/>
+<text x="844" y="1012" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#b0006e">USB-A</text>
+<circle cx="884" cy="1020" r="4" fill="#fff" stroke="#8b1a1a" stroke-width="2"/>
+<line x1="888" y1="1020" x2="920" y2="1006" stroke="#8b1a1a" stroke-width="2.5" stroke-linecap="round"/>
+<circle cx="924" cy="1020" r="4" fill="#fff" stroke="#8b1a1a" stroke-width="2"/>
+<text x="904" y="998" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="middle" font-weight="normal" fill="#8b1a1a">SW1 rocker</text>
+<line x1="928" y1="1020" x2="970" y2="1020" stroke="#b0006e" stroke-width="2" stroke-linecap="round"/>
+<rect x="970" y="1009.0" width="70.6" height="22" rx="10" fill="#fff" stroke="#b0006e" stroke-width="2"/>
+<text x="1005.3" y="1024.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#b0006e">+5V_MOT</text>
+<line x1="840" y1="1070" x2="970" y2="1070" stroke="#222" stroke-width="2" stroke-linecap="round"/>
+<rect x="970" y="1059.0" width="39.4" height="22" rx="10" fill="#fff" stroke="#222" stroke-width="2"/>
+<text x="989.7" y="1074.5" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="middle" font-weight="bold" fill="#222">GND</text>
+<text x="844" y="1094" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="11" text-anchor="start" font-weight="normal" fill="#666" font-style="italic">(cut USB-A cable, red/black)</text>
+<text x="654" y="1160" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#555">One ground for everything. SW1 = motor kill switch. WAGO 221s to split +5V_MOT/GND.</text>
+<text x="654" y="1180" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#555">Webcam option: power UNO Q from its 5V pin instead and plug the camera into USB-C.</text>
+<rect x="1190" y="830" width="540" height="130" rx="8" fill="#f6f6f6" stroke="#666" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="1204" y="856" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#444">Wireless (no wires to the robot)</text>
+<text x="1204" y="880" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#333">BLE  ← nRF52840-DK E-stop / alert fob</text>
+<text x="1204" y="899" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#333">Wi-Fi ↔ ESP32-S3-BOX voice + touch console</text>
+<text x="1204" y="918" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#333">Wi-Fi ↔ ground-station laptop (dimOS agent)</text>
+<text x="1204" y="937" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#666" font-style="italic">Replaces HC-05 — D0/D1 are now free · see architecture diagram</text>
+<rect x="1190" y="975" width="540" height="225" rx="8" fill="#f4f6ff" stroke="#1a1acc" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="1204" y="1001" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="15" text-anchor="start" font-weight="bold" fill="#1a1acc">Porting notes (Uno R3 → UNO Q)</text>
+<text x="1204" y="1027" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#333">• 3.3 V logic: L298N inputs and HC-SR04 TRIG accept it;</text>
+<text x="1204" y="1050" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#333">   nothing 5 V goes to A0/A1 (not 5 V-tolerant).</text>
+<text x="1204" y="1073" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#333">• HC-SR04 VCC now on +5V (a 3.3 V pin can't power it) → D5, D8 freed.</text>
+<text x="1204" y="1096" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#333">• Delete the TCCR1/TCCR2 register writes (AVR-only).</text>
+<text x="1204" y="1119" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#333">• Don't call pinMode() on PWM pins — analogWrite() sets them up.</text>
+<text x="1204" y="1142" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#333">• Same pin numbers as the adapted Uno sketch otherwise.</text>
+<text x="1204" y="1165" font-family="Arial, Helvetica, 'DejaVu Sans', sans-serif" font-size="13" text-anchor="start" font-weight="normal" fill="#333">• Retune METAL_PULSES: the coil is now pulsed at 3.3 V.</text>
+</svg>

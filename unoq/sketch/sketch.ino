@@ -1,5 +1,5 @@
 /*
- * Patsiuk status display - Arduino UNO Q (optional part of the build).
+ * Vitallic status display - Arduino UNO Q (optional part of the build).
  * Shows what the dog just found on the UNO Q's built-in 8x13 LED matrix,
  * so judges can see the result on the dog itself.
  *

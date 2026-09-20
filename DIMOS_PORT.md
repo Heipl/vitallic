@@ -1,4 +1,4 @@
-# Porting Patsiuk onto dimOS
+# Porting Vitallic onto dimOS
 
 Everything here was checked against the **real dimOS install** (`dimos 0.0.14`, in WSL at
 `/root/dimensional-applications/.venv`) by reading the installed package source — not guessed
@@ -8,17 +8,17 @@ the design is `tools/min_move_test.py`.
 ## What the scan runs on now
 
 `field_scan.py` defaults to `--skill precise_move`. That skill lives in
-`dimos_patsiuk/` and is exposed by a custom blueprint that wraps stock
+`dimos_vitallic/` and is exposed by a custom blueprint that wraps stock
 `unitree-go2-agentic`:
 
 ```
-VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install -e dimos_patsiuk
-# one-time, already done on this machine: dimos list now shows patsiuk-dimos.scan
+VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install -e dimos_vitallic
+# one-time, already done on this machine: dimos list now shows vitallic-dimos.scan
 
 # also required, NOT yet done: the Go2 connection extra
 VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install "dimos[unitree]"
 
-dimos run patsiuk-dimos.scan --robot-ip <DOG_IP>
+dimos run vitallic-dimos.scan --robot-ip <DOG_IP>
 dimos mcp list-tools | grep precise_move
 ```
 
@@ -96,7 +96,7 @@ run so the dog's magnetism stays constant at the phones.
 `tele_cmd_vel`. If the live name differs:
 
 ```
-PATSIUK_CMD_VEL_TOPIC=<real name> dimos run patsiuk-dimos.scan --robot-ip <IP>
+VITALLIC_CMD_VEL_TOPIC=<real name> dimos run vitallic-dimos.scan --robot-ip <IP>
 ```
 
 ## Provisioning wifi: use dimOS's own tool
@@ -170,13 +170,13 @@ the transport layer.
 fails with `No module named 'unitree_webrtc_connect'`. The `dimos` package
 declares `Requires-Dist: unitree-webrtc-connect>=2.1.2; extra == "unitree"`, and
 that extra is not installed. Stock `unitree-go2-agentic` is broken the same way
-as `patsiuk-dimos.scan`. Fix:
+as `vitallic-dimos.scan`. Fix:
 
 ```
 VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install "dimos[unitree]"
 ```
 
-then `python dimos_patsiuk/check_install.py` should print OK.
+then `python dimos_vitallic/check_install.py` should print OK.
 
 Also: `dimos whoami` currently says not logged in. Run `dimos login` before the
 agentic blueprint.
@@ -189,13 +189,13 @@ agentic blueprint.
 
 # 1. Go2 extra + scan blueprint
 VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install "dimos[unitree]"
-VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install -e /mnt/c/Users/aliek/shit/vitallic/dimos_patsiuk
-/root/dimensional-applications/.venv/bin/python /mnt/c/Users/aliek/shit/vitallic/dimos_patsiuk/check_install.py
+VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install -e /mnt/c/Users/aliek/shit/vitallic/dimos_vitallic
+/root/dimensional-applications/.venv/bin/python /mnt/c/Users/aliek/shit/vitallic/dimos_vitallic/check_install.py
 
 # 2. find the dog, start the blueprint
 /root/dimensional-applications/.venv/bin/dimos login          # if whoami says not logged in
 /root/dimensional-applications/.venv/bin/dimos go2tool
-/root/dimensional-applications/.venv/bin/dimos run patsiuk-dimos.scan --robot-ip <DOG_IP>
+/root/dimensional-applications/.venv/bin/dimos run vitallic-dimos.scan --robot-ip <DOG_IP>
 
 # 3. confirm skills, then measure
 /root/dimensional-applications/.venv/bin/dimos mcp list-tools

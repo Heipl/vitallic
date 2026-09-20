@@ -69,7 +69,7 @@ echo
 
 if [ "$found_any" = 1 ]; then
   echo "=> The dog is reachable. Skip BLE entirely and go straight to:"
-  echo "     dimos run patsiuk-dimos.scan --robot-ip <the address above>"
+  echo "     dimos run vitallic-dimos.scan --robot-ip <the address above>"
 else
   echo "=> No route reached the dog. That points at the dog itself, not your laptop:"
   echo "   1. Confirm it is actually ON and finished booting (lights up, motors audible,"

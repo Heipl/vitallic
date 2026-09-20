@@ -1,4 +1,4 @@
-# Patsiuk status display - Linux side of the Arduino UNO Q (Arduino App Lab app, optional).
+# Vitallic status display - Linux side of the Arduino UNO Q (Arduino App Lab app, optional).
 # Polls the laptop running field_scan.py and forwards the state to the LED-matrix sketch.
 import time
 import urllib.request

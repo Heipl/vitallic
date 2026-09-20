@@ -1,5 +1,5 @@
 """
-dipole.py - magnetic dipole inversion for Patsiuk's two-phone gradiometer.
+dipole.py - magnetic dipole inversion for Vitallic's two-phone gradiometer.
 
 Model: a compact buried steel object behaves like a magnetic dipole with moment
 m (A*m^2) sitting at (x0, y0, -depth). Each phone reports the total field
