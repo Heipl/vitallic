@@ -59,11 +59,41 @@ fi
 
 echo
 echo "3. Is the dog advertising?"
-timeout 14 bluetoothctl --timeout 10 scan on >/dev/null 2>&1
-if bluetoothctl devices 2>/dev/null | grep -qi "$MAC"; then
-  ok "$NAME is advertising"
+# Use the bleak scanner, not `bluetoothctl scan on`: bluetoothctl needs an
+# explicit `transport le` to scan LE at all, and matching a fixed MAC gives a
+# false negative if the dog advertises with a rotating private address.
+# ble_scan_go2.py matches on the Go2_/G1_/B2_ name prefix instead.
+SEEN=""
+if python3 -c "import bleak" 2>/dev/null; then
+  OUT="$(timeout 25 python3 "$HERE/ble_scan_go2.py" 2>&1)"
+  echo "$OUT" | sed 's/^/       /'
+  SEEN="$(echo "$OUT" | grep -iE "^BLE .*(${NAME}|Go2_)" | head -1)"
 else
-  bad "$NAME not seen. Power-cycle the dog and re-run within 2 min of boot."
+  warn "bleak not installed - falling back to bluetoothctl with LE transport"
+  warn "install it for a reliable scan:  pip install bleak"
+  OUT="$(printf 'menu scan
+transport le
+back
+scan on
+'         | timeout 20 bluetoothctl 2>&1 | grep -iE "Device .*(${NAME}|${MAC})" | head -5)"
+  echo "$OUT" | sed 's/^/       /'
+  SEEN="$OUT"
+fi
+
+if [ -n "$SEEN" ]; then
+  ok "$NAME is advertising"
+  ADDR="$(echo "$SEEN" | grep -oiE '[0-9A-F]{2}(:[0-9A-F]{2}){5}' | head -1)"
+  if [ -n "$ADDR" ] && [ "${ADDR^^}" != "${MAC^^}" ]; then
+    warn "advertised address $ADDR differs from $MAC (private/rotating address)"
+    warn "using $ADDR for provisioning"
+    MAC="$ADDR"
+  fi
+else
+  bad "$NAME not seen by an LE scan."
+  echo "       - power-cycle the dog, then re-run within 2 min of boot"
+  echo "       - force-quit the Unitree app on EVERY phone (BLE is 1:1)"
+  echo "       - turn Bluetooth off on the Windows PC"
+  echo "       - stand within a couple of metres"
   [ "$WIFI_WAS" = on ] && nmcli radio wifi on
   exit 1
 fi
