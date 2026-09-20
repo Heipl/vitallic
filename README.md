@@ -15,7 +15,13 @@ and sorts it:
 | `RESCAN` | something is there but the fit is poor. Never treated as safe. |
 | `SKIPPED` | no safe path to the spot. Never treated as safe. |
 
-The dog keeps one heading all run and never steps on a flagged spot (`plan_move`).
+The dog keeps one heading all run, and `plan_move` routes it so the body never crosses a
+flagged spot.
+
+> **This guarantee currently holds only in `--sim` and `--manual`.** On real hardware,
+> dimOS's `move_to` hands the goal to a replanning A\* planner that chooses its own route,
+> so it can cross a flagged spot regardless of what `plan_move` computed. See
+> [DIMOS_PORT.md](DIMOS_PORT.md). The dog path is not yet validated on hardware.
 
 ## Why a fit beats a threshold
 
@@ -69,6 +75,10 @@ classifier's: at 300 trials neither method can see what the phones cannot reach.
 - `sim.py` — fake world, phones and dog
 - `flagged_spots.json` — the "drone survey" input (remove `sim_truth` for real runs)
 - `unoq/` — optional Arduino UNO Q status display (App Lab app: `sketch/` + `python/`)
+- `DIMOS_PORT.md` — what was verified against the real dimOS install, and the blocker
+  that stops the dog executing a 5 cm scan step. **Read before touching hardware.**
+- `tools/min_move_test.py` — measures the smallest move your dog actually performs.
+  That number decides whether the cross scan works or must become a continuous traverse.
 
 `pip install -r requirements.txt`
 
@@ -83,10 +93,13 @@ classifier's: at 300 trials neither method can see what the phones cannot reach.
    **If this step fails, nothing downstream works — find out now.**
 4. **Handheld rig:** tape a grid on the floor, then
    `python field_scan.py --manual --low http://LOW:8080 --high http://HIGH:8080`
-5. **Dog:** `dimos mcp list-tools` to confirm the move skill and its argument names,
-   then test a +5 cm forward and a +5 cm left move for direction. Find the smallest
-   move the dog does accurately and set `--step` to at least that.
-   `python field_scan.py --low http://LOW:8080 --high http://HIGH:8080 [--skill ... --fwd-arg ... --left-arg ...]`
+5. **Dog:** read [DIMOS_PORT.md](DIMOS_PORT.md) first — the dog path is **not yet proven on
+   hardware** and the default 5 cm step provably cannot work. Start dimOS
+   (`dimos run unitree-go2-agentic --robot-ip <DOG_IP>`), confirm the skills with
+   `dimos mcp list-tools`, then measure the smallest move the dog really executes:
+   `python tools/min_move_test.py --dimos /path/to/dimos`
+   Only then set `--step` above that number and run
+   `python field_scan.py --low http://LOW:8080 --high http://HIGH:8080 --dimos /path/to/dimos --step <measured>`
 
 `field_scan.py` runs `mover.preflight()` before it touches anything, so a missing
 `dimos` CLI, a sleeping dog or a wrong skill name fails immediately with a clear

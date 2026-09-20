@@ -147,10 +147,14 @@ def main():
     ap.add_argument("--avg", type=float, default=0.8, help="seconds per reading (adaptive, up to 4 s)")
     ap.add_argument("--threshold", type=float, default=0.016, help="moment (A*m^2) for MINE_SIZED")
     ap.add_argument("--calibrate", action="store_true", help="just print fits for known objects")
-    ap.add_argument("--skill", default="relative_move")
-    ap.add_argument("--fwd-arg", default="forward")
-    ap.add_argument("--left-arg", default="left")
+    ap.add_argument("--skill", default="move_to", help="dimOS move skill (verified name: move_to)")
     ap.add_argument("--observe-skill", default="observe")
+    ap.add_argument("--dimos", default="dimos",
+                    help="path to the dimos binary, e.g. "
+                         "/root/dimensional-applications/.venv/bin/dimos")
+    ap.add_argument("--allow-small-moves", action="store_true",
+                    help="permit legs below dimOS's 20 cm arrival tolerance. Only pass this if "
+                         "tools/min_move_test.py proved your dog really executes them.")
     ap.add_argument("--status-port", type=int, default=8765)
     ap.add_argument("--out", default="results.json")
     ap.add_argument("--map", default="results_map.png")
@@ -178,7 +182,20 @@ def main():
             mover = ManualMover()
         else:
             from robot import DimosMover
-            mover = DimosMover(a.skill, a.fwd_arg, a.left_arg, a.observe_skill)
+            # Catch the 20 cm trap here rather than after the dog is already standing in
+            # the arena: dimOS reports "goal reached" for any move shorter than its
+            # arrival tolerance, without moving. See robot.py's module docstring.
+            if a.step < DimosMover.GOAL_TOLERANCE_M and not a.allow_small_moves:
+                raise SystemExit(
+                    f"--step {a.step:.2f} m is below dimOS's "
+                    f"{DimosMover.GOAL_TOLERANCE_M:.2f} m arrival tolerance, so the dog would "
+                    "never actually move between scan points and every reading would come "
+                    "from the same spot.\n"
+                    "Run `python tools/min_move_test.py` to measure your dog's real minimum, "
+                    "then raise --step above it (and check the fit still resolves the "
+                    "anomaly), or use --manual/--sim for now.")
+            mover = DimosMover(skill=a.skill, observe_skill=a.observe_skill, dimos=a.dimos,
+                               allow_small_moves=a.allow_small_moves)
     try:
         mover.preflight()   # fail now, not halfway through the demo
     except RuntimeError as exc:
