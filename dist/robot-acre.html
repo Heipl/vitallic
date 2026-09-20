@@ -701,7 +701,7 @@ function buildBlockLayer(){
   const c = blockLayer.getContext("2d");
   c.setTransform(dpr,0,0,dpr,0,0);
   const cw = cssW/(W-1), ch = cssH/(H-1);
-  c.fillStyle = "rgba(12,10,8,.30)";
+  c.fillStyle = "rgba(8,6,4,.48)";
   const n = W*H;
   for (let i=0;i<n;i++){
     if (TERRAIN_BYTES[i>>3] & (0x80 >> (i&7))){
