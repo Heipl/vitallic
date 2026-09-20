@@ -439,6 +439,12 @@ meta = {
     "slope_limit_deg": T.SLOPE_LIMIT_DEG,
     "grid_km": grid.res,
     "tier_breaks": [round(b, 4) for b in breaks],
+    # The map classes GROUND at these quantiles; district badges class
+    # DISTRICTS at the same quantiles of their own ranking. A district mean is
+    # a much narrower distribution than the cells under it, so scoring a
+    # district against cell breaks would call the 7th-ranked oblast in the
+    # country "lower priority", which is not what 7th of 26 means.
+    "break_quantiles": list(T.BREAK_QUANTILES),
     "criteria": [{"key": c.key, "label": c.label, "unit": c.unit, "source": c.source,
                   "note": c.note, "weight": round(WEIGHTS[c.key], 4)} for c in T.CRITERIA],
     "sources": SOURCES,

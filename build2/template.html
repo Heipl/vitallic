@@ -973,7 +973,13 @@ function taskPanel(name, level) {
   const rec = TASK.by[lv].get(name);
   if (!rec) return "";
   const entry = tRankOf(lv, name);
-  const n = tRanked(lv).length, w = tWeights(), sc = scale(), t = tTier(entry.v);
+  const n = tRanked(lv).length, w = tWeights(), sc = scale();
+  // Class the district against other districts, not against the cell breaks
+  // used for the map: a district mean is a far narrower distribution than the
+  // cells under it, so cell breaks would call 7th of 26 oblasts "lower".
+  const pct = 1 - (entry.rank - 0.5) / n;
+  const t = TASK.meta.break_quantiles.filter(q => pct >= q).length;
+  const topPct = Math.max(1, Math.round((1 - pct) * 100));
   const rows = TASK.meta.criteria.map((c, i) => {
     const on = tOn.has(c.key), s = rec.s[c.key] || 0;
     return `<tr class="${on ? "" : "off"}" title="${c.note}">
@@ -990,7 +996,7 @@ function taskPanel(name, level) {
     </div>
     <div class="est"><span class="v">${entry.v.toFixed(3)}</span>
       <span class="u">weighted score &middot; rank ${entry.rank} of ${n}
-      ${lv === "adm2" ? "raions" : "oblasts"}</span></div>
+      ${lv === "adm2" ? "raions" : "oblasts"} &middot; top ${topPct}%</span></div>
     <table class="crits">
       <thead><tr><th>Criterion, in priority order</th><th class="r">In district</th>
         <th class="r">Pct</th><th class="r">Adds</th></tr></thead>
