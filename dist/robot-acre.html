@@ -106,8 +106,9 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
         <p class="note">A fake, zoomed-in acre. Four potential landmines sit on lattice
           points taken from the user’s example coordinates. Visit <em>order</em> comes from
           the preexisting robot mission queue in <span class="num">dist/robot/next_mission.json</span>:
-          higher <span class="num">expected_find</span> is more important; earlier queue index
-          breaks ties. The dog never occupies a mine cell — BFS stops on a 4-neighbour.</p>
+          higher <span class="num">expected_find</span> is more important (compared at the
+          displayed 3 significant figures); earlier queue index breaks ties.
+          The dog never occupies a mine cell — BFS stops on a 4-neighbour.</p>
       </div>
 
       <div class="grp">
@@ -118,7 +119,8 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
           <dt>Lattice</dt><dd>1 × 1</dd>
           <dt>Origin</dt><dd class="num">(0, 0)</dd>
         </dl>
-        <p class="note">Next target = remaining mine with max expected_find, then min queue index.
+        <p class="note">Next target = remaining mine with max E[find] at displayed precision
+          (e.g. 6.74e-5), then min queue index. Raw extra digits do not outrank the queue.
           Other mines are obstacles until visited.</p>
       </div>
 
@@ -169,13 +171,13 @@ const MINES = [
   {id:"D", x:600, y:200, queue:22, expected_find:6.735209450560625e-5,  p_any:2.376582147531302e-4,  exploration:false, cell:"(14,27)"},
 ];
 
-const MAX_FIND = Math.max(...MINES.map(m => m.expected_find));
-
-function priorityScore(m){
-  return m.expected_find;
+function displayFind(m){
+  /* Same 3-sig-fig string the labels use, so 6.735e-5 and 6.739e-5 are a tie. */
+  return Number(m.expected_find.toExponential(2));
 }
+const MAX_FIND = Math.max(...MINES.map(m => displayFind(m)));
 function better(a, b){
-  const da = priorityScore(a) - priorityScore(b);
+  const da = displayFind(a) - displayFind(b);
   if (da !== 0) return da > 0 ? a : b;
   return a.queue <= b.queue ? a : b;
 }
@@ -266,6 +268,9 @@ function planTour(mines){
 }
 
 /* --- render --- */
+if (!CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h){ this.rect(x,y,w,h); };
+}
 const cv = document.getElementById("cv");
 const ctx = cv.getContext("2d");
 const stage = document.getElementById("stage");
@@ -369,7 +374,7 @@ function drawPath(upto){
 
 function drawMines(done){
   for (const m of MINES){
-    const r = 6 + 10 * (m.expected_find / MAX_FIND);
+    const r = 6 + 10 * (displayFind(m) / MAX_FIND);
     const X = sx(m.x), Y = sy(m.y);
     ctx.beginPath();
     ctx.fillStyle = done.has(m.id) ? "#FFFFFF" : "#CD4071";
@@ -448,12 +453,12 @@ function draw(){
 function paintQueue(done, currentId){
   const el = document.getElementById("queue");
   const ranked = MINES.slice().sort((a,b)=>{
-    const d = priorityScore(b)-priorityScore(a);
+    const d = displayFind(b)-displayFind(a);
     return d!==0 ? d : a.queue-b.queue;
   });
   el.innerHTML = ranked.map((m,i)=>{
     const cls = done.has(m.id) ? "done" : (m.id===currentId ? "on" : "");
-    const pct = (100*m.expected_find/MAX_FIND).toFixed(0);
+    const pct = (100*displayFind(m)/MAX_FIND).toFixed(0);
     return `<div class="qrow ${cls}">
       <span class="rk">${i+1}</span>
       <div>
@@ -507,6 +512,6 @@ resize();
     if (occ.has(key(p.x,p.y))) throw new Error("path stepped on a mine at "+p.x+","+p.y);
   }
   const order = tour.order.map(m=>m.id).join("");
-  if (order !== "CADB") throw new Error("unexpected visit order "+order+" (want C,A,D,B by expected_find then queue)");
+  if (order !== "ACDB") throw new Error("unexpected visit order "+order+" (want A,C,D,B: 6.74e-5 tie broken by queue)");
 })();
 </script>
