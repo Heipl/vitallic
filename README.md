@@ -75,12 +75,63 @@ classifier's: at 300 trials neither method can see what the phones cannot reach.
 - `dimos_vitallic/` — dimOS module + blueprint that adds the `precise_move` skill
 - `sim.py` — fake world, phones and dog
 - `flagged_spots.json` — the "drone survey" input (remove `sim_truth` for real runs)
-- `unoq/` — optional Arduino UNO Q status display (App Lab app: `sketch/` + `python/`)
+- `geo.py` — arena metres → WGS-84 lat/lon, so finds land on a real map
+- `bayes.py` — Beta-Binomial and Gamma-Poisson posteriors over contamination
+- `live_map.html` — the live page `field_scan.py` serves on `:8765/`
 - `DIMOS_PORT.md` — what was verified against the real dimOS install, and how the
   20 cm planner trap is bypassed. **Read before touching hardware.**
 - `tools/min_move_test.py` — measures the smallest move your dog actually performs.
 
 `pip install -r requirements.txt`
+
+## Two builds
+
+The project has a dog version and a no-dog version. They share all the physics —
+the difference is only what carries the sensor.
+
+| | WITH the dog | WITHOUT the dog |
+|---|---|---|
+| Platform | Unitree Go2 via dimOS | 4-wheel Arduino rover |
+| Sensor | two phones (gradiometer) on a boom | search coil on A0/A5 |
+| Firmware | `arduino/dog/status_display.ino` (status only — the dog needs no Arduino) | `arduino/no_dog/rover_firmware.ino` (motors, sonar, coil) |
+| Schematic | `schematics/dog/architecture.svg`, `schematics/dog/mounting.svg` | `schematics/no_dog/architecture.svg`, `wiring_unoq.svg`, `wiring_uno_r3.png` |
+| Positioning | dimOS pose / commanded steps | dead reckoning from timed moves |
+
+Note the asymmetry: on the dog build the Arduino does **no sensing or driving** —
+the phones are self-contained sensors and dimOS drives the robot, so the UNO Q is
+an optional LED status display with nothing wired to it. On the rover build the
+Arduino *is* the robot: it drives the motors, reads the sonars and pulses the coil.
+
+There is a third path that needs neither: `field_scan.py --manual` runs the whole
+pipeline with you carrying the two-phone rig over a taped grid.
+
+## Live map
+
+`field_scan.py` serves a live page while it scans:
+
+```
+http://localhost:8765/        map + posterior (Leaflet)
+http://localhost:8765/api     JSON: results with lat/lon, plus the posterior
+http://localhost:8765/state   plain text, for the UNO Q display
+```
+
+Every classified spot drops a pin at its **fitted** position (not the flagged one),
+mine-sized finds raise an alert, and two posteriors update as the dog walks:
+`P(mine | flagged spot)` and mines per hectare, each with a 95% credible interval.
+A panel extrapolates the density to larger regions through the exact
+Negative-Binomial posterior predictive.
+
+Set the arena origin so the pins land in the right place:
+
+```
+python field_scan.py --sim --lat 42.3601 --lon -71.0942 --heading 0
+```
+
+`--heading` is the compass bearing of the arena's +x axis (0 = north, 90 = east).
+
+**On the extrapolation:** scaling a surveyed room to a city assumes uniform
+density, which is false. That assumption dominates the error, not the counting
+statistics, and the API says so in the payload. Present it that way.
 
 ## Test order (do not skip steps)
 

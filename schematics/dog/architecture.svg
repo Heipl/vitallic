@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 880" width="1280" height="880" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#444"/>
+  </marker>
+  <marker id="arR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/>
+  </marker>
+  <style>
+    .t   { font-size:19px; font-weight:700; fill:#111 }
+    .sub { font-size:12px; fill:#555 }
+    .zh  { font-size:11px; font-weight:700; fill:#666; letter-spacing:1.3px }
+    .bt  { font-size:14px; font-weight:700; fill:#111 }
+    .bs  { font-size:11.5px; fill:#333 }
+    .m   { font-size:11px; fill:#555; font-style:italic }
+    .lbl { font-size:11px; fill:#444; font-weight:600 }
+    .warn{ font-size:11px; fill:#c0392b; font-weight:600 }
+    .box { fill:#fff; stroke:#bbb; stroke-width:1.5; rx:7 }
+    .zone{ fill:#fafafa; stroke:#ddd; stroke-width:1.5; rx:10 }
+    .acc { fill:#f4f9ff; stroke:#7aa7d9; stroke-width:1.5; rx:7 }
+    .grn { fill:#f3faf4; stroke:#6aab77; stroke-width:1.5; rx:7 }
+    .red { fill:#fdf4f3; stroke:#d98a80; stroke-width:1.5; rx:7 }
+    .ylw { fill:#fffaf0; stroke:#d9b06a; stroke-width:1.5; rx:7 }
+  </style>
+</defs>
+
+<rect width="1280" height="880" fill="#fff"/>
+<text x="40" y="42" class="t">Vitallic — system architecture (WITH the robot dog)</text>
+<text x="40" y="64" class="sub">Two phones as a magnetic gradiometer on a Unitree Go2. The laptop fits a dipole to every flagged spot, classifies it, and updates a Bayesian contamination estimate live.</text>
+
+<!-- ========================= SENSING ========================= -->
+<rect x="36" y="92" width="290" height="330" class="zone"/>
+<text x="52" y="116" class="zh">SENSING — the boom</text>
+
+<rect x="52" y="130" width="258" height="72" class="acc"/>
+<text x="66" y="150" class="bt">Phone HIGH</text>
+<text x="66" y="168" class="bs">phyphox · Magnetometer experiment</text>
+<text x="66" y="184" class="bs">height 0.35 m &#183; serves HTTP :8080</text>
+<text x="66" y="197" class="m">--h-high</text>
+
+<rect x="52" y="214" width="258" height="72" class="acc"/>
+<text x="66" y="234" class="bt">Phone LOW</text>
+<text x="66" y="252" class="bs">phyphox · Magnetometer experiment</text>
+<text x="66" y="268" class="bs">height 0.05 m &#183; serves HTTP :8080</text>
+<text x="66" y="281" class="m">--h-low</text>
+
+<rect x="52" y="298" width="258" height="58" class="box"/>
+<text x="66" y="318" class="bt">Non-metal boom</text>
+<text x="66" y="336" class="bs">wood / PVC / cardboard</text>
+<text x="66" y="350" class="bs">0.65 m ahead of body centre (--boom)</text>
+
+<text x="52" y="378" class="lbl">Why two heights:</text>
+<text x="52" y="394" class="bs">a dipole falls off as 1/r³, so a shallow object</text>
+<text x="52" y="408" class="bs">hits LOW far harder than HIGH → depth.</text>
+
+<!-- ========================= LAPTOP ========================= -->
+<rect x="366" y="92" width="404" height="560" class="zone"/>
+<text x="382" y="116" class="zh">LAPTOP — field_scan.py</text>
+
+<rect x="382" y="130" width="372" height="60" class="box"/>
+<text x="396" y="150" class="bt">phones.py</text>
+<text x="396" y="168" class="bs">Polls both phones, averages adaptively until the</text>
+<text x="396" y="182" class="bs">standard error hits target (≤0.12 µT).</text>
+
+<rect x="382" y="200" width="372" height="74" class="acc"/>
+<text x="396" y="220" class="bt">dipole.py — the core</text>
+<text x="396" y="238" class="bs">Coarse grid search over (x, y, depth), then</text>
+<text x="396" y="252" class="bs">least-squares. Moment and per-phone offsets are</text>
+<text x="396" y="266" class="bs">linear → solved exactly by lstsq.</text>
+
+<rect x="382" y="284" width="372" height="72" class="grn"/>
+<text x="396" y="304" class="bt">classify</text>
+<text x="396" y="322" class="bs">MINE_SIZED · FRAGMENT · NO_TARGET · RESCAN</text>
+<text x="396" y="338" class="bs">Threshold on fitted moment, not peak signal —</text>
+<text x="396" y="352" class="bs">that is what separates a mine from scrap.</text>
+
+<rect x="382" y="366" width="372" height="56" class="box"/>
+<text x="396" y="386" class="bt">geo.py</text>
+<text x="396" y="404" class="bs">Arena metres → WGS-84 lat/lon (tangent plane),</text>
+<text x="396" y="416" class="bs">using the FITTED position, not the flagged one.</text>
+
+<rect x="382" y="432" width="372" height="72" class="ylw"/>
+<text x="396" y="452" class="bt">bayes.py</text>
+<text x="396" y="470" class="bs">Beta-Binomial → P(mine | flagged spot)</text>
+<text x="396" y="484" class="bs">Gamma-Poisson → mines per hectare</text>
+<text x="396" y="498" class="bs">Negative-Binomial predictive → regional estimate</text>
+
+<rect x="382" y="514" width="372" height="60" class="red"/>
+<text x="396" y="534" class="bt">Footprint / plan_move — safety</text>
+<text x="396" y="552" class="bs">L-shaped route that keeps every flagged spot</text>
+<text x="396" y="566" class="bs">outside the dog's footprint box.</text>
+
+<rect x="382" y="584" width="372" height="52" class="box"/>
+<text x="396" y="604" class="bt">StatusBoard — HTTP :8765</text>
+<text x="396" y="622" class="bs">/ → live map   /api → JSON   /state → text</text>
+
+<!-- ========================= ROBOT ========================= -->
+<rect x="810" y="92" width="434" height="424" class="zone"/>
+<text x="826" y="116" class="zh">ROBOT — dimOS 0.0.14</text>
+
+<rect x="826" y="130" width="402" height="46" class="box"/>
+<text x="840" y="150" class="bt">dimos run vitallic-dimos.scan</text>
+<text x="840" y="168" class="bs">wraps stock unitree-go2-agentic</text>
+
+<rect x="826" y="186" width="402" height="70" class="grn"/>
+<text x="840" y="206" class="bt">precise_move(x, y) — preferred</text>
+<text x="840" y="224" class="bs">Publishes velocity directly, closed loop on TF.</text>
+<text x="840" y="238" class="bs">Bypasses the planner, so a 5 cm step is possible.</text>
+<text x="840" y="251" class="m">custom module, in dimos_vitallic/</text>
+
+<rect x="826" y="266" width="402" height="70" class="ylw"/>
+<text x="840" y="286" class="bt">blind_move(x, y) — Air fallback</text>
+<text x="840" y="304" class="bs">Open loop: velocity for a computed duration,</text>
+<text x="840" y="318" class="bs">reads NO telemetry. For when TF pose is absent</text>
+<text x="840" y="331" class="bs">or too slow, which is likely on a Go2 Air.</text>
+
+<rect x="826" y="346" width="402" height="70" class="red"/>
+<text x="840" y="366" class="bt">move_to(x, y, relative) — stock</text>
+<text x="840" y="384" class="warn">Goes through the A* planner, whose arrival</text>
+<text x="840" y="398" class="warn">tolerance is 0.20 m. A 5 cm step reports</text>
+<text x="840" y="411" class="warn">"goal reached" WITHOUT the dog moving.</text>
+
+<rect x="826" y="426" width="402" height="46" class="box"/>
+<text x="840" y="446" class="bt">observe()</text>
+<text x="840" y="463" class="bs">Camera frame captured at every mine-sized find.</text>
+
+<rect x="826" y="482" width="402" height="24" fill="#eef3f8" stroke="#7aa7d9" stroke-width="1.5" rx="5"/>
+<text x="840" y="499" class="bs">Unitree Go2 <tspan font-weight="700">Air</tspan> — WebRTC (topics only; rt/lowcmd unsupported)</text>
+
+<!-- ========================= OUTPUTS ========================= -->
+<rect x="810" y="546" width="434" height="286" class="zone"/>
+<text x="826" y="570" class="zh">OUTPUTS</text>
+
+<rect x="826" y="584" width="402" height="76" class="acc"/>
+<text x="840" y="604" class="bt">Live map — browser at :8765/</text>
+<text x="840" y="622" class="bs">Leaflet. Each find drops a GPS pin; mine-sized</text>
+<text x="840" y="636" class="bs">raises an alert. Posterior panels update live,</text>
+<text x="840" y="650" class="bs">including the regional extrapolation.</text>
+
+<rect x="826" y="670" width="402" height="64" class="box"/>
+<text x="840" y="690" class="bt">Arduino UNO Q — status display</text>
+<text x="840" y="708" class="bs">Linux side polls /state, Bridge → STM32 sketch,</text>
+<text x="840" y="722" class="bs">8×13 LED matrix shows the current verdict.</text>
+<text x="1090" y="690" class="m">arduino/dog/</text>
+
+<rect x="826" y="744" width="402" height="64" class="box"/>
+<text x="840" y="764" class="bt">Files</text>
+<text x="840" y="782" class="bs">results.json — every fit, raw readings, GPS</text>
+<text x="840" y="796" class="bs">results_map.png — arena-frame plot</text>
+
+<!-- ========================= ARROWS ========================= -->
+<path d="M326,232 L366,232" stroke="#444" stroke-width="2" fill="none" marker-end="url(#ar)"/>
+<text x="330" y="222" class="lbl">HTTP / Wi-Fi</text>
+
+<path d="M770,300 L810,300" stroke="#444" stroke-width="2" fill="none" marker-end="url(#ar)"/>
+<text x="762" y="290" class="lbl">dimos mcp call</text>
+
+<path d="M810,360 L770,360" stroke="#444" stroke-width="2" fill="none" marker-end="url(#ar)"/>
+<text x="762" y="380" class="lbl">pose / camera</text>
+
+<path d="M770,610 L810,610" stroke="#444" stroke-width="2" fill="none" marker-end="url(#ar)"/>
+
+<!-- footer -->
+<text x="40" y="700" class="lbl">Frame convention</text>
+<text x="40" y="718" class="bs">Origin = dog body centre at start.</text>
+<text x="40" y="734" class="bs">+x = the way it faces, +y = left.</text>
+<text x="40" y="750" class="bs">The dog holds ONE heading all run, so its own</text>
+<text x="40" y="764" class="bs">magnetism stays constant at the phones and</text>
+<text x="40" y="778" class="bs">cancels into the fit's per-phone offsets.</text>
+
+<text x="40" y="812" class="lbl">Scope</text>
+<text x="40" y="828" class="bs">Ferrous targets only — UXO and steel-cased</text>
+<text x="40" y="842" class="bs">mines, not plastic ones. NO_TARGET means</text>
+<text x="40" y="856" class="bs">"nothing ferrous above the noise", never "safe".</text>
+</svg>
