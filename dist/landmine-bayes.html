@@ -1186,7 +1186,10 @@ function renderLegend() {
 
 /* ---- tasking criteria list ------------------------------------------------ */
 function renderCrit() {
-  if (!TASK) return;
+  // Without the tasking layers the priority button would draw a uniform
+  // bottom-class map over the whole country, which reads as "nothing at stake
+  // anywhere" rather than "this build has no tasking data". Remove it.
+  if (!TASK) { $('#modes button[data-mode="tasking"]').hidden = true; return; }
   $("#taskgrp").hidden = false;
   const w = tWeights();
   $("#crit").innerHTML = TASK.meta.criteria.map((c, i) => {
