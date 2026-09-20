@@ -54,20 +54,31 @@ def scan_offsets(pattern="cross", points=9, step=0.05):
     raise ValueError(f"unknown pattern {pattern}")
 
 
-def _design(xy, h_low, h_high, src, e_hat):
-    """Columns: anomaly for unit moment along x, y, z, then offset(low), offset(high)."""
+def _design(xy, h_low, h_high, src, e_hat, align=False):
+    """Columns: anomaly for unit moment along x, y, z, then offset(low), offset(high).
+
+    With align=True there is ONE moment column instead of three: the moment is
+    forced parallel to e_hat (induced magnetisation). Use that whenever the
+    sensor path is close to a straight line. A line of samples does not see
+    enough geometry to separate the three components of a moment vector from the
+    source position, so the free fit is degenerate: it reports a high r2 while
+    the moment wanders by more than an order of magnitude. Constraining the
+    direction removes two degrees of freedom and makes the magnitude - the thing
+    MINE_SIZED is decided on - identifiable again.
+    """
     n = len(xy)
     obs = np.vstack([np.column_stack([xy, np.full(n, h_low)]),
                      np.column_stack([xy, np.full(n, h_high)])])
-    cols = [tfa(obs, src, unit, e_hat) for unit in np.eye(3)]
+    units = [e_hat] if align else list(np.eye(3))
+    cols = [tfa(obs, src, unit, e_hat) for unit in units]
     off_low = np.r_[np.ones(n), np.zeros(n)]
     off_high = np.r_[np.zeros(n), np.ones(n)]
     return np.column_stack(cols + [off_low, off_high])
 
 
-def _solve(xy, t, h_low, h_high, p, e_hat):
+def _solve(xy, t, h_low, h_high, p, e_hat, align=False):
     """For a fixed source position p=(x0,y0,depth), m and offsets are linear -> lstsq."""
-    A = _design(xy, h_low, h_high, np.array([p[0], p[1], -p[2]]), e_hat)
+    A = _design(xy, h_low, h_high, np.array([p[0], p[1], -p[2]]), e_hat, align)
     coef, *_ = np.linalg.lstsq(A, t, rcond=None)
     return coef, t - A @ coef
 
@@ -88,7 +99,7 @@ class DipoleFit:
         return asdict(self)
 
 
-def fit_dipole(xy, t_low, t_high, h_low, h_high, e_hat, max_depth=0.40):
+def fit_dipole(xy, t_low, t_high, h_low, h_high, e_hat, max_depth=0.40, align=False):
     """Fit one dipole to total-field readings from the low and high phone.
 
     xy: (N,2) sensor positions (m). t_low/t_high: (N,) total field (uT).
@@ -105,15 +116,15 @@ def fit_dipole(xy, t_low, t_high, h_low, h_high, e_hat, max_depth=0.40):
     for d in np.linspace(0.01, max_depth, 30):
         for x0 in np.linspace(lo[0], hi[0], 13):
             for y0 in np.linspace(lo[1], hi[1], 13):
-                _, res = _solve(xy, t, h_low, h_high, (x0, y0, d), e_hat)
+                _, res = _solve(xy, t, h_low, h_high, (x0, y0, d), e_hat, align)
                 c = res @ res
                 if c < best_cost:
                     best_cost, best_p = c, (x0, y0, d)
     # 2) refine the 3 nonlinear parameters
-    sol = least_squares(lambda p: _solve(xy, t, h_low, h_high, p, e_hat)[1], best_p,
+    sol = least_squares(lambda p: _solve(xy, t, h_low, h_high, p, e_hat, align)[1], best_p,
                         bounds=([lo[0], lo[1], 0.005], [hi[0], hi[1], max_depth]))
-    coef, res = _solve(xy, t, h_low, h_high, sol.x, e_hat)
-    m = coef[:3]
+    coef, res = _solve(xy, t, h_low, h_high, sol.x, e_hat, align)
+    m = coef[0] * e_hat if align else coef[:3]
     ss_tot = np.sum((t[:n] - t[:n].mean()) ** 2) + np.sum((t[n:] - t[n:].mean()) ** 2)
     r2 = 1.0 - (res @ res) / ss_tot if ss_tot > 0 else 0.0
     moment = float(np.linalg.norm(m))

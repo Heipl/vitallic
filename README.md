@@ -107,6 +107,41 @@ Arduino *is* the robot: it drives the motors, reads the sonars and pulses the co
 There is a third path that needs neither: `field_scan.py --manual` runs the whole
 pipeline with you carrying the two-phone rig over a taped grid.
 
+## Walking survey (`sweep.py`)
+
+`field_scan.py` visits a fixed list of flagged spots and does a stationary
+17-point cross at each. `sweep.py` is the other mode: carry the boom and just
+walk, and anomalies are picked up as you pass over them.
+
+```
+python sweep.py --low http://LOW:8080 --high http://HIGH:8080     --lat 42.3601 --lon -71.0942 --heading 0
+```
+
+It serves the same live map on `:8765/` and feeds the same posterior, so the
+contamination estimate climbs as you cover ground.
+
+It still uses the **real dipole fit**, not a peak threshold — that is the whole
+claim of the project, so the walking mode must not quietly abandon it. The track
+of (position, low, high) is logged continuously and the fit runs over the window
+around each anomaly.
+
+Three things that had to be handled, all verified against synthetic walk-overs:
+
+- **A rolling baseline.** An iPhone magnetometer was measured drifting several µT
+  over ~10 s as iOS recalibrated. A fixed baseline reads that as a target.
+- **Lobe duplicates.** A dipole anomaly has a positive *and* a negative lobe, so
+  one pass over one object can trigger twice. Fits within `--merge-dist` are
+  merged; without this every mine is counted twice and the posterior is inflated.
+- **`align=True` on the fit.** A walked line cannot constrain a free moment
+  *vector* — the free fit reported r²=1.00 while the moment was **16× wrong**.
+  Forcing the moment parallel to the Earth's field (induced magnetisation) brought
+  it to **within 2%**. Magnitude is what MINE_SIZED is decided on, so this matters.
+  The stationary cross scan is unaffected and still fits the full vector.
+
+**Position is dead reckoning** — elapsed time along a declared serpentine at a
+declared walking speed. Hand-held surveys log the same way. Good enough to place
+pins and measure area swept; not survey-grade. Walk at a steady pace.
+
 ## Live map
 
 `field_scan.py` serves a live page while it scans:
