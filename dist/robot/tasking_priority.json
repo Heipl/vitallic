@@ -1,0 +1,3771 @@
+{
+ "frame_id": "wgs84",
+ "generated_from": "data/out/tasking.json",
+ "method": "rank-order-centroid weights over percentile-normalised layers",
+ "weights": {
+  "density": 0.3704,
+  "people": 0.2276,
+  "farmland": 0.1561,
+  "schools": 0.1085,
+  "hospitals": 0.0728,
+  "roads": 0.0442,
+  "access": 0.0204
+ },
+ "reach_km": 10.0,
+ "order": [
+  {
+   "rank": 1,
+   "raion": "Bakhmutskyi",
+   "oblast": "Donetska",
+   "score": 0.8051,
+   "anchor_lat": 48.5775,
+   "anchor_lon": 38.1146,
+   "contribution": {
+    "density": 0.3686,
+    "people": 0.1696,
+    "farmland": 0.0876,
+    "schools": 0.0812,
+    "hospitals": 0.0635,
+    "roads": 0.0233,
+    "access": 0.0113
+   },
+   "raw": {
+    "density": 3.4816,
+    "people": 184581,
+    "farmland": 63.8,
+    "schools": 56,
+    "hospitals": 36,
+    "roads": 55,
+    "access": 0.768,
+    "slope": 1.26
+   }
+  },
+  {
+   "rank": 2,
+   "raion": "Pokrovskyi",
+   "oblast": "Donetska",
+   "score": 0.7923,
+   "anchor_lat": 48.1698,
+   "anchor_lon": 37.3802,
+   "contribution": {
+    "density": 0.3625,
+    "people": 0.1703,
+    "farmland": 0.1062,
+    "schools": 0.0748,
+    "hospitals": 0.045,
+    "roads": 0.0199,
+    "access": 0.0136
+   },
+   "raw": {
+    "density": 1.796,
+    "people": 423809,
+    "farmland": 75.7,
+    "schools": 144,
+    "hospitals": 69,
+    "roads": 103,
+    "access": 0.845,
+    "slope": 0.73
+   }
+  },
+  {
+   "rank": 3,
+   "raion": "Kyivska",
+   "oblast": "Kyivska",
+   "score": 0.7776,
+   "anchor_lat": 50.4605,
+   "anchor_lon": 30.5409,
+   "contribution": {
+    "density": 0.3171,
+    "people": 0.227,
+    "farmland": 0.008,
+    "schools": 0.1076,
+    "hospitals": 0.0719,
+    "roads": 0.0441,
+    "access": 0.0019
+   },
+   "raw": {
+    "density": 0.184,
+    "people": 2794808,
+    "farmland": 0.4,
+    "schools": 607,
+    "hospitals": 170,
+    "roads": 458,
+    "access": 0.062,
+    "slope": 0.59
+   }
+  },
+  {
+   "rank": 4,
+   "raion": "Alchevskyi",
+   "oblast": "Luhanska",
+   "score": 0.771,
+   "anchor_lat": 48.5547,
+   "anchor_lon": 39.1365,
+   "contribution": {
+    "density": 0.3477,
+    "people": 0.2062,
+    "farmland": 0.0521,
+    "schools": 0.0792,
+    "hospitals": 0.0554,
+    "roads": 0.0214,
+    "access": 0.009
+   },
+   "raw": {
+    "density": 0.3099,
+    "people": 509896,
+    "farmland": 32.9,
+    "schools": 76,
+    "hospitals": 46,
+    "roads": 71,
+    "access": 0.663,
+    "slope": 1.46
+   }
+  },
+  {
+   "rank": 5,
+   "raion": "Horlivskyi",
+   "oblast": "Donetska",
+   "score": 0.7313,
+   "anchor_lat": 48.0107,
+   "anchor_lon": 38.5086,
+   "contribution": {
+    "density": 0.361,
+    "people": 0.1845,
+    "farmland": 0.0564,
+    "schools": 0.0592,
+    "hospitals": 0.0382,
+    "roads": 0.0229,
+    "access": 0.0092
+   },
+   "raw": {
+    "density": 0.9088,
+    "people": 667389,
+    "farmland": 37.4,
+    "schools": 72,
+    "hospitals": 27,
+    "roads": 79,
+    "access": 0.651,
+    "slope": 1.27
+   }
+  },
+  {
+   "rank": 6,
+   "raion": "Luhanskyi",
+   "oblast": "Luhanska",
+   "score": 0.7251,
+   "anchor_lat": 48.5052,
+   "anchor_lon": 39.1969,
+   "contribution": {
+    "density": 0.3367,
+    "people": 0.1835,
+    "farmland": 0.0622,
+    "schools": 0.0627,
+    "hospitals": 0.0464,
+    "roads": 0.0229,
+    "access": 0.0107
+   },
+   "raw": {
+    "density": 0.1649,
+    "people": 531935,
+    "farmland": 42.0,
+    "schools": 108,
+    "hospitals": 85,
+    "roads": 67,
+    "access": 0.729,
+    "slope": 1.33
+   }
+  },
+  {
+   "rank": 7,
+   "raion": "Kramatorskyi",
+   "oblast": "Donetska",
+   "score": 0.7248,
+   "anchor_lat": 48.5651,
+   "anchor_lon": 37.5667,
+   "contribution": {
+    "density": 0.3568,
+    "people": 0.1453,
+    "farmland": 0.0841,
+    "schools": 0.0711,
+    "hospitals": 0.0403,
+    "roads": 0.0163,
+    "access": 0.0109
+   },
+   "raw": {
+    "density": 0.9482,
+    "people": 588609,
+    "farmland": 59.4,
+    "schools": 185,
+    "hospitals": 72,
+    "roads": 117,
+    "access": 0.711,
+    "slope": 1.06
+   }
+  },
+  {
+   "rank": 8,
+   "raion": "Volnovaskyi",
+   "oblast": "Donetska",
+   "score": 0.7168,
+   "anchor_lat": 47.6287,
+   "anchor_lon": 37.3803,
+   "contribution": {
+    "density": 0.359,
+    "people": 0.142,
+    "farmland": 0.1195,
+    "schools": 0.0519,
+    "hospitals": 0.0197,
+    "roads": 0.0087,
+    "access": 0.016
+   },
+   "raw": {
+    "density": 0.7858,
+    "people": 159700,
+    "farmland": 82.6,
+    "schools": 65,
+    "hospitals": 9,
+    "roads": 56,
+    "access": 0.905,
+    "slope": 0.66
+   }
+  },
+  {
+   "rank": 9,
+   "raion": "Khersonskyi",
+   "oblast": "Khersonska",
+   "score": 0.7057,
+   "anchor_lat": 46.7615,
+   "anchor_lon": 32.6737,
+   "contribution": {
+    "density": 0.3503,
+    "people": 0.1538,
+    "farmland": 0.082,
+    "schools": 0.054,
+    "hospitals": 0.0289,
+    "roads": 0.0242,
+    "access": 0.0124
+   },
+   "raw": {
+    "density": 0.5247,
+    "people": 455770,
+    "farmland": 54.1,
+    "schools": 104,
+    "hospitals": 40,
+    "roads": 140,
+    "access": 0.713,
+    "slope": 0.24
+   }
+  },
+  {
+   "rank": 10,
+   "raion": "Sievierodonetskyi",
+   "oblast": "Luhanska",
+   "score": 0.6994,
+   "anchor_lat": 48.8778,
+   "anchor_lon": 38.3637,
+   "contribution": {
+    "density": 0.3582,
+    "people": 0.1506,
+    "farmland": 0.0556,
+    "schools": 0.0742,
+    "hospitals": 0.0499,
+    "roads": 0.0026,
+    "access": 0.0083
+   },
+   "raw": {
+    "density": 1.0124,
+    "people": 347205,
+    "farmland": 36.5,
+    "schools": 103,
+    "hospitals": 46,
+    "roads": 0,
+    "access": 0.548,
+    "slope": 1.06
+   }
+  },
+  {
+   "rank": 11,
+   "raion": "Kharkivskyi",
+   "oblast": "Kharkivska",
+   "score": 0.6933,
+   "anchor_lat": 50.0215,
+   "anchor_lon": 36.4293,
+   "contribution": {
+    "density": 0.3328,
+    "people": 0.1596,
+    "farmland": 0.0657,
+    "schools": 0.064,
+    "hospitals": 0.0331,
+    "roads": 0.0295,
+    "access": 0.0085
+   },
+   "raw": {
+    "density": 0.2446,
+    "people": 1734459,
+    "farmland": 46.1,
+    "schools": 222,
+    "hospitals": 64,
+    "roads": 558,
+    "access": 0.603,
+    "slope": 1.04
+   }
+  },
+  {
+   "rank": 12,
+   "raion": "Buchanskyi",
+   "oblast": "Kyivska",
+   "score": 0.6736,
+   "anchor_lat": 50.5936,
+   "anchor_lon": 30.1855,
+   "contribution": {
+    "density": 0.2936,
+    "people": 0.1707,
+    "farmland": 0.0478,
+    "schools": 0.0881,
+    "hospitals": 0.0331,
+    "roads": 0.0331,
+    "access": 0.0074
+   },
+   "raw": {
+    "density": 0.0865,
+    "people": 299204,
+    "farmland": 30.1,
+    "schools": 108,
+    "hospitals": 31,
+    "roads": 134,
+    "access": 0.51,
+    "slope": 0.44
+   }
+  },
+  {
+   "rank": 13,
+   "raion": "Zaporizkyi",
+   "oblast": "Zaporizka",
+   "score": 0.6621,
+   "anchor_lat": 47.7834,
+   "anchor_lon": 34.9837,
+   "contribution": {
+    "density": 0.3193,
+    "people": 0.1396,
+    "farmland": 0.1052,
+    "schools": 0.0438,
+    "hospitals": 0.0247,
+    "roads": 0.0161,
+    "access": 0.0134
+   },
+   "raw": {
+    "density": 0.1132,
+    "people": 879549,
+    "farmland": 72.0,
+    "schools": 228,
+    "hospitals": 90,
+    "roads": 109,
+    "access": 0.777,
+    "slope": 0.71
+   }
+  },
+  {
+   "rank": 14,
+   "raion": "Sevastopilska",
+   "oblast": "Sevastopilska",
+   "score": 0.6619,
+   "anchor_lat": 44.631,
+   "anchor_lon": 33.4945,
+   "contribution": {
+    "density": 0.2754,
+    "people": 0.1937,
+    "farmland": 0.0027,
+    "schools": 0.0939,
+    "hospitals": 0.0603,
+    "roads": 0.0346,
+    "access": 0.0014
+   },
+   "raw": {
+    "density": 0.0785,
+    "people": 114622,
+    "farmland": 0.1,
+    "schools": 55,
+    "hospitals": 10,
+    "roads": 29,
+    "access": 0.065,
+    "slope": 0.63
+   }
+  },
+  {
+   "rank": 15,
+   "raion": "Donetskyi",
+   "oblast": "Donetska",
+   "score": 0.6612,
+   "anchor_lat": 47.8897,
+   "anchor_lon": 37.5474,
+   "contribution": {
+    "density": 0.3481,
+    "people": 0.1238,
+    "farmland": 0.0838,
+    "schools": 0.05,
+    "hospitals": 0.0329,
+    "roads": 0.0115,
+    "access": 0.0111
+   },
+   "raw": {
+    "density": 0.745,
+    "people": 1437542,
+    "farmland": 57.0,
+    "schools": 313,
+    "hospitals": 167,
+    "roads": 72,
+    "access": 0.712,
+    "slope": 1.03
+   }
+  },
+  {
+   "rank": 16,
+   "raion": "Iziumskyi",
+   "oblast": "Kharkivska",
+   "score": 0.6444,
+   "anchor_lat": 49.2072,
+   "anchor_lon": 37.3754,
+   "contribution": {
+    "density": 0.335,
+    "people": 0.1059,
+    "farmland": 0.0917,
+    "schools": 0.0659,
+    "hospitals": 0.0236,
+    "roads": 0.0108,
+    "access": 0.0116
+   },
+   "raw": {
+    "density": 0.1869,
+    "people": 180782,
+    "farmland": 64.0,
+    "schools": 108,
+    "hospitals": 17,
+    "roads": 69,
+    "access": 0.723,
+    "slope": 0.93
+   }
+  },
+  {
+   "rank": 17,
+   "raion": "Brovarskyi",
+   "oblast": "Kyivska",
+   "score": 0.6406,
+   "anchor_lat": 50.4613,
+   "anchor_lon": 30.8234,
+   "contribution": {
+    "density": 0.25,
+    "people": 0.1505,
+    "farmland": 0.093,
+    "schools": 0.079,
+    "hospitals": 0.0273,
+    "roads": 0.0285,
+    "access": 0.0123
+   },
+   "raw": {
+    "density": 0.0291,
+    "people": 268836,
+    "farmland": 65.2,
+    "schools": 83,
+    "hospitals": 11,
+    "roads": 183,
+    "access": 0.777,
+    "slope": 0.2
+   }
+  },
+  {
+   "rank": 18,
+   "raion": "Kolomyiskyi",
+   "oblast": "Ivano-Frankivska",
+   "score": 0.6391,
+   "anchor_lat": 48.5088,
+   "anchor_lon": 25.054,
+   "contribution": {
+    "density": 0.1818,
+    "people": 0.2025,
+    "farmland": 0.0864,
+    "schools": 0.0883,
+    "hospitals": 0.0445,
+    "roads": 0.0256,
+    "access": 0.0101
+   },
+   "raw": {
+    "density": 0.0154,
+    "people": 289650,
+    "farmland": 60.1,
+    "schools": 87,
+    "hospitals": 21,
+    "roads": 100,
+    "access": 0.685,
+    "slope": 1.13
+   }
+  },
+  {
+   "rank": 19,
+   "raion": "Dniprovskyi",
+   "oblast": "Dnipropetrovska",
+   "score": 0.6387,
+   "anchor_lat": 48.5939,
+   "anchor_lon": 34.9794,
+   "contribution": {
+    "density": 0.2442,
+    "people": 0.1498,
+    "farmland": 0.0945,
+    "schools": 0.0784,
+    "hospitals": 0.0342,
+    "roads": 0.0246,
+    "access": 0.013
+   },
+   "raw": {
+    "density": 0.0418,
+    "people": 1145857,
+    "farmland": 64.8,
+    "schools": 324,
+    "hospitals": 100,
+    "roads": 399,
+    "access": 0.764,
+    "slope": 0.58
+   }
+  },
+  {
+   "rank": 20,
+   "raion": "Kryvorizkyi",
+   "oblast": "Dnipropetrovska",
+   "score": 0.638,
+   "anchor_lat": 47.5963,
+   "anchor_lon": 33.701,
+   "contribution": {
+    "density": 0.2668,
+    "people": 0.1432,
+    "farmland": 0.1018,
+    "schools": 0.0653,
+    "hospitals": 0.035,
+    "roads": 0.0119,
+    "access": 0.0139
+   },
+   "raw": {
+    "density": 0.041,
+    "people": 784169,
+    "farmland": 70.5,
+    "schools": 214,
+    "hospitals": 74,
+    "roads": 72,
+    "access": 0.802,
+    "slope": 0.6
+   }
+  },
+  {
+   "rank": 21,
+   "raion": "Polohivskyi",
+   "oblast": "Zaporizka",
+   "score": 0.635,
+   "anchor_lat": 47.1719,
+   "anchor_lon": 35.6661,
+   "contribution": {
+    "density": 0.3451,
+    "people": 0.1016,
+    "farmland": 0.1238,
+    "schools": 0.0329,
+    "hospitals": 0.0145,
+    "roads": 0.0001,
+    "access": 0.0169
+   },
+   "raw": {
+    "density": 0.4063,
+    "people": 168305,
+    "farmland": 84.9,
+    "schools": 60,
+    "hospitals": 12,
+    "roads": 0,
+    "access": 0.927,
+    "slope": 0.67
+   }
+  },
+  {
+   "rank": 22,
+   "raion": "Beryslavskyi",
+   "oblast": "Khersonska",
+   "score": 0.6349,
+   "anchor_lat": 46.8803,
+   "anchor_lon": 33.5329,
+   "contribution": {
+    "density": 0.3427,
+    "people": 0.0911,
+    "farmland": 0.122,
+    "schools": 0.0394,
+    "hospitals": 0.0182,
+    "roads": 0.0047,
+    "access": 0.0167
+   },
+   "raw": {
+    "density": 0.2366,
+    "people": 85363,
+    "farmland": 81.5,
+    "schools": 42,
+    "hospitals": 7,
+    "roads": 22,
+    "access": 0.882,
+    "slope": 0.36
+   }
+  },
+  {
+   "rank": 23,
+   "raion": "Synelnykivskyi",
+   "oblast": "Dnipropetrovska",
+   "score": 0.6328,
+   "anchor_lat": 48.3072,
+   "anchor_lon": 35.431,
+   "contribution": {
+    "density": 0.2803,
+    "people": 0.1253,
+    "farmland": 0.121,
+    "schools": 0.0525,
+    "hospitals": 0.0245,
+    "roads": 0.0137,
+    "access": 0.0156
+   },
+   "raw": {
+    "density": 0.0473,
+    "people": 210174,
+    "farmland": 83.2,
+    "schools": 86,
+    "hospitals": 19,
+    "roads": 101,
+    "access": 0.895,
+    "slope": 0.68
+   }
+  },
+  {
+   "rank": 24,
+   "raion": "Pavlohradskyi",
+   "oblast": "Dnipropetrovska",
+   "score": 0.6304,
+   "anchor_lat": 48.5179,
+   "anchor_lon": 35.7896,
+   "contribution": {
+    "density": 0.2503,
+    "people": 0.1315,
+    "farmland": 0.1033,
+    "schools": 0.0802,
+    "hospitals": 0.0361,
+    "roads": 0.0151,
+    "access": 0.0139
+   },
+   "raw": {
+    "density": 0.0269,
+    "people": 177617,
+    "farmland": 71.4,
+    "schools": 105,
+    "hospitals": 22,
+    "roads": 48,
+    "access": 0.841,
+    "slope": 0.7
+   }
+  },
+  {
+   "rank": 25,
+   "raion": "Fastivskyi",
+   "oblast": "Kyivska",
+   "score": 0.6263,
+   "anchor_lat": 50.3696,
+   "anchor_lon": 30.3303,
+   "contribution": {
+    "density": 0.2382,
+    "people": 0.1695,
+    "farmland": 0.0696,
+    "schools": 0.0902,
+    "hospitals": 0.0368,
+    "roads": 0.0136,
+    "access": 0.0084
+   },
+   "raw": {
+    "density": 0.0289,
+    "people": 167662,
+    "farmland": 48.5,
+    "schools": 75,
+    "hospitals": 18,
+    "roads": 60,
+    "access": 0.589,
+    "slope": 0.55
+   }
+  },
+  {
+   "rank": 26,
+   "raion": "Kakhovskyi",
+   "oblast": "Khersonska",
+   "score": 0.6243,
+   "anchor_lat": 46.7455,
+   "anchor_lon": 33.5265,
+   "contribution": {
+    "density": 0.3193,
+    "people": 0.1038,
+    "farmland": 0.1213,
+    "schools": 0.0346,
+    "hospitals": 0.0181,
+    "roads": 0.0104,
+    "access": 0.0168
+   },
+   "raw": {
+    "density": 0.1236,
+    "people": 233328,
+    "farmland": 80.0,
+    "schools": 59,
+    "hospitals": 14,
+    "roads": 77,
+    "access": 0.877,
+    "slope": 0.21
+   }
+  },
+  {
+   "rank": 27,
+   "raion": "Lozivskyi",
+   "oblast": "Kharkivska",
+   "score": 0.6226,
+   "anchor_lat": 48.9038,
+   "anchor_lon": 36.2381,
+   "contribution": {
+    "density": 0.2898,
+    "people": 0.1119,
+    "farmland": 0.1157,
+    "schools": 0.0697,
+    "hospitals": 0.0201,
+    "roads": 0.0003,
+    "access": 0.0151
+   },
+   "raw": {
+    "density": 0.0425,
+    "people": 156675,
+    "farmland": 80.7,
+    "schools": 87,
+    "hospitals": 6,
+    "roads": 0,
+    "access": 0.882,
+    "slope": 0.75
+   }
+  },
+  {
+   "rank": 28,
+   "raion": "Krasnohradskyi",
+   "oblast": "Kharkivska",
+   "score": 0.6213,
+   "anchor_lat": 49.3894,
+   "anchor_lon": 35.3896,
+   "contribution": {
+    "density": 0.2738,
+    "people": 0.1138,
+    "farmland": 0.114,
+    "schools": 0.0718,
+    "hospitals": 0.0183,
+    "roads": 0.0147,
+    "access": 0.0149
+   },
+   "raw": {
+    "density": 0.0347,
+    "people": 110195,
+    "farmland": 78.4,
+    "schools": 85,
+    "hospitals": 6,
+    "roads": 83,
+    "access": 0.867,
+    "slope": 0.61
+   }
+  },
+  {
+   "rank": 29,
+   "raion": "Rovenkivskyi",
+   "oblast": "Luhanska",
+   "score": 0.6089,
+   "anchor_lat": 48.0327,
+   "anchor_lon": 38.8501,
+   "contribution": {
+    "density": 0.3226,
+    "people": 0.1227,
+    "farmland": 0.0726,
+    "schools": 0.0325,
+    "hospitals": 0.019,
+    "roads": 0.0281,
+    "access": 0.0115
+   },
+   "raw": {
+    "density": 0.0809,
+    "people": 223150,
+    "farmland": 47.3,
+    "schools": 24,
+    "hospitals": 7,
+    "roads": 109,
+    "access": 0.751,
+    "slope": 1.19
+   }
+  },
+  {
+   "rank": 30,
+   "raion": "Obukhivskyi",
+   "oblast": "Kyivska",
+   "score": 0.6064,
+   "anchor_lat": 50.1897,
+   "anchor_lon": 30.3328,
+   "contribution": {
+    "density": 0.2181,
+    "people": 0.1675,
+    "farmland": 0.0863,
+    "schools": 0.064,
+    "hospitals": 0.0346,
+    "roads": 0.026,
+    "access": 0.01
+   },
+   "raw": {
+    "density": 0.0204,
+    "people": 262357,
+    "farmland": 59.4,
+    "schools": 81,
+    "hospitals": 21,
+    "roads": 142,
+    "access": 0.65,
+    "slope": 0.73
+   }
+  },
+  {
+   "rank": 31,
+   "raion": "Novomoskovskyi",
+   "oblast": "Dnipropetrovska",
+   "score": 0.605,
+   "anchor_lat": 48.5791,
+   "anchor_lon": 35.3867,
+   "contribution": {
+    "density": 0.2236,
+    "people": 0.1257,
+    "farmland": 0.1088,
+    "schools": 0.0897,
+    "hospitals": 0.0258,
+    "roads": 0.0169,
+    "access": 0.0145
+   },
+   "raw": {
+    "density": 0.0191,
+    "people": 174891,
+    "farmland": 72.7,
+    "schools": 164,
+    "hospitals": 24,
+    "roads": 108,
+    "access": 0.832,
+    "slope": 0.42
+   }
+  },
+  {
+   "rank": 32,
+   "raion": "Boryspilskyi",
+   "oblast": "Kyivska",
+   "score": 0.6007,
+   "anchor_lat": 50.4164,
+   "anchor_lon": 30.8942,
+   "contribution": {
+    "density": 0.2071,
+    "people": 0.148,
+    "farmland": 0.0879,
+    "schools": 0.0761,
+    "hospitals": 0.0396,
+    "roads": 0.0306,
+    "access": 0.0115
+   },
+   "raw": {
+    "density": 0.018,
+    "people": 204629,
+    "farmland": 59.4,
+    "schools": 98,
+    "hospitals": 25,
+    "roads": 199,
+    "access": 0.683,
+    "slope": 0.28
+   }
+  },
+  {
+   "rank": 33,
+   "raion": "Kupianskyi",
+   "oblast": "Kharkivska",
+   "score": 0.5957,
+   "anchor_lat": 49.7289,
+   "anchor_lon": 37.7232,
+   "contribution": {
+    "density": 0.346,
+    "people": 0.0801,
+    "farmland": 0.0912,
+    "schools": 0.0452,
+    "hospitals": 0.01,
+    "roads": 0.0115,
+    "access": 0.0117
+   },
+   "raw": {
+    "density": 0.4191,
+    "people": 138996,
+    "farmland": 65.9,
+    "schools": 78,
+    "hospitals": 6,
+    "roads": 92,
+    "access": 0.775,
+    "slope": 1.05
+   }
+  },
+  {
+   "rank": 34,
+   "raion": "Mariupolskyi",
+   "oblast": "Donetska",
+   "score": 0.5908,
+   "anchor_lat": 47.1285,
+   "anchor_lon": 37.4522,
+   "contribution": {
+    "density": 0.3414,
+    "people": 0.1048,
+    "farmland": 0.061,
+    "schools": 0.0435,
+    "hospitals": 0.0162,
+    "roads": 0.016,
+    "access": 0.0078
+   },
+   "raw": {
+    "density": 0.2982,
+    "people": 533298,
+    "farmland": 42.5,
+    "schools": 107,
+    "hospitals": 18,
+    "roads": 95,
+    "access": 0.472,
+    "slope": 0.49
+   }
+  },
+  {
+   "rank": 35,
+   "raion": "Vasylivskyi",
+   "oblast": "Zaporizka",
+   "score": 0.5896,
+   "anchor_lat": 47.2671,
+   "anchor_lon": 35.5418,
+   "contribution": {
+    "density": 0.323,
+    "people": 0.1298,
+    "farmland": 0.1059,
+    "schools": 0.0065,
+    "hospitals": 0.0014,
+    "roads": 0.0089,
+    "access": 0.0141
+   },
+   "raw": {
+    "density": 0.1434,
+    "people": 183012,
+    "farmland": 70.1,
+    "schools": 5,
+    "hospitals": 0,
+    "roads": 41,
+    "access": 0.748,
+    "slope": 0.31
+   }
+  },
+  {
+   "rank": 36,
+   "raion": "Kamianskyi",
+   "oblast": "Dnipropetrovska",
+   "score": 0.5848,
+   "anchor_lat": 48.4746,
+   "anchor_lon": 34.4945,
+   "contribution": {
+    "density": 0.2217,
+    "people": 0.1334,
+    "farmland": 0.1001,
+    "schools": 0.0561,
+    "hospitals": 0.0292,
+    "roads": 0.0319,
+    "access": 0.0124
+   },
+   "raw": {
+    "density": 0.0184,
+    "people": 411877,
+    "farmland": 70.3,
+    "schools": 118,
+    "hospitals": 39,
+    "roads": 280,
+    "access": 0.77,
+    "slope": 0.83
+   }
+  },
+  {
+   "rank": 37,
+   "raion": "Pervomaiskyi",
+   "oblast": "Mykolaivska",
+   "score": 0.5841,
+   "anchor_lat": 47.9882,
+   "anchor_lon": 30.8992,
+   "contribution": {
+    "density": 0.2155,
+    "people": 0.1131,
+    "farmland": 0.1188,
+    "schools": 0.067,
+    "hospitals": 0.028,
+    "roads": 0.0278,
+    "access": 0.0139
+   },
+   "raw": {
+    "density": 0.0175,
+    "people": 145308,
+    "farmland": 82.5,
+    "schools": 75,
+    "hospitals": 17,
+    "roads": 144,
+    "access": 0.854,
+    "slope": 0.84
+   }
+  },
+  {
+   "rank": 38,
+   "raion": "Bashtanskyi",
+   "oblast": "Mykolaivska",
+   "score": 0.5814,
+   "anchor_lat": 47.1191,
+   "anchor_lon": 32.8172,
+   "contribution": {
+    "density": 0.2784,
+    "people": 0.0944,
+    "farmland": 0.123,
+    "schools": 0.0342,
+    "hospitals": 0.0185,
+    "roads": 0.0154,
+    "access": 0.0175
+   },
+   "raw": {
+    "density": 0.0486,
+    "people": 134639,
+    "farmland": 84.1,
+    "schools": 41,
+    "hospitals": 9,
+    "roads": 107,
+    "access": 0.938,
+    "slope": 0.41
+   }
+  },
+  {
+   "rank": 39,
+   "raion": "Chuhuivskyi",
+   "oblast": "Kharkivska",
+   "score": 0.5805,
+   "anchor_lat": 50.2631,
+   "anchor_lon": 37.0213,
+   "contribution": {
+    "density": 0.3257,
+    "people": 0.0965,
+    "farmland": 0.0817,
+    "schools": 0.0388,
+    "hospitals": 0.0166,
+    "roads": 0.0106,
+    "access": 0.0106
+   },
+   "raw": {
+    "density": 0.159,
+    "people": 187880,
+    "farmland": 56.6,
+    "schools": 77,
+    "hospitals": 30,
+    "roads": 111,
+    "access": 0.683,
+    "slope": 0.92
+   }
+  },
+  {
+   "rank": 40,
+   "raion": "Mykolaivskyi",
+   "oblast": "Mykolaivska",
+   "score": 0.5791,
+   "anchor_lat": 46.9049,
+   "anchor_lon": 31.9542,
+   "contribution": {
+    "density": 0.2749,
+    "people": 0.1016,
+    "farmland": 0.0946,
+    "schools": 0.0527,
+    "hospitals": 0.0213,
+    "roads": 0.0202,
+    "access": 0.0137
+   },
+   "raw": {
+    "density": 0.0542,
+    "people": 659099,
+    "farmland": 64.1,
+    "schools": 187,
+    "hospitals": 60,
+    "roads": 278,
+    "access": 0.746,
+    "slope": 0.41
+   }
+  },
+  {
+   "rank": 41,
+   "raion": "Bilotserkivskyi",
+   "oblast": "Kyivska",
+   "score": 0.5775,
+   "anchor_lat": 49.8736,
+   "anchor_lon": 30.1279,
+   "contribution": {
+    "density": 0.1973,
+    "people": 0.1519,
+    "farmland": 0.1097,
+    "schools": 0.0693,
+    "hospitals": 0.0255,
+    "roads": 0.0115,
+    "access": 0.0123
+   },
+   "raw": {
+    "density": 0.016,
+    "people": 437719,
+    "farmland": 76.4,
+    "schools": 144,
+    "hospitals": 32,
+    "roads": 92,
+    "access": 0.78,
+    "slope": 0.56
+   }
+  },
+  {
+   "rank": 42,
+   "raion": "Nikopolskyi",
+   "oblast": "Dnipropetrovska",
+   "score": 0.5771,
+   "anchor_lat": 47.6682,
+   "anchor_lon": 34.3731,
+   "contribution": {
+    "density": 0.2859,
+    "people": 0.126,
+    "farmland": 0.093,
+    "schools": 0.0415,
+    "hospitals": 0.016,
+    "roads": 0.0012,
+    "access": 0.0135
+   },
+   "raw": {
+    "density": 0.0693,
+    "people": 264588,
+    "farmland": 64.4,
+    "schools": 52,
+    "hospitals": 17,
+    "roads": 0,
+    "access": 0.773,
+    "slope": 0.64
+   }
+  },
+  {
+   "rank": 43,
+   "raion": "Simferopolskyi",
+   "oblast": "Avtonomna Respublika Krym",
+   "score": 0.5769,
+   "anchor_lat": 45.1145,
+   "anchor_lon": 33.9621,
+   "contribution": {
+    "density": 0.1604,
+    "people": 0.1981,
+    "farmland": 0.0534,
+    "schools": 0.0785,
+    "hospitals": 0.0404,
+    "roads": 0.0349,
+    "access": 0.0112
+   },
+   "raw": {
+    "density": 0.0163,
+    "people": 511610,
+    "farmland": 36.0,
+    "schools": 99,
+    "hospitals": 39,
+    "roads": 160,
+    "access": 0.671,
+    "slope": 1.54
+   }
+  },
+  {
+   "rank": 44,
+   "raion": "Odeskyi",
+   "oblast": "Odeska",
+   "score": 0.5768,
+   "anchor_lat": 46.2785,
+   "anchor_lon": 30.5772,
+   "contribution": {
+    "density": 0.2232,
+    "people": 0.1475,
+    "farmland": 0.0679,
+    "schools": 0.0676,
+    "hospitals": 0.0381,
+    "roads": 0.0243,
+    "access": 0.0082
+   },
+   "raw": {
+    "density": 0.0328,
+    "people": 1340158,
+    "farmland": 46.3,
+    "schools": 304,
+    "hospitals": 76,
+    "roads": 255,
+    "access": 0.504,
+    "slope": 0.5
+   }
+  },
+  {
+   "rank": 45,
+   "raion": "Bohodukhivskyi",
+   "oblast": "Kharkivska",
+   "score": 0.5725,
+   "anchor_lat": 50.2613,
+   "anchor_lon": 36.1038,
+   "contribution": {
+    "density": 0.2908,
+    "people": 0.1055,
+    "farmland": 0.0947,
+    "schools": 0.0424,
+    "hospitals": 0.0173,
+    "roads": 0.0107,
+    "access": 0.011
+   },
+   "raw": {
+    "density": 0.0604,
+    "people": 127520,
+    "farmland": 67.2,
+    "schools": 50,
+    "hospitals": 11,
+    "roads": 52,
+    "access": 0.737,
+    "slope": 0.8
+   }
+  },
+  {
+   "rank": 46,
+   "raion": "Kalmiuskyi",
+   "oblast": "Donetska",
+   "score": 0.5702,
+   "anchor_lat": 47.8858,
+   "anchor_lon": 37.6142,
+   "contribution": {
+    "density": 0.3401,
+    "people": 0.0859,
+    "farmland": 0.0853,
+    "schools": 0.0233,
+    "hospitals": 0.0163,
+    "roads": 0.0079,
+    "access": 0.0114
+   },
+   "raw": {
+    "density": 0.2288,
+    "people": 113206,
+    "farmland": 59.1,
+    "schools": 28,
+    "hospitals": 14,
+    "roads": 51,
+    "access": 0.66,
+    "slope": 0.64
+   }
+  },
+  {
+   "rank": 47,
+   "raion": "Umanskyi",
+   "oblast": "Cherkaska",
+   "score": 0.563,
+   "anchor_lat": 48.75,
+   "anchor_lon": 30.2157,
+   "contribution": {
+    "density": 0.1431,
+    "people": 0.1557,
+    "farmland": 0.1132,
+    "schools": 0.0858,
+    "hospitals": 0.0289,
+    "roads": 0.0242,
+    "access": 0.0121
+   },
+   "raw": {
+    "density": 0.0152,
+    "people": 256458,
+    "farmland": 79.7,
+    "schools": 140,
+    "hospitals": 21,
+    "roads": 156,
+    "access": 0.799,
+    "slope": 0.64
+   }
+  },
+  {
+   "rank": 48,
+   "raion": "Ternopilskyi",
+   "oblast": "Ternopilska",
+   "score": 0.5555,
+   "anchor_lat": 49.5732,
+   "anchor_lon": 25.6208,
+   "contribution": {
+    "density": 0.1206,
+    "people": 0.1819,
+    "farmland": 0.1024,
+    "schools": 0.0721,
+    "hospitals": 0.0397,
+    "roads": 0.0266,
+    "access": 0.0121
+   },
+   "raw": {
+    "density": 0.014,
+    "people": 562856,
+    "farmland": 71.4,
+    "schools": 186,
+    "hospitals": 50,
+    "roads": 252,
+    "access": 0.764,
+    "slope": 0.88
+   }
+  },
+  {
+   "rank": 49,
+   "raion": "Lvivskyi",
+   "oblast": "Lvivska",
+   "score": 0.5464,
+   "anchor_lat": 49.851,
+   "anchor_lon": 24.0495,
+   "contribution": {
+    "density": 0.1382,
+    "people": 0.1782,
+    "farmland": 0.0615,
+    "schools": 0.0893,
+    "hospitals": 0.0391,
+    "roads": 0.0316,
+    "access": 0.0086
+   },
+   "raw": {
+    "density": 0.0165,
+    "people": 1131495,
+    "farmland": 42.3,
+    "schools": 435,
+    "hospitals": 108,
+    "roads": 364,
+    "access": 0.594,
+    "slope": 0.82
+   }
+  },
+  {
+   "rank": 50,
+   "raion": "Okhtyrskyi",
+   "oblast": "Sumska",
+   "score": 0.5387,
+   "anchor_lat": 50.4841,
+   "anchor_lon": 34.9947,
+   "contribution": {
+    "density": 0.268,
+    "people": 0.1144,
+    "farmland": 0.0834,
+    "schools": 0.0243,
+    "hospitals": 0.0228,
+    "roads": 0.0159,
+    "access": 0.01
+   },
+   "raw": {
+    "density": 0.045,
+    "people": 125020,
+    "farmland": 58.4,
+    "schools": 16,
+    "hospitals": 10,
+    "roads": 74,
+    "access": 0.677,
+    "slope": 0.78
+   }
+  },
+  {
+   "rank": 51,
+   "raion": "Stryiskyi",
+   "oblast": "Lvivska",
+   "score": 0.5342,
+   "anchor_lat": 49.619,
+   "anchor_lon": 23.9432,
+   "contribution": {
+    "density": 0.1463,
+    "people": 0.1772,
+    "farmland": 0.0432,
+    "schools": 0.0964,
+    "hospitals": 0.0352,
+    "roads": 0.0298,
+    "access": 0.006
+   },
+   "raw": {
+    "density": 0.0137,
+    "people": 324365,
+    "farmland": 28.1,
+    "schools": 206,
+    "hospitals": 20,
+    "roads": 195,
+    "access": 0.41,
+    "slope": 2.53
+   }
+  },
+  {
+   "rank": 52,
+   "raion": "Voznesenskyi",
+   "oblast": "Mykolaivska",
+   "score": 0.5315,
+   "anchor_lat": 47.538,
+   "anchor_lon": 31.3663,
+   "contribution": {
+    "density": 0.2238,
+    "people": 0.0956,
+    "farmland": 0.1135,
+    "schools": 0.051,
+    "hospitals": 0.0189,
+    "roads": 0.0138,
+    "access": 0.015
+   },
+   "raw": {
+    "density": 0.0193,
+    "people": 186548,
+    "farmland": 79.4,
+    "schools": 69,
+    "hospitals": 11,
+    "roads": 99,
+    "access": 0.88,
+    "slope": 0.85
+   }
+  },
+  {
+   "rank": 53,
+   "raion": "Henicheskyi",
+   "oblast": "Khersonska",
+   "score": 0.5259,
+   "anchor_lat": 46.2163,
+   "anchor_lon": 34.7373,
+   "contribution": {
+    "density": 0.2964,
+    "people": 0.0729,
+    "farmland": 0.095,
+    "schools": 0.024,
+    "hospitals": 0.012,
+    "roads": 0.0126,
+    "access": 0.013
+   },
+   "raw": {
+    "density": 0.0461,
+    "people": 131683,
+    "farmland": 61.9,
+    "schools": 41,
+    "hospitals": 9,
+    "roads": 152,
+    "access": 0.677,
+    "slope": 0.1
+   }
+  },
+  {
+   "rank": 54,
+   "raion": "Svativskyi",
+   "oblast": "Luhanska",
+   "score": 0.5199,
+   "anchor_lat": 49.3826,
+   "anchor_lon": 38.231,
+   "contribution": {
+    "density": 0.3246,
+    "people": 0.0568,
+    "farmland": 0.092,
+    "schools": 0.0192,
+    "hospitals": 0.0079,
+    "roads": 0.007,
+    "access": 0.0124
+   },
+   "raw": {
+    "density": 0.2085,
+    "people": 80290,
+    "farmland": 67.8,
+    "schools": 27,
+    "hospitals": 7,
+    "roads": 61,
+    "access": 0.816,
+    "slope": 1.19
+   }
+  },
+  {
+   "rank": 55,
+   "raion": "Chortkivskyi",
+   "oblast": "Ternopilska",
+   "score": 0.5177,
+   "anchor_lat": 48.9903,
+   "anchor_lon": 25.684,
+   "contribution": {
+    "density": 0.0916,
+    "people": 0.1889,
+    "farmland": 0.0955,
+    "schools": 0.0787,
+    "hospitals": 0.0407,
+    "roads": 0.0117,
+    "access": 0.0105
+   },
+   "raw": {
+    "density": 0.0133,
+    "people": 336002,
+    "farmland": 68.0,
+    "schools": 126,
+    "hospitals": 29,
+    "roads": 65,
+    "access": 0.703,
+    "slope": 1.17
+   }
+  },
+  {
+   "rank": 56,
+   "raion": "Shchastynskyi",
+   "oblast": "Luhanska",
+   "score": 0.5165,
+   "anchor_lat": 48.669,
+   "anchor_lon": 39.4294,
+   "contribution": {
+    "density": 0.3178,
+    "people": 0.0719,
+    "farmland": 0.0778,
+    "schools": 0.0234,
+    "hospitals": 0.013,
+    "roads": 0.0008,
+    "access": 0.0117
+   },
+   "raw": {
+    "density": 0.1023,
+    "people": 80301,
+    "farmland": 54.9,
+    "schools": 24,
+    "hospitals": 12,
+    "roads": 0,
+    "access": 0.748,
+    "slope": 0.97
+   }
+  },
+  {
+   "rank": 57,
+   "raion": "Cherkaskyi",
+   "oblast": "Cherkaska",
+   "score": 0.5147,
+   "anchor_lat": 49.3785,
+   "anchor_lon": 31.9324,
+   "contribution": {
+    "density": 0.1624,
+    "people": 0.1418,
+    "farmland": 0.0631,
+    "schools": 0.0681,
+    "hospitals": 0.0413,
+    "roads": 0.0314,
+    "access": 0.0066
+   },
+   "raw": {
+    "density": 0.0148,
+    "people": 564362,
+    "farmland": 42.7,
+    "schools": 188,
+    "hospitals": 74,
+    "roads": 418,
+    "access": 0.463,
+    "slope": 0.85
+   }
+  },
+  {
+   "rank": 58,
+   "raion": "Dovzhanskyi",
+   "oblast": "Luhanska",
+   "score": 0.5145,
+   "anchor_lat": 48.0139,
+   "anchor_lon": 39.7272,
+   "contribution": {
+    "density": 0.3068,
+    "people": 0.072,
+    "farmland": 0.0762,
+    "schools": 0.0197,
+    "hospitals": 0.0138,
+    "roads": 0.0138,
+    "access": 0.0121
+   },
+   "raw": {
+    "density": 0.0541,
+    "people": 204598,
+    "farmland": 52.4,
+    "schools": 31,
+    "hospitals": 18,
+    "roads": 76,
+    "access": 0.776,
+    "slope": 1.07
+   }
+  },
+  {
+   "rank": 59,
+   "raion": "Zolotoniskyi",
+   "oblast": "Cherkaska",
+   "score": 0.5139,
+   "anchor_lat": 49.6914,
+   "anchor_lon": 32.1469,
+   "contribution": {
+    "density": 0.14,
+    "people": 0.1395,
+    "farmland": 0.1046,
+    "schools": 0.0554,
+    "hospitals": 0.0384,
+    "roads": 0.0232,
+    "access": 0.0129
+   },
+   "raw": {
+    "density": 0.0141,
+    "people": 168265,
+    "farmland": 70.2,
+    "schools": 55,
+    "hospitals": 23,
+    "roads": 150,
+    "access": 0.738,
+    "slope": 0.23
+   }
+  },
+  {
+   "rank": 60,
+   "raion": "Nizhynskyi",
+   "oblast": "Chernihivska",
+   "score": 0.5137,
+   "anchor_lat": 51.0877,
+   "anchor_lon": 31.8947,
+   "contribution": {
+    "density": 0.2174,
+    "people": 0.1063,
+    "farmland": 0.0971,
+    "schools": 0.0456,
+    "hospitals": 0.0162,
+    "roads": 0.0186,
+    "access": 0.0126
+   },
+   "raw": {
+    "density": 0.0197,
+    "people": 222727,
+    "farmland": 68.0,
+    "schools": 80,
+    "hospitals": 15,
+    "roads": 156,
+    "access": 0.783,
+    "slope": 0.18
+   }
+  },
+  {
+   "rank": 61,
+   "raion": "Melitopolskyi",
+   "oblast": "Zaporizka",
+   "score": 0.5137,
+   "anchor_lat": 46.7285,
+   "anchor_lon": 35.4958,
+   "contribution": {
+    "density": 0.2884,
+    "people": 0.0829,
+    "farmland": 0.1007,
+    "schools": 0.0083,
+    "hospitals": 0.003,
+    "roads": 0.0165,
+    "access": 0.0138
+   },
+   "raw": {
+    "density": 0.0446,
+    "people": 292682,
+    "farmland": 67.3,
+    "schools": 9,
+    "hospitals": 1,
+    "roads": 201,
+    "access": 0.729,
+    "slope": 0.19
+   }
+  },
+  {
+   "rank": 62,
+   "raion": "Drohobytskyi",
+   "oblast": "Lvivska",
+   "score": 0.5132,
+   "anchor_lat": 49.4678,
+   "anchor_lon": 23.6868,
+   "contribution": {
+    "density": 0.112,
+    "people": 0.1908,
+    "farmland": 0.0375,
+    "schools": 0.1014,
+    "hospitals": 0.0587,
+    "roads": 0.0073,
+    "access": 0.0055
+   },
+   "raw": {
+    "density": 0.0134,
+    "people": 224407,
+    "farmland": 20.5,
+    "schools": 116,
+    "hospitals": 37,
+    "roads": 6,
+    "access": 0.361,
+    "slope": 2.43
+   }
+  },
+  {
+   "rank": 63,
+   "raion": "Romenskyi",
+   "oblast": "Sumska",
+   "score": 0.5131,
+   "anchor_lat": 50.751,
+   "anchor_lon": 33.4522,
+   "contribution": {
+    "density": 0.2361,
+    "people": 0.1028,
+    "farmland": 0.0973,
+    "schools": 0.0342,
+    "hospitals": 0.0148,
+    "roads": 0.0162,
+    "access": 0.0117
+   },
+   "raw": {
+    "density": 0.0206,
+    "people": 108362,
+    "farmland": 69.4,
+    "schools": 30,
+    "hospitals": 5,
+    "roads": 58,
+    "access": 0.767,
+    "slope": 0.6
+   }
+  },
+  {
+   "rank": 64,
+   "raion": "Berdychivskyi",
+   "oblast": "Zhytomyrska",
+   "score": 0.5127,
+   "anchor_lat": 50.0835,
+   "anchor_lon": 28.9325,
+   "contribution": {
+    "density": 0.1386,
+    "people": 0.1457,
+    "farmland": 0.1045,
+    "schools": 0.0761,
+    "hospitals": 0.0264,
+    "roads": 0.0084,
+    "access": 0.0129
+   },
+   "raw": {
+    "density": 0.015,
+    "people": 163078,
+    "farmland": 74.4,
+    "schools": 83,
+    "hospitals": 11,
+    "roads": 28,
+    "access": 0.813,
+    "slope": 0.42
+   }
+  },
+  {
+   "rank": 65,
+   "raion": "Sumskyi",
+   "oblast": "Sumska",
+   "score": 0.511,
+   "anchor_lat": 50.8997,
+   "anchor_lon": 34.6731,
+   "contribution": {
+    "density": 0.2731,
+    "people": 0.0886,
+    "farmland": 0.0862,
+    "schools": 0.0254,
+    "hospitals": 0.0155,
+    "roads": 0.0117,
+    "access": 0.0105
+   },
+   "raw": {
+    "density": 0.0422,
+    "people": 444549,
+    "farmland": 61.6,
+    "schools": 78,
+    "hospitals": 30,
+    "roads": 167,
+    "access": 0.717,
+    "slope": 0.72
+   }
+  },
+  {
+   "rank": 66,
+   "raion": "Kremenetskyi",
+   "oblast": "Ternopilska",
+   "score": 0.5098,
+   "anchor_lat": 50.0663,
+   "anchor_lon": 25.5657,
+   "contribution": {
+    "density": 0.1314,
+    "people": 0.1718,
+    "farmland": 0.0824,
+    "schools": 0.0667,
+    "hospitals": 0.0326,
+    "roads": 0.0149,
+    "access": 0.0099
+   },
+   "raw": {
+    "density": 0.0137,
+    "people": 140222,
+    "farmland": 60.0,
+    "schools": 50,
+    "hospitals": 9,
+    "roads": 43,
+    "access": 0.687,
+    "slope": 0.92
+   }
+  },
+  {
+   "rank": 67,
+   "raion": "Rivnenskyi",
+   "oblast": "Rivnenska",
+   "score": 0.5081,
+   "anchor_lat": 50.5984,
+   "anchor_lon": 26.4279,
+   "contribution": {
+    "density": 0.1362,
+    "people": 0.1653,
+    "farmland": 0.0604,
+    "schools": 0.083,
+    "hospitals": 0.0316,
+    "roads": 0.0231,
+    "access": 0.0086
+   },
+   "raw": {
+    "density": 0.0154,
+    "people": 623616,
+    "farmland": 39.4,
+    "schools": 270,
+    "hospitals": 46,
+    "roads": 258,
+    "access": 0.568,
+    "slope": 0.49
+   }
+  },
+  {
+   "rank": 68,
+   "raion": "Kropyvnytskyi",
+   "oblast": "Kirovohradska",
+   "score": 0.5059,
+   "anchor_lat": 48.5194,
+   "anchor_lon": 32.3918,
+   "contribution": {
+    "density": 0.1828,
+    "people": 0.098,
+    "farmland": 0.1126,
+    "schools": 0.058,
+    "hospitals": 0.0213,
+    "roads": 0.0194,
+    "access": 0.0138
+   },
+   "raw": {
+    "density": 0.016,
+    "people": 429656,
+    "farmland": 78.6,
+    "schools": 180,
+    "hospitals": 44,
+    "roads": 304,
+    "access": 0.837,
+    "slope": 0.76
+   }
+  },
+  {
+   "rank": 69,
+   "raion": "Zolochivskyi",
+   "oblast": "Lvivska",
+   "score": 0.5056,
+   "anchor_lat": 49.8417,
+   "anchor_lon": 24.6813,
+   "contribution": {
+    "density": 0.0978,
+    "people": 0.1748,
+    "farmland": 0.0631,
+    "schools": 0.0954,
+    "hospitals": 0.0403,
+    "roads": 0.0259,
+    "access": 0.0083
+   },
+   "raw": {
+    "density": 0.0133,
+    "people": 156303,
+    "farmland": 43.3,
+    "schools": 141,
+    "hospitals": 14,
+    "roads": 102,
+    "access": 0.587,
+    "slope": 0.83
+   }
+  },
+  {
+   "rank": 70,
+   "raion": "Myrhorodskyi",
+   "oblast": "Poltavska",
+   "score": 0.5034,
+   "anchor_lat": 49.936,
+   "anchor_lon": 33.6903,
+   "contribution": {
+    "density": 0.1768,
+    "people": 0.1225,
+    "farmland": 0.0982,
+    "schools": 0.0647,
+    "hospitals": 0.0257,
+    "roads": 0.0036,
+    "access": 0.0119
+   },
+   "raw": {
+    "density": 0.0157,
+    "people": 200574,
+    "farmland": 68.2,
+    "schools": 109,
+    "hospitals": 20,
+    "roads": 21,
+    "access": 0.758,
+    "slope": 0.59
+   }
+  },
+  {
+   "rank": 71,
+   "raion": "Zhytomyrskyi",
+   "oblast": "Zhytomyrska",
+   "score": 0.5021,
+   "anchor_lat": 50.2581,
+   "anchor_lon": 28.6435,
+   "contribution": {
+    "density": 0.1565,
+    "people": 0.144,
+    "farmland": 0.0732,
+    "schools": 0.0727,
+    "hospitals": 0.0244,
+    "roads": 0.0214,
+    "access": 0.01
+   },
+   "raw": {
+    "density": 0.0149,
+    "people": 611739,
+    "farmland": 50.1,
+    "schools": 258,
+    "hospitals": 28,
+    "roads": 344,
+    "access": 0.657,
+    "slope": 0.35
+   }
+  },
+  {
+   "rank": 72,
+   "raion": "Poltavskyi",
+   "oblast": "Poltavska",
+   "score": 0.5016,
+   "anchor_lat": 49.5974,
+   "anchor_lon": 34.5744,
+   "contribution": {
+    "density": 0.1558,
+    "people": 0.1252,
+    "farmland": 0.1017,
+    "schools": 0.0576,
+    "hospitals": 0.0283,
+    "roads": 0.0199,
+    "access": 0.013
+   },
+   "raw": {
+    "density": 0.0151,
+    "people": 573526,
+    "farmland": 69.7,
+    "schools": 187,
+    "hospitals": 81,
+    "roads": 306,
+    "access": 0.784,
+    "slope": 0.53
+   }
+  },
+  {
+   "rank": 73,
+   "raion": "Prylutskyi",
+   "oblast": "Chernihivska",
+   "score": 0.5005,
+   "anchor_lat": 50.5442,
+   "anchor_lon": 32.309,
+   "contribution": {
+    "density": 0.2141,
+    "people": 0.1003,
+    "farmland": 0.0951,
+    "schools": 0.0355,
+    "hospitals": 0.0286,
+    "roads": 0.0158,
+    "access": 0.0111
+   },
+   "raw": {
+    "density": 0.0178,
+    "people": 153531,
+    "farmland": 67.7,
+    "schools": 41,
+    "hospitals": 14,
+    "roads": 101,
+    "access": 0.734,
+    "slope": 0.42
+   }
+  },
+  {
+   "rank": 74,
+   "raion": "Konotopskyi",
+   "oblast": "Sumska",
+   "score": 0.4972,
+   "anchor_lat": 51.251,
+   "anchor_lon": 33.1911,
+   "contribution": {
+    "density": 0.2423,
+    "people": 0.1033,
+    "farmland": 0.0817,
+    "schools": 0.0355,
+    "hospitals": 0.0161,
+    "roads": 0.0078,
+    "access": 0.0105
+   },
+   "raw": {
+    "density": 0.0228,
+    "people": 196448,
+    "farmland": 56.7,
+    "schools": 42,
+    "hospitals": 10,
+    "roads": 49,
+    "access": 0.698,
+    "slope": 0.41
+   }
+  },
+  {
+   "rank": 75,
+   "raion": "Mukachivskyi",
+   "oblast": "Zakarpatska",
+   "score": 0.4898,
+   "anchor_lat": 48.4458,
+   "anchor_lon": 22.608,
+   "contribution": {
+    "density": 0.1269,
+    "people": 0.1895,
+    "farmland": 0.029,
+    "schools": 0.0794,
+    "hospitals": 0.0263,
+    "roads": 0.0341,
+    "access": 0.0044
+   },
+   "raw": {
+    "density": 0.0135,
+    "people": 259437,
+    "farmland": 14.0,
+    "schools": 75,
+    "hospitals": 7,
+    "roads": 126,
+    "access": 0.265,
+    "slope": 4.58
+   }
+  },
+  {
+   "rank": 76,
+   "raion": "Kurmanskyi",
+   "oblast": "Avtonomna Respublika Krym",
+   "score": 0.4864,
+   "anchor_lat": 45.7455,
+   "anchor_lon": 33.9315,
+   "contribution": {
+    "density": 0.1161,
+    "people": 0.1396,
+    "farmland": 0.1194,
+    "schools": 0.0512,
+    "hospitals": 0.0167,
+    "roads": 0.0249,
+    "access": 0.0185
+   },
+   "raw": {
+    "density": 0.0134,
+    "people": 115126,
+    "farmland": 82.5,
+    "schools": 43,
+    "hospitals": 5,
+    "roads": 100,
+    "access": 0.959,
+    "slope": 0.3
+   }
+  },
+  {
+   "rank": 77,
+   "raion": "Chervonohradskyi",
+   "oblast": "Lvivska",
+   "score": 0.4839,
+   "anchor_lat": 50.5385,
+   "anchor_lon": 24.2331,
+   "contribution": {
+    "density": 0.1507,
+    "people": 0.1434,
+    "farmland": 0.0779,
+    "schools": 0.0692,
+    "hospitals": 0.0296,
+    "roads": 0.0025,
+    "access": 0.0105
+   },
+   "raw": {
+    "density": 0.0139,
+    "people": 226760,
+    "farmland": 53.6,
+    "schools": 97,
+    "hospitals": 23,
+    "roads": 0,
+    "access": 0.694,
+    "slope": 0.44
+   }
+  },
+  {
+   "rank": 78,
+   "raion": "Dubenskyi",
+   "oblast": "Rivnenska",
+   "score": 0.4822,
+   "anchor_lat": 50.6424,
+   "anchor_lon": 25.3572,
+   "contribution": {
+    "density": 0.0592,
+    "people": 0.1675,
+    "farmland": 0.0891,
+    "schools": 0.0849,
+    "hospitals": 0.0415,
+    "roads": 0.0291,
+    "access": 0.0107
+   },
+   "raw": {
+    "density": 0.0132,
+    "people": 169474,
+    "farmland": 64.3,
+    "schools": 86,
+    "hospitals": 16,
+    "roads": 151,
+    "access": 0.718,
+    "slope": 0.65
+   }
+  },
+  {
+   "rank": 79,
+   "raion": "Oleksandriiskyi",
+   "oblast": "Kirovohradska",
+   "score": 0.4813,
+   "anchor_lat": 48.6428,
+   "anchor_lon": 33.144,
+   "contribution": {
+    "density": 0.1779,
+    "people": 0.1018,
+    "farmland": 0.0932,
+    "schools": 0.0489,
+    "hospitals": 0.0235,
+    "roads": 0.0246,
+    "access": 0.0114
+   },
+   "raw": {
+    "density": 0.0154,
+    "people": 225617,
+    "farmland": 66.2,
+    "schools": 73,
+    "hospitals": 23,
+    "roads": 201,
+    "access": 0.734,
+    "slope": 0.84
+   }
+  },
+  {
+   "rank": 80,
+   "raion": "Khmilnytskyi",
+   "oblast": "Vinnytska",
+   "score": 0.4805,
+   "anchor_lat": 49.7201,
+   "anchor_lon": 28.7392,
+   "contribution": {
+    "density": 0.119,
+    "people": 0.1618,
+    "farmland": 0.1049,
+    "schools": 0.0516,
+    "hospitals": 0.0183,
+    "roads": 0.012,
+    "access": 0.0129
+   },
+   "raw": {
+    "density": 0.0136,
+    "people": 179391,
+    "farmland": 73.5,
+    "schools": 41,
+    "hospitals": 10,
+    "roads": 41,
+    "access": 0.803,
+    "slope": 0.5
+   }
+  },
+  {
+   "rank": 81,
+   "raion": "Shepetivskyi",
+   "oblast": "Khmelnytska",
+   "score": 0.4767,
+   "anchor_lat": 50.3471,
+   "anchor_lon": 26.9462,
+   "contribution": {
+    "density": 0.1023,
+    "people": 0.1621,
+    "farmland": 0.0804,
+    "schools": 0.0736,
+    "hospitals": 0.0351,
+    "roads": 0.0125,
+    "access": 0.0107
+   },
+   "raw": {
+    "density": 0.0134,
+    "people": 285957,
+    "farmland": 56.2,
+    "schools": 119,
+    "hospitals": 26,
+    "roads": 69,
+    "access": 0.676,
+    "slope": 0.46
+   }
+  },
+  {
+   "rank": 82,
+   "raion": "Lutskyi",
+   "oblast": "Volynska",
+   "score": 0.4763,
+   "anchor_lat": 50.7321,
+   "anchor_lon": 25.3465,
+   "contribution": {
+    "density": 0.104,
+    "people": 0.1549,
+    "farmland": 0.0742,
+    "schools": 0.0793,
+    "hospitals": 0.0311,
+    "roads": 0.0228,
+    "access": 0.0101
+   },
+   "raw": {
+    "density": 0.0146,
+    "people": 440342,
+    "farmland": 51.2,
+    "schools": 178,
+    "hospitals": 34,
+    "roads": 175,
+    "access": 0.661,
+    "slope": 0.41
+   }
+  },
+  {
+   "rank": 83,
+   "raion": "Starobilskyi",
+   "oblast": "Luhanska",
+   "score": 0.4761,
+   "anchor_lat": 49.2437,
+   "anchor_lon": 38.9728,
+   "contribution": {
+    "density": 0.2815,
+    "people": 0.0543,
+    "farmland": 0.0923,
+    "schools": 0.0169,
+    "hospitals": 0.0087,
+    "roads": 0.0093,
+    "access": 0.0132
+   },
+   "raw": {
+    "density": 0.0394,
+    "people": 125452,
+    "farmland": 68.2,
+    "schools": 37,
+    "hospitals": 15,
+    "roads": 130,
+    "access": 0.84,
+    "slope": 1.13
+   }
+  },
+  {
+   "rank": 84,
+   "raion": "Kremenchutskyi",
+   "oblast": "Poltavska",
+   "score": 0.4724,
+   "anchor_lat": 49.0868,
+   "anchor_lon": 33.4379,
+   "contribution": {
+    "density": 0.1424,
+    "people": 0.1166,
+    "farmland": 0.0901,
+    "schools": 0.0596,
+    "hospitals": 0.0311,
+    "roads": 0.02,
+    "access": 0.0125
+   },
+   "raw": {
+    "density": 0.0148,
+    "people": 400956,
+    "farmland": 60.9,
+    "schools": 125,
+    "hospitals": 43,
+    "roads": 194,
+    "access": 0.714,
+    "slope": 0.31
+   }
+  },
+  {
+   "rank": 85,
+   "raion": "Ivano-Frankivskyi",
+   "oblast": "Ivano-Frankivska",
+   "score": 0.4722,
+   "anchor_lat": 48.8975,
+   "anchor_lon": 24.733,
+   "contribution": {
+    "density": 0.0543,
+    "people": 0.1942,
+    "farmland": 0.0642,
+    "schools": 0.0835,
+    "hospitals": 0.0413,
+    "roads": 0.0271,
+    "access": 0.0076
+   },
+   "raw": {
+    "density": 0.0136,
+    "people": 560483,
+    "farmland": 45.5,
+    "schools": 155,
+    "hospitals": 33,
+    "roads": 200,
+    "access": 0.552,
+    "slope": 1.7
+   }
+  },
+  {
+   "rank": 86,
+   "raion": "Berdianskyi",
+   "oblast": "Zaporizka",
+   "score": 0.4705,
+   "anchor_lat": 46.8059,
+   "anchor_lon": 36.7536,
+   "contribution": {
+    "density": 0.291,
+    "people": 0.0636,
+    "farmland": 0.0667,
+    "schools": 0.0169,
+    "hospitals": 0.0113,
+    "roads": 0.0115,
+    "access": 0.0096
+   },
+   "raw": {
+    "density": 0.0546,
+    "people": 186090,
+    "farmland": 47.0,
+    "schools": 37,
+    "hospitals": 11,
+    "roads": 133,
+    "access": 0.52,
+    "slope": 0.32
+   }
+  },
+  {
+   "rank": 87,
+   "raion": "Volodymyr-Volynskyi",
+   "oblast": "Volynska",
+   "score": 0.4651,
+   "anchor_lat": 50.803,
+   "anchor_lon": 24.1235,
+   "contribution": {
+    "density": 0.1439,
+    "people": 0.1158,
+    "farmland": 0.0908,
+    "schools": 0.0564,
+    "hospitals": 0.0226,
+    "roads": 0.024,
+    "access": 0.0116
+   },
+   "raw": {
+    "density": 0.0142,
+    "people": 177310,
+    "farmland": 65.2,
+    "schools": 62,
+    "hospitals": 9,
+    "roads": 116,
+    "access": 0.751,
+    "slope": 0.47
+   }
+  },
+  {
+   "rank": 88,
+   "raion": "Novoukrainskyi",
+   "oblast": "Kirovohradska",
+   "score": 0.4627,
+   "anchor_lat": 48.2569,
+   "anchor_lon": 31.5065,
+   "contribution": {
+    "density": 0.098,
+    "people": 0.1169,
+    "farmland": 0.127,
+    "schools": 0.0602,
+    "hospitals": 0.0267,
+    "roads": 0.0193,
+    "access": 0.0145
+   },
+   "raw": {
+    "density": 0.0133,
+    "people": 139718,
+    "farmland": 86.6,
+    "schools": 81,
+    "hospitals": 20,
+    "roads": 124,
+    "access": 0.874,
+    "slope": 0.72
+   }
+  },
+  {
+   "rank": 89,
+   "raion": "Zvenyhorodskyi",
+   "oblast": "Cherkaska",
+   "score": 0.4577,
+   "anchor_lat": 49.3818,
+   "anchor_lon": 31.3108,
+   "contribution": {
+    "density": 0.0937,
+    "people": 0.1518,
+    "farmland": 0.1009,
+    "schools": 0.0633,
+    "hospitals": 0.0333,
+    "roads": 0.0042,
+    "access": 0.0104
+   },
+   "raw": {
+    "density": 0.0133,
+    "people": 203390,
+    "farmland": 72.6,
+    "schools": 83,
+    "hospitals": 18,
+    "roads": 20,
+    "access": 0.73,
+    "slope": 0.88
+   }
+  },
+  {
+   "rank": 90,
+   "raion": "Perekopskyi",
+   "oblast": "Avtonomna Respublika Krym",
+   "score": 0.4571,
+   "anchor_lat": 46.1116,
+   "anchor_lon": 33.6916,
+   "contribution": {
+    "density": 0.1751,
+    "people": 0.1193,
+    "farmland": 0.0734,
+    "schools": 0.048,
+    "hospitals": 0.0145,
+    "roads": 0.0157,
+    "access": 0.011
+   },
+   "raw": {
+    "density": 0.0156,
+    "people": 138122,
+    "farmland": 50.0,
+    "schools": 38,
+    "hospitals": 4,
+    "roads": 101,
+    "access": 0.625,
+    "slope": 0.19
+   }
+  },
+  {
+   "rank": 91,
+   "raion": "Lubenskyi",
+   "oblast": "Poltavska",
+   "score": 0.4568,
+   "anchor_lat": 50.2278,
+   "anchor_lon": 32.4409,
+   "contribution": {
+    "density": 0.1072,
+    "people": 0.1229,
+    "farmland": 0.1014,
+    "schools": 0.0595,
+    "hospitals": 0.0343,
+    "roads": 0.0189,
+    "access": 0.0127
+   },
+   "raw": {
+    "density": 0.0134,
+    "people": 186182,
+    "farmland": 70.7,
+    "schools": 86,
+    "hospitals": 28,
+    "roads": 129,
+    "access": 0.789,
+    "slope": 0.4
+   }
+  },
+  {
+   "rank": 92,
+   "raion": "Khmelnytskyi",
+   "oblast": "Khmelnytska",
+   "score": 0.4533,
+   "anchor_lat": 49.4019,
+   "anchor_lon": 26.9554,
+   "contribution": {
+    "density": 0.0985,
+    "people": 0.1541,
+    "farmland": 0.0993,
+    "schools": 0.0477,
+    "hospitals": 0.0235,
+    "roads": 0.0186,
+    "access": 0.0116
+   },
+   "raw": {
+    "density": 0.0142,
+    "people": 668330,
+    "farmland": 71.3,
+    "schools": 164,
+    "hospitals": 71,
+    "roads": 284,
+    "access": 0.766,
+    "slope": 0.78
+   }
+  },
+  {
+   "rank": 93,
+   "raion": "Vyshhorodskyi",
+   "oblast": "Kyivska",
+   "score": 0.4492,
+   "anchor_lat": 50.5952,
+   "anchor_lon": 30.4688,
+   "contribution": {
+    "density": 0.2456,
+    "people": 0.0914,
+    "farmland": 0.0264,
+    "schools": 0.0476,
+    "hospitals": 0.0256,
+    "roads": 0.0081,
+    "access": 0.0046
+   },
+   "raw": {
+    "density": 0.0276,
+    "people": 124284,
+    "farmland": 13.2,
+    "schools": 59,
+    "hospitals": 19,
+    "roads": 72,
+    "access": 0.318,
+    "slope": 0.34
+   }
+  },
+  {
+   "rank": 94,
+   "raion": "Kaluskyi",
+   "oblast": "Ivano-Frankivska",
+   "score": 0.4458,
+   "anchor_lat": 49.1062,
+   "anchor_lon": 24.4307,
+   "contribution": {
+    "density": 0.1444,
+    "people": 0.1563,
+    "farmland": 0.0244,
+    "schools": 0.0649,
+    "hospitals": 0.0355,
+    "roads": 0.0162,
+    "access": 0.0041
+   },
+   "raw": {
+    "density": 0.0141,
+    "people": 286506,
+    "farmland": 12.6,
+    "schools": 94,
+    "hospitals": 19,
+    "roads": 68,
+    "access": 0.261,
+    "slope": 4.21
+   }
+  },
+  {
+   "rank": 95,
+   "raion": "Kamianets-Podilskyi",
+   "oblast": "Khmelnytska",
+   "score": 0.4441,
+   "anchor_lat": 48.7586,
+   "anchor_lon": 26.5976,
+   "contribution": {
+    "density": 0.051,
+    "people": 0.1688,
+    "farmland": 0.0866,
+    "schools": 0.0714,
+    "hospitals": 0.0442,
+    "roads": 0.013,
+    "access": 0.0092
+   },
+   "raw": {
+    "density": 0.0131,
+    "people": 291854,
+    "farmland": 63.7,
+    "schools": 100,
+    "hospitals": 33,
+    "roads": 72,
+    "access": 0.667,
+    "slope": 1.38
+   }
+  },
+  {
+   "rank": 96,
+   "raion": "Dzhankoiskyi",
+   "oblast": "Avtonomna Respublika Krym",
+   "score": 0.4441,
+   "anchor_lat": 45.6856,
+   "anchor_lon": 34.4435,
+   "contribution": {
+    "density": 0.1511,
+    "people": 0.1132,
+    "farmland": 0.0861,
+    "schools": 0.0407,
+    "hospitals": 0.0144,
+    "roads": 0.0258,
+    "access": 0.0128
+   },
+   "raw": {
+    "density": 0.0155,
+    "people": 93065,
+    "farmland": 57.9,
+    "schools": 28,
+    "hospitals": 5,
+    "roads": 129,
+    "access": 0.727,
+    "slope": 0.16
+   }
+  },
+  {
+   "rank": 97,
+   "raion": "Chernihivskyi",
+   "oblast": "Chernihivska",
+   "score": 0.4438,
+   "anchor_lat": 51.5853,
+   "anchor_lon": 31.3256,
+   "contribution": {
+    "density": 0.2385,
+    "people": 0.0702,
+    "farmland": 0.0575,
+    "schools": 0.0304,
+    "hospitals": 0.0152,
+    "roads": 0.0236,
+    "access": 0.0084
+   },
+   "raw": {
+    "density": 0.033,
+    "people": 472300,
+    "farmland": 37.8,
+    "schools": 124,
+    "hospitals": 60,
+    "roads": 492,
+    "access": 0.562,
+    "slope": 0.29
+   }
+  },
+  {
+   "rank": 98,
+   "raion": "Skadovskyi",
+   "oblast": "Khersonska",
+   "score": 0.4416,
+   "anchor_lat": 46.1739,
+   "anchor_lon": 32.8503,
+   "contribution": {
+    "density": 0.3064,
+    "people": 0.0629,
+    "farmland": 0.0394,
+    "schools": 0.0161,
+    "hospitals": 0.0067,
+    "roads": 0.004,
+    "access": 0.0061
+   },
+   "raw": {
+    "density": 0.0697,
+    "people": 131307,
+    "farmland": 25.9,
+    "schools": 32,
+    "hospitals": 8,
+    "roads": 51,
+    "access": 0.341,
+    "slope": 0.05
+   }
+  },
+  {
+   "rank": 99,
+   "raion": "Zhmerynskyi",
+   "oblast": "Vinnytska",
+   "score": 0.4406,
+   "anchor_lat": 49.1206,
+   "anchor_lon": 28.0791,
+   "contribution": {
+    "density": 0.085,
+    "people": 0.1626,
+    "farmland": 0.0793,
+    "schools": 0.061,
+    "hospitals": 0.0291,
+    "roads": 0.0147,
+    "access": 0.0089
+   },
+   "raw": {
+    "density": 0.0134,
+    "people": 158375,
+    "farmland": 60.0,
+    "schools": 62,
+    "hospitals": 15,
+    "roads": 60,
+    "access": 0.677,
+    "slope": 1.09
+   }
+  },
+  {
+   "rank": 100,
+   "raion": "Shostkynskyi",
+   "oblast": "Sumska",
+   "score": 0.4359,
+   "anchor_lat": 51.6851,
+   "anchor_lon": 33.9375,
+   "contribution": {
+    "density": 0.2538,
+    "people": 0.063,
+    "farmland": 0.0604,
+    "schools": 0.0214,
+    "hospitals": 0.017,
+    "roads": 0.0123,
+    "access": 0.008
+   },
+   "raw": {
+    "density": 0.0292,
+    "people": 189543,
+    "farmland": 42.1,
+    "schools": 48,
+    "hospitals": 20,
+    "roads": 132,
+    "access": 0.559,
+    "slope": 0.43
+   }
+  },
+  {
+   "rank": 101,
+   "raion": "Vinnytskyi",
+   "oblast": "Vinnytska",
+   "score": 0.4279,
+   "anchor_lat": 49.223,
+   "anchor_lon": 28.6243,
+   "contribution": {
+    "density": 0.0593,
+    "people": 0.1559,
+    "farmland": 0.0919,
+    "schools": 0.0651,
+    "hospitals": 0.0305,
+    "roads": 0.0147,
+    "access": 0.0105
+   },
+   "raw": {
+    "density": 0.0143,
+    "people": 659296,
+    "farmland": 67.0,
+    "schools": 182,
+    "hospitals": 88,
+    "roads": 188,
+    "access": 0.727,
+    "slope": 0.68
+   }
+  },
+  {
+   "rank": 102,
+   "raion": "Koriukivskyi",
+   "oblast": "Chernihivska",
+   "score": 0.4197,
+   "anchor_lat": 51.4892,
+   "anchor_lon": 32.2636,
+   "contribution": {
+    "density": 0.2177,
+    "people": 0.0806,
+    "farmland": 0.0555,
+    "schools": 0.0248,
+    "hospitals": 0.0175,
+    "roads": 0.0159,
+    "access": 0.0077
+   },
+   "raw": {
+    "density": 0.0183,
+    "people": 87525,
+    "farmland": 35.1,
+    "schools": 25,
+    "hospitals": 11,
+    "roads": 90,
+    "access": 0.549,
+    "slope": 0.31
+   }
+  },
+  {
+   "rank": 103,
+   "raion": "Sambirskyi",
+   "oblast": "Lvivska",
+   "score": 0.4181,
+   "anchor_lat": 49.5751,
+   "anchor_lon": 23.2522,
+   "contribution": {
+    "density": 0.1152,
+    "people": 0.1249,
+    "farmland": 0.0448,
+    "schools": 0.0757,
+    "hospitals": 0.031,
+    "roads": 0.0209,
+    "access": 0.0054
+   },
+   "raw": {
+    "density": 0.0135,
+    "people": 220929,
+    "farmland": 24.3,
+    "schools": 220,
+    "hospitals": 22,
+    "roads": 127,
+    "access": 0.36,
+    "slope": 2.52
+   }
+  },
+  {
+   "rank": 104,
+   "raion": "Yavorivskyi",
+   "oblast": "Lvivska",
+   "score": 0.4166,
+   "anchor_lat": 49.9999,
+   "anchor_lon": 23.5357,
+   "contribution": {
+    "density": 0.1142,
+    "people": 0.131,
+    "farmland": 0.0542,
+    "schools": 0.0646,
+    "hospitals": 0.0181,
+    "roads": 0.0275,
+    "access": 0.007
+   },
+   "raw": {
+    "density": 0.0153,
+    "people": 186271,
+    "farmland": 34.9,
+    "schools": 107,
+    "hospitals": 7,
+    "roads": 181,
+    "access": 0.503,
+    "slope": 0.7
+   }
+  },
+  {
+   "rank": 105,
+   "raion": "Novohrad-Volynskyi",
+   "oblast": "Zhytomyrska",
+   "score": 0.4068,
+   "anchor_lat": 50.5896,
+   "anchor_lon": 27.4929,
+   "contribution": {
+    "density": 0.1392,
+    "people": 0.1113,
+    "farmland": 0.0487,
+    "schools": 0.064,
+    "hospitals": 0.0237,
+    "roads": 0.0126,
+    "access": 0.0073
+   },
+   "raw": {
+    "density": 0.0138,
+    "people": 171842,
+    "farmland": 30.4,
+    "schools": 91,
+    "hospitals": 12,
+    "roads": 78,
+    "access": 0.488,
+    "slope": 0.27
+   }
+  },
+  {
+   "rank": 106,
+   "raion": "Berezivskyi",
+   "oblast": "Odeska",
+   "score": 0.3989,
+   "anchor_lat": 47.2238,
+   "anchor_lon": 31.0331,
+   "contribution": {
+    "density": 0.097,
+    "people": 0.0942,
+    "farmland": 0.1055,
+    "schools": 0.0559,
+    "hospitals": 0.0197,
+    "roads": 0.0123,
+    "access": 0.0143
+   },
+   "raw": {
+    "density": 0.0134,
+    "people": 108883,
+    "farmland": 75.6,
+    "schools": 71,
+    "hospitals": 11,
+    "roads": 114,
+    "access": 0.865,
+    "slope": 1.22
+   }
+  },
+  {
+   "rank": 107,
+   "raion": "Bakhchysaraiskyi",
+   "oblast": "Avtonomna Respublika Krym",
+   "score": 0.3933,
+   "anchor_lat": 44.6745,
+   "anchor_lon": 33.5597,
+   "contribution": {
+    "density": 0.1621,
+    "people": 0.1246,
+    "farmland": 0.0096,
+    "schools": 0.0449,
+    "hospitals": 0.0301,
+    "roads": 0.0192,
+    "access": 0.0028
+   },
+   "raw": {
+    "density": 0.0157,
+    "people": 354368,
+    "farmland": 3.8,
+    "schools": 73,
+    "hospitals": 21,
+    "roads": 128,
+    "access": 0.175,
+    "slope": 1.95
+   }
+  },
+  {
+   "rank": 108,
+   "raion": "Haisynskyi",
+   "oblast": "Vinnytska",
+   "score": 0.3893,
+   "anchor_lat": 48.8305,
+   "anchor_lon": 29.3263,
+   "contribution": {
+    "density": 0.0104,
+    "people": 0.162,
+    "farmland": 0.0963,
+    "schools": 0.0766,
+    "hospitals": 0.0256,
+    "roads": 0.0084,
+    "access": 0.01
+   },
+   "raw": {
+    "density": 0.0129,
+    "people": 243518,
+    "farmland": 69.7,
+    "schools": 121,
+    "hospitals": 12,
+    "roads": 53,
+    "access": 0.707,
+    "slope": 0.94
+   }
+  },
+  {
+   "rank": 109,
+   "raion": "Holovanivskyi",
+   "oblast": "Kirovohradska",
+   "score": 0.3792,
+   "anchor_lat": 48.3907,
+   "anchor_lon": 30.289,
+   "contribution": {
+    "density": 0.041,
+    "people": 0.1193,
+    "farmland": 0.1146,
+    "schools": 0.0522,
+    "hospitals": 0.0171,
+    "roads": 0.0228,
+    "access": 0.0123
+   },
+   "raw": {
+    "density": 0.013,
+    "people": 122835,
+    "farmland": 80.5,
+    "schools": 47,
+    "hospitals": 6,
+    "roads": 140,
+    "access": 0.809,
+    "slope": 0.82
+   }
+  },
+  {
+   "rank": 110,
+   "raion": "Novhorod-Siverskyi",
+   "oblast": "Chernihivska",
+   "score": 0.3788,
+   "anchor_lat": 52.1604,
+   "anchor_lon": 32.5755,
+   "contribution": {
+    "density": 0.2255,
+    "people": 0.0486,
+    "farmland": 0.0582,
+    "schools": 0.0202,
+    "hospitals": 0.007,
+    "roads": 0.0121,
+    "access": 0.0073
+   },
+   "raw": {
+    "density": 0.0228,
+    "people": 64673,
+    "farmland": 39.0,
+    "schools": 28,
+    "hospitals": 3,
+    "roads": 140,
+    "access": 0.533,
+    "slope": 0.39
+   }
+  },
+  {
+   "rank": 111,
+   "raion": "Tulchynskyi",
+   "oblast": "Vinnytska",
+   "score": 0.3733,
+   "anchor_lat": 48.689,
+   "anchor_lon": 28.9222,
+   "contribution": {
+    "density": 0.0166,
+    "people": 0.1496,
+    "farmland": 0.0884,
+    "schools": 0.0575,
+    "hospitals": 0.0339,
+    "roads": 0.0183,
+    "access": 0.009
+   },
+   "raw": {
+    "density": 0.013,
+    "people": 150814,
+    "farmland": 65.7,
+    "schools": 63,
+    "hospitals": 15,
+    "roads": 99,
+    "access": 0.676,
+    "slope": 1.18
+   }
+  },
+  {
+   "rank": 112,
+   "raion": "Cnernivetskyi",
+   "oblast": "Chernivetska",
+   "score": 0.3573,
+   "anchor_lat": 48.5511,
+   "anchor_lon": 25.9348,
+   "contribution": {
+    "density": 0.0215,
+    "people": 0.1333,
+    "farmland": 0.0673,
+    "schools": 0.0569,
+    "hospitals": 0.0369,
+    "roads": 0.0335,
+    "access": 0.0078
+   },
+   "raw": {
+    "density": 0.013,
+    "people": 641055,
+    "farmland": 46.5,
+    "schools": 177,
+    "hospitals": 94,
+    "roads": 488,
+    "access": 0.547,
+    "slope": 1.98
+   }
+  },
+  {
+   "rank": 113,
+   "raion": "Bilohirskyi",
+   "oblast": "Avtonomna Respublika Krym",
+   "score": 0.3521,
+   "anchor_lat": 45.0545,
+   "anchor_lon": 34.4684,
+   "contribution": {
+    "density": 0.0838,
+    "people": 0.1457,
+    "farmland": 0.0682,
+    "schools": 0.017,
+    "hospitals": 0.0014,
+    "roads": 0.0235,
+    "access": 0.0124
+   },
+   "raw": {
+    "density": 0.0132,
+    "people": 113184,
+    "farmland": 45.3,
+    "schools": 11,
+    "hospitals": 0,
+    "roads": 77,
+    "access": 0.713,
+    "slope": 1.67
+   }
+  },
+  {
+   "rank": 114,
+   "raion": "Bilhorod-Dnistrovskyi",
+   "oblast": "Odeska",
+   "score": 0.3493,
+   "anchor_lat": 46.0527,
+   "anchor_lon": 30.3847,
+   "contribution": {
+    "density": 0.1068,
+    "people": 0.0848,
+    "farmland": 0.0807,
+    "schools": 0.0428,
+    "hospitals": 0.0132,
+    "roads": 0.0111,
+    "access": 0.01
+   },
+   "raw": {
+    "density": 0.0143,
+    "people": 208769,
+    "farmland": 54.4,
+    "schools": 93,
+    "hospitals": 19,
+    "roads": 118,
+    "access": 0.571,
+    "slope": 0.49
+   }
+  },
+  {
+   "rank": 115,
+   "raion": "Rozdilnianskyi",
+   "oblast": "Odeska",
+   "score": 0.3437,
+   "anchor_lat": 46.637,
+   "anchor_lon": 30.3125,
+   "contribution": {
+    "density": 0.0637,
+    "people": 0.0822,
+    "farmland": 0.1016,
+    "schools": 0.0445,
+    "hospitals": 0.02,
+    "roads": 0.0192,
+    "access": 0.0126
+   },
+   "raw": {
+    "density": 0.0131,
+    "people": 94339,
+    "farmland": 73.2,
+    "schools": 54,
+    "hospitals": 10,
+    "roads": 153,
+    "access": 0.807,
+    "slope": 1.26
+   }
+  },
+  {
+   "rank": 116,
+   "raion": "Podilskyi",
+   "oblast": "Odeska",
+   "score": 0.3367,
+   "anchor_lat": 47.7559,
+   "anchor_lon": 29.6957,
+   "contribution": {
+    "density": 0.0792,
+    "people": 0.0899,
+    "farmland": 0.0877,
+    "schools": 0.0423,
+    "hospitals": 0.0083,
+    "roads": 0.0197,
+    "access": 0.0097
+   },
+   "raw": {
+    "density": 0.0135,
+    "people": 226870,
+    "farmland": 64.9,
+    "schools": 94,
+    "hospitals": 10,
+    "roads": 282,
+    "access": 0.701,
+    "slope": 1.54
+   }
+  },
+  {
+   "rank": 117,
+   "raion": "Dnistrovskyi",
+   "oblast": "Chernivetska",
+   "score": 0.3242,
+   "anchor_lat": 48.5599,
+   "anchor_lon": 26.1383,
+   "contribution": {
+    "density": 0.0297,
+    "people": 0.109,
+    "farmland": 0.0799,
+    "schools": 0.0501,
+    "hospitals": 0.0225,
+    "roads": 0.0234,
+    "access": 0.0096
+   },
+   "raw": {
+    "density": 0.013,
+    "people": 159561,
+    "farmland": 59.0,
+    "schools": 87,
+    "hospitals": 12,
+    "roads": 169,
+    "access": 0.687,
+    "slope": 1.44
+   }
+  },
+  {
+   "rank": 118,
+   "raion": "Yevpatoriiskyi",
+   "oblast": "Avtonomna Respublika Krym",
+   "score": 0.3241,
+   "anchor_lat": 45.1762,
+   "anchor_lon": 33.2636,
+   "contribution": {
+    "density": 0.1526,
+    "people": 0.0718,
+    "farmland": 0.0381,
+    "schools": 0.0316,
+    "hospitals": 0.0159,
+    "roads": 0.0067,
+    "access": 0.0074
+   },
+   "raw": {
+    "density": 0.0176,
+    "people": 250163,
+    "farmland": 25.5,
+    "schools": 71,
+    "hospitals": 18,
+    "roads": 91,
+    "access": 0.403,
+    "slope": 0.24
+   }
+  },
+  {
+   "rank": 119,
+   "raion": "Korostenskyi",
+   "oblast": "Zhytomyrska",
+   "score": 0.3221,
+   "anchor_lat": 50.9336,
+   "anchor_lon": 28.681,
+   "contribution": {
+    "density": 0.1446,
+    "people": 0.0681,
+    "farmland": 0.0312,
+    "schools": 0.0393,
+    "hospitals": 0.0105,
+    "roads": 0.0237,
+    "access": 0.0047
+   },
+   "raw": {
+    "density": 0.0157,
+    "people": 259775,
+    "farmland": 15.8,
+    "schools": 147,
+    "hospitals": 13,
+    "roads": 517,
+    "access": 0.304,
+    "slope": 0.31
+   }
+  },
+  {
+   "rank": 120,
+   "raion": "Nadvirnianskyi",
+   "oblast": "Ivano-Frankivska",
+   "score": 0.3188,
+   "anchor_lat": 48.6585,
+   "anchor_lon": 24.4895,
+   "contribution": {
+    "density": 0.0039,
+    "people": 0.1665,
+    "farmland": 0.0129,
+    "schools": 0.065,
+    "hospitals": 0.042,
+    "roads": 0.0257,
+    "access": 0.0029
+   },
+   "raw": {
+    "density": 0.0129,
+    "people": 125378,
+    "farmland": 5.4,
+    "schools": 45,
+    "hospitals": 9,
+    "roads": 73,
+    "access": 0.148,
+    "slope": 5.52
+   }
+  },
+  {
+   "rank": 121,
+   "raion": "Kosivskyi",
+   "oblast": "Ivano-Frankivska",
+   "score": 0.3169,
+   "anchor_lat": 48.3399,
+   "anchor_lon": 25.2775,
+   "contribution": {
+    "density": 0.0039,
+    "people": 0.1859,
+    "farmland": 0.0198,
+    "schools": 0.072,
+    "hospitals": 0.0268,
+    "roads": 0.0049,
+    "access": 0.0037
+   },
+   "raw": {
+    "density": 0.0129,
+    "people": 79927,
+    "farmland": 9.2,
+    "schools": 15,
+    "hospitals": 1,
+    "roads": 0,
+    "access": 0.23,
+    "slope": 4.1
+   }
+  },
+  {
+   "rank": 122,
+   "raion": "Bolhradskyi",
+   "oblast": "Odeska",
+   "score": 0.3129,
+   "anchor_lat": 45.491,
+   "anchor_lon": 28.7236,
+   "contribution": {
+    "density": 0.0592,
+    "people": 0.0786,
+    "farmland": 0.1019,
+    "schools": 0.0364,
+    "hospitals": 0.0097,
+    "roads": 0.0139,
+    "access": 0.0133
+   },
+   "raw": {
+    "density": 0.0131,
+    "people": 149595,
+    "farmland": 73.6,
+    "schools": 68,
+    "hospitals": 7,
+    "roads": 141,
+    "access": 0.837,
+    "slope": 1.37
+   }
+  },
+  {
+   "rank": 123,
+   "raion": "Berehivskyi",
+   "oblast": "Zakarpatska",
+   "score": 0.3104,
+   "anchor_lat": 48.2722,
+   "anchor_lon": 22.7048,
+   "contribution": {
+    "density": 0.0255,
+    "people": 0.1008,
+    "farmland": 0.0696,
+    "schools": 0.0501,
+    "hospitals": 0.0181,
+    "roads": 0.0363,
+    "access": 0.0101
+   },
+   "raw": {
+    "density": 0.013,
+    "people": 210763,
+    "farmland": 49.8,
+    "schools": 111,
+    "hospitals": 14,
+    "roads": 304,
+    "access": 0.691,
+    "slope": 0.43
+   }
+  },
+  {
+   "rank": 124,
+   "raion": "Izmailskyi",
+   "oblast": "Odeska",
+   "score": 0.3042,
+   "anchor_lat": 45.3586,
+   "anchor_lon": 28.857,
+   "contribution": {
+    "density": 0.1315,
+    "people": 0.0615,
+    "farmland": 0.0519,
+    "schools": 0.0227,
+    "hospitals": 0.0117,
+    "roads": 0.0184,
+    "access": 0.0065
+   },
+   "raw": {
+    "density": 0.0149,
+    "people": 206582,
+    "farmland": 35.7,
+    "schools": 73,
+    "hospitals": 20,
+    "roads": 728,
+    "access": 0.41,
+    "slope": 0.49
+   }
+  },
+  {
+   "rank": 125,
+   "raion": "Chornobylska zona vidchuzhennia",
+   "oblast": "Kyivska",
+   "score": 0.292,
+   "anchor_lat": 51.306,
+   "anchor_lon": 29.4537,
+   "contribution": {
+    "density": 0.2096,
+    "people": 0.0258,
+    "farmland": 0.0066,
+    "schools": 0.0171,
+    "hospitals": 0.0114,
+    "roads": 0.0177,
+    "access": 0.0038
+   },
+   "raw": {
+    "density": 0.017,
+    "people": 8891,
+    "farmland": 1.8,
+    "schools": 13,
+    "hospitals": 2,
+    "roads": 85,
+    "access": 0.246,
+    "slope": 0.24
+   }
+  },
+  {
+   "rank": 126,
+   "raion": "Yaltynskyi",
+   "oblast": "Avtonomna Respublika Krym",
+   "score": 0.283,
+   "anchor_lat": 44.4816,
+   "anchor_lon": 34.0552,
+   "contribution": {
+    "density": 0.1004,
+    "people": 0.0956,
+    "farmland": 0.0001,
+    "schools": 0.0366,
+    "hospitals": 0.0233,
+    "roads": 0.026,
+    "access": 0.0008
+   },
+   "raw": {
+    "density": 0.0134,
+    "people": 194600,
+    "farmland": 0.0,
+    "schools": 53,
+    "hospitals": 15,
+    "roads": 514,
+    "access": 0.037,
+    "slope": 2.44
+   }
+  },
+  {
+   "rank": 127,
+   "raion": "Khustskyi",
+   "oblast": "Zakarpatska",
+   "score": 0.2813,
+   "anchor_lat": 48.3008,
+   "anchor_lon": 23.1084,
+   "contribution": {
+    "density": 0.0255,
+    "people": 0.1445,
+    "farmland": 0.0141,
+    "schools": 0.0545,
+    "hospitals": 0.0242,
+    "roads": 0.0153,
+    "access": 0.0032
+   },
+   "raw": {
+    "density": 0.013,
+    "people": 244866,
+    "farmland": 3.9,
+    "schools": 69,
+    "hospitals": 11,
+    "roads": 83,
+    "access": 0.177,
+    "slope": 5.75
+   }
+  },
+  {
+   "rank": 128,
+   "raion": "Sarnenskyi",
+   "oblast": "Rivnenska",
+   "score": 0.2772,
+   "anchor_lat": 51.3271,
+   "anchor_lon": 26.6444,
+   "contribution": {
+    "density": 0.0858,
+    "people": 0.0882,
+    "farmland": 0.0274,
+    "schools": 0.0406,
+    "hospitals": 0.0117,
+    "roads": 0.0187,
+    "access": 0.0049
+   },
+   "raw": {
+    "density": 0.0136,
+    "people": 212789,
+    "farmland": 13.1,
+    "schools": 89,
+    "hospitals": 11,
+    "roads": 231,
+    "access": 0.315,
+    "slope": 0.2
+   }
+  },
+  {
+   "rank": 129,
+   "raion": "Mohyliv-Podilskyi",
+   "oblast": "Vinnytska",
+   "score": 0.2742,
+   "anchor_lat": 48.5275,
+   "anchor_lon": 27.7737,
+   "contribution": {
+    "density": 0.0207,
+    "people": 0.0923,
+    "farmland": 0.0861,
+    "schools": 0.0313,
+    "hospitals": 0.0165,
+    "roads": 0.0179,
+    "access": 0.0094
+   },
+   "raw": {
+    "density": 0.013,
+    "people": 125445,
+    "farmland": 64.4,
+    "schools": 36,
+    "hospitals": 9,
+    "roads": 129,
+    "access": 0.693,
+    "slope": 1.65
+   }
+  },
+  {
+   "rank": 130,
+   "raion": "Kovelskyi",
+   "oblast": "Volynska",
+   "score": 0.2736,
+   "anchor_lat": 51.6366,
+   "anchor_lon": 24.5078,
+   "contribution": {
+    "density": 0.0699,
+    "people": 0.077,
+    "farmland": 0.0449,
+    "schools": 0.0371,
+    "hospitals": 0.0132,
+    "roads": 0.0249,
+    "access": 0.0066
+   },
+   "raw": {
+    "density": 0.0132,
+    "people": 270425,
+    "farmland": 26.2,
+    "schools": 130,
+    "hospitals": 16,
+    "roads": 463,
+    "access": 0.475,
+    "slope": 0.24
+   }
+  },
+  {
+   "rank": 131,
+   "raion": "Feodosiiskyi",
+   "oblast": "Avtonomna Respublika Krym",
+   "score": 0.2719,
+   "anchor_lat": 45.0225,
+   "anchor_lon": 35.3579,
+   "contribution": {
+    "density": 0.0707,
+    "people": 0.1092,
+    "farmland": 0.038,
+    "schools": 0.0141,
+    "hospitals": 0.0094,
+    "roads": 0.0239,
+    "access": 0.0066
+   },
+   "raw": {
+    "density": 0.0146,
+    "people": 217193,
+    "farmland": 25.6,
+    "schools": 16,
+    "hospitals": 5,
+    "roads": 250,
+    "access": 0.383,
+    "slope": 0.94
+   }
+  },
+  {
+   "rank": 132,
+   "raion": "Uzhhorodskyi",
+   "oblast": "Zakarpatska",
+   "score": 0.2498,
+   "anchor_lat": 48.6384,
+   "anchor_lon": 22.1643,
+   "contribution": {
+    "density": 0.0257,
+    "people": 0.0963,
+    "farmland": 0.0361,
+    "schools": 0.0445,
+    "hospitals": 0.0152,
+    "roads": 0.0268,
+    "access": 0.0053
+   },
+   "raw": {
+    "density": 0.013,
+    "people": 253456,
+    "farmland": 21.1,
+    "schools": 94,
+    "hospitals": 18,
+    "roads": 223,
+    "access": 0.323,
+    "slope": 3.59
+   }
+  },
+  {
+   "rank": 133,
+   "raion": "Tiachivskyi",
+   "oblast": "Zakarpatska",
+   "score": 0.246,
+   "anchor_lat": 48.0598,
+   "anchor_lon": 23.5519,
+   "contribution": {
+    "density": 0.0255,
+    "people": 0.1381,
+    "farmland": 0.0069,
+    "schools": 0.0372,
+    "hospitals": 0.0151,
+    "roads": 0.02,
+    "access": 0.0031
+   },
+   "raw": {
+    "density": 0.013,
+    "people": 169511,
+    "farmland": 1.6,
+    "schools": 25,
+    "hospitals": 4,
+    "roads": 125,
+    "access": 0.173,
+    "slope": 6.06
+   }
+  },
+  {
+   "rank": 134,
+   "raion": "Kamin-Kashyrskyi",
+   "oblast": "Volynska",
+   "score": 0.2318,
+   "anchor_lat": 51.2959,
+   "anchor_lon": 25.8546,
+   "contribution": {
+    "density": 0.0424,
+    "people": 0.0921,
+    "farmland": 0.0356,
+    "schools": 0.027,
+    "hospitals": 0.0068,
+    "roads": 0.022,
+    "access": 0.0058
+   },
+   "raw": {
+    "density": 0.013,
+    "people": 126779,
+    "farmland": 18.0,
+    "schools": 28,
+    "hospitals": 2,
+    "roads": 224,
+    "access": 0.406,
+    "slope": 0.22
+   }
+  },
+  {
+   "rank": 135,
+   "raion": "Varaskyi",
+   "oblast": "Rivnenska",
+   "score": 0.2205,
+   "anchor_lat": 51.3468,
+   "anchor_lon": 25.9932,
+   "contribution": {
+    "density": 0.0205,
+    "people": 0.0855,
+    "farmland": 0.0374,
+    "schools": 0.0456,
+    "hospitals": 0.0068,
+    "roads": 0.0186,
+    "access": 0.006
+   },
+   "raw": {
+    "density": 0.013,
+    "people": 154005,
+    "farmland": 19.9,
+    "schools": 66,
+    "hospitals": 6,
+    "roads": 154,
+    "access": 0.432,
+    "slope": 0.22
+   }
+  },
+  {
+   "rank": 136,
+   "raion": "Rakhivskyi",
+   "oblast": "Zakarpatska",
+   "score": 0.2058,
+   "anchor_lat": 47.9512,
+   "anchor_lon": 23.9726,
+   "contribution": {
+    "density": 0.031,
+    "people": 0.0987,
+    "farmland": 0.004,
+    "schools": 0.0296,
+    "hospitals": 0.0136,
+    "roads": 0.0262,
+    "access": 0.0027
+   },
+   "raw": {
+    "density": 0.013,
+    "people": 80330,
+    "farmland": 0.3,
+    "schools": 20,
+    "hospitals": 3,
+    "roads": 136,
+    "access": 0.133,
+    "slope": 7.95
+   }
+  },
+  {
+   "rank": 137,
+   "raion": "Vyzhnytskyi",
+   "oblast": "Chernivetska",
+   "score": 0.1916,
+   "anchor_lat": 48.3433,
+   "anchor_lon": 25.345,
+   "contribution": {
+    "density": 0.0044,
+    "people": 0.0918,
+    "farmland": 0.0165,
+    "schools": 0.0438,
+    "hospitals": 0.0224,
+    "roads": 0.0092,
+    "access": 0.0035
+   },
+   "raw": {
+    "density": 0.0129,
+    "people": 77414,
+    "farmland": 8.9,
+    "schools": 45,
+    "hospitals": 10,
+    "roads": 48,
+    "access": 0.208,
+    "slope": 4.91
+   }
+  },
+  {
+   "rank": 138,
+   "raion": "Kerchynskyi",
+   "oblast": "Avtonomna Respublika Krym",
+   "score": 0.1823,
+   "anchor_lat": 45.3777,
+   "anchor_lon": 36.476,
+   "contribution": {
+    "density": 0.0848,
+    "people": 0.0443,
+    "farmland": 0.0167,
+    "schools": 0.0151,
+    "hospitals": 0.0092,
+    "roads": 0.0079,
+    "access": 0.0044
+   },
+   "raw": {
+    "density": 0.0134,
+    "people": 202464,
+    "farmland": 10.9,
+    "schools": 52,
+    "hospitals": 12,
+    "roads": 106,
+    "access": 0.251,
+    "slope": 0.26
+   }
+  },
+  {
+   "rank": 139,
+   "raion": "Verkhovynskyi",
+   "oblast": "Ivano-Frankivska",
+   "score": 0.1074,
+   "anchor_lat": 48.1361,
+   "anchor_lon": 24.827,
+   "contribution": {
+    "density": 0.0023,
+    "people": 0.0646,
+    "farmland": 0.0011,
+    "schools": 0.0164,
+    "hospitals": 0.0093,
+    "roads": 0.0111,
+    "access": 0.0026
+   },
+   "raw": {
+    "density": 0.0129,
+    "people": 32095,
+    "farmland": 0.0,
+    "schools": 8,
+    "hospitals": 2,
+    "roads": 46,
+    "access": 0.115,
+    "slope": 8.23
+   }
+  }
+ ],
+ "WARNING": "MODEL OUTPUT - NOT A CLEARANCE RECORD. This is an order in which to SURVEY districts, not a safe route, not a clearance certificate, and not a statement that districts lower down the list hold fewer mines."
+}

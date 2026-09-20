@@ -1,0 +1,178 @@
+{
+ "Afghanistan": {
+  "band": "Massive",
+  "km2": 182.0
+ },
+ "Angola": {
+  "band": "Heavy",
+  "km2": 30.0
+ },
+ "Armenia": {
+  "band": "Medium",
+  "km2": null
+ },
+ "Azerbaijan": {
+  "band": "Massive",
+  "km2": null
+ },
+ "Bosnia and Herzegovina": {
+  "band": "Heavy",
+  "km2": 50.0
+ },
+ "Burkina Faso": {
+  "band": "Light",
+  "km2": null
+ },
+ "Cambodia": {
+  "band": "Massive",
+  "km2": 524.0
+ },
+ "Cameroon": {
+  "band": "Light",
+  "km2": null
+ },
+ "Chad": {
+  "band": "Medium",
+  "km2": null
+ },
+ "Colombia": {
+  "band": "Medium",
+  "km2": 20.0
+ },
+ "Croatia": {
+  "band": "Heavy",
+  "km2": 57.3
+ },
+ "Cyprus": {
+  "band": "Light",
+  "km2": 1.0
+ },
+ "Ecuador": {
+  "band": "Light",
+  "km2": null
+ },
+ "Eritrea": {
+  "band": "Medium",
+  "km2": 10.0
+ },
+ "Ethiopia": {
+  "band": "Medium",
+  "km2": 20.0
+ },
+ "Georgia": {
+  "band": "Medium",
+  "km2": 2.8
+ },
+ "Guinea-Bissau": {
+  "band": "Light",
+  "km2": 1.1
+ },
+ "Iraq": {
+  "band": "Massive",
+  "km2": null
+ },
+ "Israel": {
+  "band": "Heavy",
+  "km2": null
+ },
+ "Lebanon": {
+  "band": "Medium",
+  "km2": 15.79
+ },
+ "Libya": {
+  "band": "Light",
+  "km2": null
+ },
+ "Mali": {
+  "band": "Light",
+  "km2": null
+ },
+ "Mauritania": {
+  "band": "Medium",
+  "km2": 17.83
+ },
+ "Myanmar": {
+  "band": "Heavy",
+  "km2": null
+ },
+ "Niger": {
+  "band": "Light",
+  "km2": null
+ },
+ "Nigeria": {
+  "band": "Light",
+  "km2": null
+ },
+ "North Korea": {
+  "band": "Heavy",
+  "km2": null
+ },
+ "Palestine": {
+  "band": "Medium",
+  "km2": 5.0
+ },
+ "Peru": {
+  "band": "Light",
+  "km2": null
+ },
+ "Senegal": {
+  "band": "Light",
+  "km2": 1.3
+ },
+ "Serbia": {
+  "band": "Light",
+  "km2": 1.0
+ },
+ "Somalia": {
+  "band": "Light",
+  "km2": null
+ },
+ "South Korea": {
+  "band": "Massive",
+  "km2": 128.0
+ },
+ "Sri Lanka": {
+  "band": "Heavy",
+  "km2": 22.2
+ },
+ "Sudan": {
+  "band": "Medium",
+  "km2": 10.0
+ },
+ "Syria": {
+  "band": null,
+  "km2": 20.0
+ },
+ "Tajikistan": {
+  "band": "Medium",
+  "km2": 6.0
+ },
+ "Thailand": {
+  "band": "Medium",
+  "km2": 17.0
+ },
+ "Turkey": {
+  "band": "Massive",
+  "km2": 220.0
+ },
+ "Ukraine": {
+  "band": "Massive",
+  "km2": null
+ },
+ "Vietnam": {
+  "band": "Medium",
+  "km2": null
+ },
+ "Western Sahara": {
+  "band": "Heavy",
+  "km2": 50.0
+ },
+ "Yemen": {
+  "band": "Heavy",
+  "km2": null
+ },
+ "Zimbabwe": {
+  "band": "Medium",
+  "km2": 12.0
+ }
+}

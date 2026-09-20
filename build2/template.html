@@ -1,0 +1,1959 @@
+<meta charset="utf-8">
+<title>Minefield Prior</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ink:#171A21; --ink-2:#4A5060; --ink-3:#787F91;
+  --bg:#F5F6F8; --panel:#FFFFFF; --rule:#DDE0E7; --rule-2:#EDEFF3;
+  --accent:#41627F; --accent-ink:#FFFFFF;
+  --warn-bg:#FDF2E4; --warn-ink:#7A4A12; --warn-rule:#E8C79A;
+  --shell:#ECEEF2;
+  /* The map viewport is theme-INVARIANT: the same hex must always mean the
+     same number, or two people screenshotting one district get contradictory
+     maps. Only the chrome follows the viewer's theme. */
+  --map-bg:#0E1116; --map-nodata:#1A1F26; --map-rule:#2C3440; --map-ink:#8A93A3;
+  --r1:#440F76; --r2:#721F81; --r3:#9E2F7F; --r4:#CD4071; --r5:#F1605D; --r6:#FD9668;
+  --confirmed:#FFFFFF;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ink:#E6E9EF; --ink-2:#A3AAB9; --ink-3:#727A8B;
+  --bg:#0B0D11; --panel:#14171D; --rule:#272B34; --rule-2:#1D212880;
+  --accent:#8FB2CE; --accent-ink:#0B0D11;
+  --warn-bg:#2A1F10; --warn-ink:#E8C08A; --warn-rule:#5C4420;
+  --shell:#0F1216;
+}}
+:root[data-theme="dark"]{
+  --ink:#E6E9EF; --ink-2:#A3AAB9; --ink-3:#727A8B;
+  --bg:#0B0D11; --panel:#14171D; --rule:#272B34; --rule-2:#1D212880;
+  --accent:#8FB2CE; --accent-ink:#0B0D11;
+  --warn-bg:#2A1F10; --warn-ink:#E8C08A; --warn-rule:#5C4420;
+  --shell:#0F1216;
+}
+
+*{box-sizing:border-box}
+/* Must come before any rule that sets display on a hideable element: an author
+   `display` declaration outranks the UA stylesheet's [hidden]{display:none},
+   so without this the modal and the results list never hide. */
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{margin:0;font-weight:600;text-wrap:balance}
+.lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+
+/* ---- shell ---- */
+.app{display:grid;grid-template-rows:auto 1fr auto;height:100%;background:var(--shell)}
+
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:9px 16px;padding-top:calc(9px + env(safe-area-inset-top,0px));
+  background:var(--panel);border-bottom:1px solid var(--rule)}
+.brand{display:flex;align-items:baseline;gap:9px;min-width:0}
+.brand b{font-size:14px;font-weight:700;letter-spacing:-.01em}
+.brand span{font-size:11px;color:var(--ink-3);white-space:nowrap}
+.vintage{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:10.5px;padding:2.5px 7px;border:1px solid var(--rule);
+  border-radius:2px;color:var(--ink-2);white-space:nowrap}
+.chip.warn{background:var(--warn-bg);color:var(--warn-ink);border-color:var(--warn-rule);font-weight:500}
+
+.main{display:grid;grid-template-columns:272px 1fr 328px;gap:1px;background:var(--rule);min-height:0}
+.rail,.detail{background:var(--panel);overflow-y:auto;min-height:0}
+.rail{padding:14px}
+.detail{padding:0}
+.stage{position:relative;background:var(--map-bg);min-height:0;overflow:hidden}
+canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
+
+/* ---- rail ---- */
+.grp{margin-bottom:18px}
+.grp>.lbl{display:block;margin-bottom:7px}
+.search{position:relative}
+.search input{width:100%;padding:8px 10px;background:var(--bg);border:1px solid var(--rule);
+  border-radius:2px;font-size:13px}
+.search input::placeholder{color:var(--ink-3)}
+.results{position:absolute;z-index:40;left:0;right:0;top:calc(100% + 3px);max-height:290px;overflow-y:auto;
+  background:var(--panel);border:1px solid var(--rule);border-radius:2px;box-shadow:0 8px 22px #0003}
+.results button{display:block;width:100%;text-align:left;padding:7px 10px;border-bottom:1px solid var(--rule-2)}
+.results button:last-child{border-bottom:none}
+.results button:hover,.results button[aria-selected="true"]{background:var(--bg)}
+.results .rn{font-weight:500}
+.results .rm{font-size:10.5px;color:var(--ink-3);display:flex;justify-content:space-between;gap:8px}
+
+.modes{display:grid;gap:3px}
+.modes button{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding:7px 9px;border:1px solid transparent;border-radius:2px;text-align:left;color:var(--ink-2)}
+.modes button:hover{background:var(--bg)}
+.modes button[aria-pressed="true"]{background:var(--bg);border-color:var(--rule);color:var(--ink);font-weight:500}
+.modes small{font-size:10px;color:var(--ink-3);font-family:var(--mono)}
+
+.legend{display:grid;gap:2px}
+.lrow{display:grid;grid-template-columns:16px 1fr auto;gap:8px;align-items:center;font-size:11.5px}
+.sw{width:16px;height:11px;border-radius:1px}
+.lrow .lv{font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
+.hatch{background-image:repeating-linear-gradient(45deg,#1A1F26 0 3px,#2A313B 3px 4px)}
+.sep{height:1px;background:var(--rule);margin:11px 0}
+
+.toggle{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:12px}
+.toggle input{margin:0;accent-color:var(--accent)}
+.note{font-size:10.5px;line-height:1.45;color:var(--ink-3);margin-top:5px}
+
+/* ---- observation controls ---- */
+.seg{display:flex;border:1px solid var(--rule);border-radius:2px;overflow:hidden;margin-bottom:7px}
+.seg button{flex:1;padding:6px 4px;font-size:11.5px;color:var(--ink-3);border-right:1px solid var(--rule)}
+.seg button:last-child{border-right:none}
+.seg button:hover{background:var(--bg)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.fld{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:11.5px}
+.fld>span:first-child{color:var(--ink-3);min-width:76px}
+.fld input[type="number"],.fld select{flex:1;min-width:0;padding:4px 6px;background:var(--bg);
+  border:1px solid var(--rule);border-radius:2px;font-size:11.5px}
+.fld input[type="range"]{flex:1;min-width:0;accent-color:var(--accent)}
+.row{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.mini{padding:5px 9px;border:1px solid var(--rule);border-radius:2px;font-size:11px;color:var(--ink-2)}
+.mini:hover{background:var(--bg);color:var(--ink)}
+.mini:disabled{opacity:.4;cursor:default}
+.obslist{margin-top:8px;max-height:150px;overflow-y:auto;border-top:1px solid var(--rule-2)}
+.obsrow{display:grid;grid-template-columns:auto 1fr auto;gap:7px;align-items:baseline;
+  padding:4px 0;border-bottom:1px solid var(--rule-2);font-size:11px}
+.obsrow .g{font-family:var(--mono);font-size:12px}
+.obsrow .d{font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
+.delta{border:1px solid var(--accent);border-radius:2px;padding:8px 9px;margin:10px 0 2px;
+  font-size:11.5px;background:var(--bg)}
+.delta .num{font-weight:600}
+.armed .stage{cursor:crosshair}
+pre.queue{font:10.5px/1.5 var(--mono);white-space:pre;overflow-x:auto;margin:8px 0 0;
+  padding:9px;background:var(--bg);border:1px solid var(--rule);border-radius:2px;
+  max-height:260px;overflow-y:auto;user-select:all}
+
+/* ---- detail ---- */
+.crumb{display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:11px 14px;
+  border-bottom:1px solid var(--rule);font-size:11px}
+.crumb button{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+.crumb span{color:var(--ink-3)}
+.dsec{padding:14px;border-bottom:1px solid var(--rule)}
+.dsec:last-child{border-bottom:none}
+.rname{font-size:17px;font-weight:600;letter-spacing:-.01em;margin-bottom:1px}
+.rparent{font-size:11px;color:var(--ink-3)}
+
+.est{display:flex;align-items:baseline;gap:7px;margin:11px 0 3px}
+.est .v{font-family:var(--mono);font-size:30px;font-weight:600;letter-spacing:-.02em;line-height:1}
+.est .u{font-size:11.5px;color:var(--ink-2)}
+.ci{font-family:var(--mono);font-size:11.5px;color:var(--ink-2)}
+.cibar{position:relative;height:5px;background:var(--rule-2);border:1px solid var(--rule);
+  border-radius:2px;margin:8px 0 3px;overflow:hidden}
+.cibar i{position:absolute;top:0;bottom:0;background:var(--r4);opacity:.55}
+.cibar u{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink)}
+
+.kv{display:grid;grid-template-columns:1fr auto;gap:5px 12px;font-size:11.5px;margin-top:9px}
+.kv dt{color:var(--ink-3)}
+.kv dd{margin:0;font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+
+.tier{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:2px;
+  font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#fff}
+.confirmed-block{border:1px solid var(--rule);border-radius:2px;padding:10px;background:var(--bg)}
+.confirmed-block .big{font-family:var(--mono);font-size:20px;font-weight:600}
+.panel-warn{font-size:10.5px;color:var(--warn-ink);background:var(--warn-bg);
+  border:1px solid var(--warn-rule);border-radius:2px;padding:6px 8px;margin-top:10px;line-height:1.45}
+
+table.rank{width:100%;border-collapse:collapse;font-size:11.5px}
+table.rank th{text-align:left;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;padding:0 0 5px}
+table.rank th.r,table.rank td.r{text-align:right}
+table.rank td{padding:3.5px 0;border-top:1px solid var(--rule-2)}
+table.rank tr{cursor:pointer}
+table.rank tr:hover td{color:var(--accent)}
+table.rank .bar{height:3px;background:var(--r4);border-radius:1px;min-width:1px}
+
+/* ---- status ---- */
+.status{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:6px 16px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px));
+  background:var(--panel);border-top:1px solid var(--rule);font-size:10.5px;color:var(--ink-3)}
+.status b{color:var(--warn-ink);background:var(--warn-bg);border:1px solid var(--warn-rule);
+  padding:2px 7px;border-radius:2px;font-weight:600;letter-spacing:.04em}
+.status .co{font-family:var(--mono);margin-left:auto}
+
+/* ---- map overlay ---- */
+.scalebar{position:absolute;left:14px;bottom:12px;color:var(--map-ink);font-family:var(--mono);font-size:10px;pointer-events:none}
+.scalebar div{height:4px;border:1px solid var(--map-ink);border-top:none;margin-top:2px}
+.maphint{position:absolute;right:14px;top:12px;color:var(--map-ink);font-size:10.5px;
+  font-family:var(--mono);pointer-events:none;text-align:right;line-height:1.6}
+.tip{position:absolute;z-index:30;pointer-events:none;background:#161A21F2;color:#E6E9EF;
+  border:1px solid #2C3440;border-radius:2px;padding:7px 9px;font-size:11px;max-width:230px;
+  box-shadow:0 6px 18px #0006}
+.tip .t{font-weight:600;margin-bottom:3px}
+.tip .m{font-family:var(--mono);font-size:10.5px;color:#A3AAB9}
+
+/* ---- modal ---- */
+.scrim{position:fixed;inset:0;z-index:100;background:#080A0DE6;display:grid;place-items:center;padding:20px}
+.modal{background:var(--panel);border:1px solid var(--rule);border-radius:3px;max-width:600px;
+  width:100%;max-height:86vh;overflow-y:auto;padding:22px}
+.modal h2{font-size:16px;margin-bottom:10px}
+.modal p{margin:0 0 11px;font-size:12.5px;line-height:1.62;color:var(--ink-2)}
+.modal p strong{color:var(--ink)}
+.modal ul{margin:0 0 11px;padding-left:17px;font-size:12.5px;line-height:1.62;color:var(--ink-2)}
+.modal li{margin-bottom:5px}
+.btn{display:inline-block;padding:8px 16px;background:var(--accent);color:var(--accent-ink);
+  border-radius:2px;font-weight:600;font-size:12.5px}
+
+@media (max-width:1100px){
+  .main{grid-template-columns:240px 1fr}
+  .detail{grid-column:1/-1;max-height:44vh}
+  .stage{min-height:300px}
+}
+@media (max-width:760px){
+  .main{grid-template-columns:1fr;grid-template-rows:auto minmax(280px,46vh) auto}
+  .rail{max-height:none}
+  .vintage{width:100%;margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <b>Minefield Prior</b>
+      <span>Bayesian landmine contamination model &mdash; Ukraine</span>
+    </div>
+    <div class="vintage">
+      <span class="chip" id="chip-src">UCDP GED v25.1</span>
+      <span class="chip warn" id="chip-stale">Prior reflects conflict events through 2024</span>
+      <span class="chip warn">Not an accredited survey product</span>
+    </div>
+  </header>
+
+  <div class="main">
+    <aside class="rail">
+      <div class="grp">
+        <span class="lbl">Find a region</span>
+        <div class="search">
+          <input id="q" type="text" autocomplete="off" spellcheck="false"
+                 placeholder="Oblast, raion or country&hellip;" aria-label="Search for a region">
+          <div class="results" id="results" hidden></div>
+        </div>
+        <p class="note" id="searchnote"></p>
+      </div>
+
+      <div class="grp">
+        <span class="lbl">Map layer</span>
+        <div class="modes" id="modes">
+          <button data-mode="density" aria-pressed="true">Modelled density<small>mines/km&sup2;</small></button>
+          <button data-mode="priority" aria-pressed="false">Clearance priority<small>tasking</small></button>
+          <button data-mode="uncertainty" aria-pressed="false">Uncertainty<small>CV</small></button>
+          <button data-mode="exposure" aria-pressed="false">Conflict exposure<small>GED input</small></button>
+        </div>
+      </div>
+
+      <div class="grp">
+        <span class="lbl" id="legend-title">Modelled density</span>
+        <div class="legend" id="legend"></div>
+      </div>
+
+      <div class="grp" id="critgrp" hidden>
+        <span class="lbl">Tasking criteria</span>
+        <div id="crits"></div>
+        <p class="note">Weights are rank-order centroid over this order, so only
+          the ranking is asserted. Switching one off renormalises over the rest;
+          the colour breaks stay frozen so a colour keeps its meaning.</p>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="grp">
+        <span class="lbl">Field observations</span>
+        <div class="seg" id="tool">
+          <button data-tool="select" aria-pressed="true">Select region</button>
+          <button data-tool="log" aria-pressed="false">Log on click</button>
+        </div>
+        <div class="seg" id="obskind">
+          <button data-kind="confirmed" aria-pressed="true">Mine found</button>
+          <button data-kind="clean" aria-pressed="false">Clean sweep</button>
+          <button data-kind="alarms" aria-pressed="false">Alarms</button>
+        </div>
+        <label class="fld" id="cntwrap"><span>Count</span>
+          <input type="number" id="obscount" min="1" max="999" value="1"></label>
+        <label class="fld"><span>Area swept</span>
+          <select id="obsarea">
+            <option value="10000">1 ha</option>
+            <option value="100000">10 ha</option>
+            <option value="1000000" selected>1 km&sup2;</option>
+            <option value="6250000">25% of cell</option>
+            <option value="25000000">whole 5 km cell</option>
+          </select></label>
+        <label class="fld"><span>Sensitivity</span>
+          <input type="range" id="obssens" min="0.4" max="0.95" step="0.05" value="0.85">
+          <span class="num" id="obssensv">0.85</span></label>
+        <label class="fld" id="farwrap" hidden><span>False alarms</span>
+          <select id="obsfar">
+            <option value="1000">1,000 /km&sup2;</option>
+            <option value="4000" selected>4,000 /km&sup2;</option>
+            <option value="20000">20,000 /km&sup2;</option>
+          </select></label>
+        <p class="note" id="obshint"></p>
+        <div id="obsresult"></div>
+        <div class="obslist" id="obslist" hidden></div>
+        <div class="row">
+          <button class="mini" id="undo" disabled>Undo</button>
+          <button class="mini" id="clearobs" disabled>Clear all</button>
+          <button class="mini" id="queue">Queues</button>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="grp">
+        <span class="lbl">Confirmed hazard records</span>
+        <label class="toggle"><input type="checkbox" id="showdots" checked>
+          <span>Show confirmed records</span></label>
+        <p class="note" id="dotnote"></p>
+        <label class="toggle" style="margin-top:6px">
+          <input type="file" id="registry" accept=".json,.geojson,.csv" style="font-size:11px;max-width:100%">
+        </label>
+        <p class="note">Stays in your browser. Never uploaded, never written into this file.
+          Records must carry <span class="num">provenance</span> of
+          <span class="num">operator_confirmed</span> or <span class="num">eod_disposed</span>.</p>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="grp">
+        <span class="lbl">Calibration</span>
+        <label class="toggle" style="display:block">
+          <span style="display:flex;justify-content:space-between">
+            <span>Contaminated area</span><span class="num" id="km2v"></span></span>
+          <input type="range" id="km2" min="20" max="600" step="5" style="width:100%;accent-color:var(--accent)">
+        </label>
+        <label class="toggle" style="display:block">
+          <span style="display:flex;justify-content:space-between">
+            <span>Mines per km&sup2;</span><span class="num" id="denv"></span></span>
+          <input type="range" id="den" min="100" max="6000" step="50" style="width:100%;accent-color:var(--accent)">
+        </label>
+        <p class="note" id="calnote"></p>
+      </div>
+    </aside>
+
+    <div class="stage" id="stage">
+      <canvas id="heat"></canvas>
+      <canvas id="base"></canvas>
+      <div class="maphint" id="maphint"></div>
+      <div class="scalebar" id="scalebar"></div>
+    </div>
+
+    <section class="detail" id="detail"></section>
+  </div>
+
+  <footer class="status">
+    <b>MODEL OUTPUT &mdash; NOT A CLEARANCE RECORD</b>
+    <span>No area on this map has been declared free of explosive ordnance.</span>
+    <span class="co" id="coord"></span>
+  </footer>
+</div>
+
+<div class="scrim" id="scrim" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mt">
+    <h2 id="mt">This is a statistical model, not a clearance record</h2>
+    <p>Estimates on this map are produced by a Bayesian model from historical
+      conflict-event data and partial robotic survey. <strong>They are not survey results
+      and they are not a clearance certificate. No area shown here has been declared
+      free of mines.</strong></p>
+    <p>Only accredited mine action operators, following the International Mine Action
+      Standards land release process, can declare land released. Under IMAS 08.10 a
+      conflict-event model is <em>indirect</em> evidence &mdash; enough to justify
+      suspecting an area and to rank it for survey, never enough to cancel it.</p>
+    <ul>
+      <li><strong>Never</strong> enter, cross or work in any area on the basis of this map.</li>
+      <li>A low estimate means the model has little evidence of mines here. It does
+        not mean there are none.</li>
+      <li>If you find or suspect explosive ordnance, do not approach it &mdash; mark the
+        location from a distance and report it to the national mine action authority
+        or emergency services.</li>
+    </ul>
+    <p style="font-size:11.5px">Known limits, stated plainly: the prior ends in 2024;
+      only 23% of Ukraine's conflict events are located to an exact point; mines are laid
+      where fighting was <em>prevented</em>, which conflict data cannot see; and Mine Action
+      Review's own 2025 verdict on Ukraine is &ldquo;massive but no reliable estimate&rdquo;,
+      so the absolute counts here rest on an assumption you can change in the sidebar.</p>
+    <button class="btn" id="ack">I understand</button>
+  </div>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+// Registered in its own block, before the app script, so it also catches a
+// parse error in that script -- a handler declared inside the failing script
+// never gets to run.
+//
+// A blank map is a dangerous failure mode for this subject: it reads as "no
+// hazard here" rather than "nothing drew". Fail loudly and visibly instead.
+window.addEventListener("error", function (ev) {
+  var el = document.getElementById("detail");
+  if (!el) return;
+  if (String(ev.message).indexOf("template-not-built") !== -1) {
+    el.innerHTML = '<div class="dsec"><div class="rname">This is the template</div>' +
+      '<p class="note">You are looking at <span class="num">build/template.html</span>, ' +
+      'which carries no data — the map is empty because nothing has been packed ' +
+      'into it yet, not because there is no hazard.</p>' +
+      '<p class="note" style="margin-top:8px">Open the built file instead:<br>' +
+      '<span class="num">dist/landmine-bayes.html</span></p>' +
+      '<p class="note" style="margin-top:8px">Rebuild it with ' +
+      '<span class="num">python build/export_html.py</span>.</p></div>';
+    return;
+  }
+  el.innerHTML = '<div class="dsec"><div class="rname">Render error</div>' +
+    '<p class="note">The map did not draw. A blank map is not an empty map — ' +
+    'do not read this page as showing no hazard.</p>' +
+    '<pre style="font:11px var(--mono);white-space:pre-wrap;overflow-x:auto">' +
+    String(ev.message) + "\n" + String(ev.filename || "") + ":" + String(ev.lineno || "") +
+    "\n" + String((ev.error && ev.error.stack) || "") + '</pre></div>';
+});
+</script>
+<script>
+"use strict";
+// Opened straight from build/template.html, DATA is still the null placeholder.
+// Stop with a message the handler above turns into plain English, rather than
+// letting a blank map stand.
+if (!DATA) throw new Error("template-not-built");
+
+const $ = s => document.querySelector(s);
+const RAMP = ["#440F76","#721F81","#9E2F7F","#CD4071","#F1605D","#FD9668"];
+const NODATA = "#1A1F26";
+
+/* Ordinal tiers. There is deliberately no "safe", "clear" or "low risk" label
+   and no green anywhere: people read green as permission whatever the legend
+   says, and the bottom of this scale is absence of evidence, not absence of
+   mines. */
+const TIERS = [
+  {k:"P1", t:"Lowest modelled — NOT cleared", c:RAMP[0]},
+  {k:"P2", t:"Lower priority",  c:RAMP[1]},
+  {k:"P3", t:"Moderate priority", c:RAMP[2]},
+  {k:"P4", t:"High priority",  c:RAMP[3]},
+  {k:"P5", t:"Higher priority", c:RAMP[4]},
+  {k:"P6", t:"Highest survey priority", c:RAMP[5]},
+];
+
+const b64u8 = s => {
+  const bin = atob(s), a = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+  return a;
+};
+const fmt = (n, d = 0) => n == null ? "—"
+  : n.toLocaleString("en-US", {minimumFractionDigits: d, maximumFractionDigits: d});
+
+/* ---- Lambert azimuthal equal-area, matching the build-side projection ------
+   The national raster is defined in this projection, so it blits to screen
+   with a pure scale+translate and the heatmap costs one drawImage per frame
+   however many cells it holds. */
+const R = 6371, D2R = Math.PI / 180;
+function laea(lat, lon, lat0, lon0) {
+  const p0 = lat0 * D2R, p = lat * D2R, dl = (lon - lon0) * D2R;
+  const cosc = Math.sin(p0) * Math.sin(p) + Math.cos(p0) * Math.cos(p) * Math.cos(dl);
+  const k = Math.sqrt(Math.max(2 / (1 + cosc), 0));
+  return [R * k * Math.cos(p) * Math.sin(dl),
+          R * k * (Math.cos(p0) * Math.sin(p) - Math.sin(p0) * Math.cos(p) * Math.cos(dl))];
+}
+function invLaea(x, y, lat0, lon0) {
+  const rho = Math.hypot(x, y);
+  if (rho < 1e-9) return [lat0, lon0];
+  const c = 2 * Math.asin(Math.min(1, rho / (2 * R))), p0 = lat0 * D2R;
+  return [Math.asin(Math.cos(c) * Math.sin(p0) + y * Math.sin(c) * Math.cos(p0) / rho) / D2R,
+          lon0 + Math.atan2(x * Math.sin(c),
+            rho * Math.cos(p0) * Math.cos(c) - y * Math.sin(p0) * Math.sin(c)) / D2R];
+}
+
+/* ---- decode packed boundary rings ---------------------------------------- */
+function unpack(blob) {
+  const s = blob.scale;
+  return blob.features.map(f => {
+    const rings = f.r.map(r => {
+      const pts = new Float64Array(r.length);
+      let x = r[0], y = r[1];
+      pts[0] = x / s; pts[1] = y / s;
+      for (let i = 2; i < r.length; i += 2) {
+        x += r[i]; y += r[i + 1];
+        pts[i] = x / s; pts[i + 1] = y / s;
+      }
+      return pts;
+    });
+    let m = [Infinity, Infinity, -Infinity, -Infinity];
+    for (const p of rings) for (let i = 0; i < p.length; i += 2) {
+      if (p[i] < m[0]) m[0] = p[i];
+      if (p[i + 1] < m[1]) m[1] = p[i + 1];
+      if (p[i] > m[2]) m[2] = p[i];
+      if (p[i + 1] > m[3]) m[3] = p[i + 1];
+    }
+    return {name: f.n, rings, bbox: m};
+  });
+}
+
+const GEO = {
+  world: unpack(DATA.geo_world),
+  adm1: unpack(DATA.geo_ukr_adm1),
+  adm2: unpack(DATA.geo_ukr_adm2),
+};
+
+/* ---- rasters -------------------------------------------------------------- */
+const UA = DATA.ua;
+UA.landA = b64u8(UA.land);
+const b64buf = s => b64u8(s).buffer;
+UA.mLand = new Float32Array(b64buf(UA.m));
+UA.a1Land = new Int8Array(b64buf(UA.adm1));
+UA.a2Land = new Int16Array(b64buf(UA.adm2));
+const WR = DATA.world_raster;
+WR.dataA = b64u8(WR.data);
+
+/* Undo the log quantisation applied at build time (world raster only). */
+const L255 = Math.log1p(255);
+const dequant = q => q === 0 ? 0 : (Math.expm1(q / 255 * L255) / 255);
+
+/* Land cells are stored compactly, so keep both directions of the mapping. */
+const NL = UA.n_land;
+const landToFull = new Int32Array(NL);
+const fullToLand = new Int32Array(UA.w * UA.h).fill(-1);
+for (let f = 0, l = 0; f < UA.landA.length; f++) {
+  if (UA.landA[f]) { landToFull[l] = f; fullToLand[f] = l; l++; }
+}
+const CELL_AREA = UA.res * UA.res;            // km^2
+
+/* =========================================================================
+   The model, transcribed from mineprior/model.py.
+
+   lambda_i ~ Gamma(alpha_i, beta_i), alpha = alpha_floor + m/psi, beta = alpha/m,
+   so the prior mean is exactly m. Poisson thinning makes the sweep likelihood
+   exact, so the update is conjugate and closed form -- which is why it can run
+   here, live, on every click.
+   ========================================================================= */
+const PSI = UA.psi, AFLOOR = UA.alpha_floor, CLUSTER = UA.cluster_discount;
+
+const priorAlpha = m => AFLOOR + Math.max(m, 1e-12) / PSI;
+const cellMean = (a, b) => a / b;
+const pAny = (a, b) => -Math.expm1(a * Math.log(b / (b + 1)));
+const effExposure = (cov, sens) =>
+  Math.min(Math.max(cov, 0) * sens / CLUSTER, 1 - 1e-12);
+
+/* Lanczos log-gamma; needed only by the false-positive mixture. */
+const LANCZOS = [676.5203681218851, -1259.1392167224028, 771.32342877765313,
+  -176.61502916214059, 12.507343278686905, -0.13857109526572012,
+  9.9843695780195716e-6, 1.5056327351493116e-7];
+function lgamma(z) {
+  if (z < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * z)) - lgamma(1 - z);
+  z -= 1;
+  let x = 0.99999999999980993;
+  for (let i = 0; i < 8; i++) x += LANCZOS[i] / (z + i + 1);
+  const t = z + 7.5;
+  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+}
+
+/* Exact posterior when the robot reports ALARMS rather than confirmed mines.
+   Expanding (lambda*t + f)^a binomially makes it a finite (a+1)-term Gamma
+   mixture, where k is literally "how many of these alarms were real". Moment-
+   matched back to one Gamma so the rest of the pipeline stays conjugate. */
+function updateAlarms(alpha, beta, t, a, f) {
+  if (a === 0) return [alpha, beta + t];          // exactly conjugate even with f>0
+  if (f <= 0) return [alpha + a, beta + t];
+  const bt = beta + t, lw = new Float64Array(a + 1);
+  let mx = -Infinity;
+  for (let k = 0; k <= a; k++) {
+    lw[k] = lgamma(a + 1) - lgamma(k + 1) - lgamma(a - k + 1)
+      + k * Math.log(t) + (a - k) * Math.log(f)
+      + lgamma(alpha + k) - (alpha + k) * Math.log(bt);
+    if (lw[k] > mx) mx = lw[k];
+  }
+  let s = 0;
+  for (let k = 0; k <= a; k++) { lw[k] = Math.exp(lw[k] - mx); s += lw[k]; }
+  let m1 = 0, m2 = 0;
+  for (let k = 0; k <= a; k++) {
+    const w = lw[k] / s;
+    m1 += w * (alpha + k);
+    m2 += w * (alpha + k) * (alpha + k + 1);
+  }
+  m1 /= bt; m2 /= bt * bt;
+  const v = Math.max(m2 - m1 * m1, 1e-300);
+  return [m1 * m1 / v, m1 / v];
+}
+
+/* Neighbouring cells share evidence and the field is genuinely smooth, so
+   summing independent per-cell variances badly understates a district total. */
+function designEffect(L, cellArea, n) {
+  return Math.min(Math.max(n, 1), Math.max(1, 2 * Math.PI * L * L / cellArea));
+}
+const Z05 = -1.6448536269514729, Z95 = 1.6448536269514729;
+const wilsonHilferty = (A, B, z) => A <= 0 ? 0 :
+  Math.max(0, (A / B) * Math.pow(1 - 1 / (9 * A) + z / (3 * Math.sqrt(A)), 3));
+
+/* Welch-Satterthwaite: a sum of Gammas with different rates is not Gamma, so
+   match the first two moments. The fit always understates the true skewness
+   when rates differ, hence the Cornish-Fisher upper tail. */
+function districtInterval(cells) {
+  let M = 0, V = 0, M3 = 0;
+  for (let i = 0; i < cells.length; i++) {
+    const j = cells[i], a = ALPHA[j], b = BETA[j];
+    M += a / b; V += a / (b * b); M3 += a / (b * b * b);
+  }
+  const deff = designEffect(UA.corr_length_km, CELL_AREA, cells.length);
+  V *= deff;
+  if (M <= 0 || V <= 0) return {mean: 0, q05: 0, q95: 0};
+  const A = M * M / V, B = M / V;
+  const g1 = 2 * M3 * Math.pow(deff, 1.5) / Math.pow(V, 1.5);
+  const cf = M + Math.sqrt(V) * (Z95 + (g1 / 6) * (Z95 * Z95 - 1));
+  return {mean: M, q05: wilsonHilferty(A, B, Z05),
+          q95: Math.max(wilsonHilferty(A, B, Z95), cf)};
+}
+
+/* ---- live posterior ------------------------------------------------------- */
+const ALPHA = new Float64Array(NL), BETA = new Float64Array(NL);
+let OBS = [];        // session observations, newest last
+let lastEffect = null;
+
+/* Calibration rescales the prior, which would wipe any logged evidence -- so
+   rebuild the prior and REPLAY the observations, exactly as the robot's sweep
+   log is replayed on the Python side. */
+function rebuild() {
+  const sc = scale();
+  for (let i = 0; i < NL; i++) {
+    const m = Math.max(UA.mLand[i] * sc, 1e-12);
+    const a = AFLOOR + m / PSI;
+    ALPHA[i] = a; BETA[i] = a / m;
+  }
+  statsCache.clear();
+  priorCache.clear();
+  for (const n of A1_NAME) priorCache.set("adm1|" + n, regionStats("adm1", n));
+  for (const n of A2_NAME) priorCache.set("adm2|" + n, regionStats("adm2", n));
+  statsCache.clear();
+  for (const o of OBS) applyObs(o, false);
+  statsCache.clear();
+  computeTasking();     // density percentile follows the live posterior
+}
+
+function applyObs(o, record) {
+  const li = o.cell;
+  if (li < 0 || li >= NL) return;
+  const cov = Math.min(o.sweptM2 / (CELL_AREA * 1e6), 1);
+  const t = effExposure(cov, o.sens);
+  let a = ALPHA[li], b = BETA[li];
+  if (o.kind === "confirmed") {
+    a += o.count; b += t;
+  } else if (o.kind === "alarms") {
+    const f = o.far * (cov * CELL_AREA);          // expected false alarms
+    [a, b] = updateAlarms(a, b, t, o.count, f);
+  } else {
+    b += t;                                        // clean sweep: rate only
+  }
+  ALPHA[li] = a; BETA[li] = b;
+
+  /* Only CONFIRMED evidence spreads, and only outward. Minefields are
+     contiguous belts, so a real mine raises belief nearby. Raw alarms are
+     mostly clutter, and spreading a CLEAN sweep would lower risk in cells
+     nobody visited -- the dangerous direction. */
+  if (o.kind === "confirmed") spreadPositive(li, o.count);
+  if (record) OBS.push(o);
+  statsCache.clear();
+}
+
+const LEAK = 0.35, CORR_CELLS = 0.9;   // sigma in cells on the 5 km grid
+function spreadPositive(li, y) {
+  const f = landToFull[li], cx = f % UA.w, cy = (f / UA.w) | 0;
+  const rad = Math.ceil(3 * CORR_CELLS);
+  let tot = 0;
+  const w = [];
+  for (let dy = -rad; dy <= rad; dy++) for (let dx = -rad; dx <= rad; dx++) {
+    const nx = cx + dx, ny = cy + dy;
+    if (nx < 0 || ny < 0 || nx >= UA.w || ny >= UA.h) continue;
+    const nl = fullToLand[ny * UA.w + nx];
+    if (nl < 0) continue;
+    const g = Math.exp(-(dx * dx + dy * dy) / (2 * CORR_CELLS * CORR_CELLS));
+    w.push([nl, g]); tot += g;
+  }
+  if (tot <= 0) return;
+  for (const [nl, g] of w) {
+    const add = LEAK * y * (g / tot) - (nl === li ? LEAK * y : 0);
+    ALPHA[nl] += add;
+  }
+}
+
+/* =========================================================================
+   CLEARANCE TASKING -- which district to send the robot to first.
+
+   A different question from "where are the mines". Prioritisation in mine
+   action is a land-use decision: an empty steppe cell with a high modelled
+   density and nobody within 40 km is worth less of a team's season than a
+   moderately contaminated field behind a village school.
+
+   Seven criteria in a stated ORDER of importance, so the weights are
+   rank-order centroid -- the centroid of every weight vector consistent with
+   that order. Writing "density 40%, people 25%" would assert precision nobody
+   supplied.
+
+   Six layers are baked; DENSITY is recomputed here from the live posterior, so
+   logging a detection reorders the queue.
+   ========================================================================= */
+const TK = DATA.tasking || null;
+let tkEnabled = TK ? TK.criteria.map(c => c.key) : [];
+
+if (TK) for (const c of TK.criteria)
+  if (c.key !== "density") TK.layers[c.key] = b64u8(TK.layers[c.key]);
+
+/* w_k = (1/n) * sum_{i=k..n} 1/i */
+function rocWeights(n) {
+  const inv = [], w = new Float64Array(n);
+  for (let i = 1; i <= n; i++) inv.push(1 / i);
+  let acc = 0;
+  for (let k = n - 1; k >= 0; k--) { acc += inv[k]; w[k] = acc / n; }
+  return w;
+}
+/* ROC over the ENABLED subset, keeping the canonical rank order. Disabling a
+   criterion renormalises rather than leaving a hole, so scores stay comparable
+   between settings. */
+function tkWeights() {
+  const keys = TK.criteria.map(c => c.key).filter(k => tkEnabled.includes(k));
+  const w = rocWeights(keys.length), out = new Map();
+  keys.forEach((k, i) => out.set(k, w[i]));
+  return out;
+}
+
+/* Fraction of land cells holding a STRICTLY SMALLER value. Ties take the
+   bottom of their band, so a cell with no school scores a true 0 rather than
+   drifting into the middle of the tie block. */
+function percentileScore(vals) {
+  const n = vals.length;
+  const sorted = Float64Array.from(vals).sort();
+  const out = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
+    let lo = 0, hi = n;
+    const v = vals[i];
+    while (lo < hi) { const m = (lo + hi) >> 1; if (sorted[m] < v) lo = m + 1; else hi = m; }
+    out[i] = lo / n;
+  }
+  return out;
+}
+
+let densPct = null, tkComposite = null;
+function computeTasking() {
+  if (!TK) return;
+  const d = new Float64Array(NL);
+  for (let i = 0; i < NL; i++) d[i] = cellMean(ALPHA[i], BETA[i]) / CELL_AREA;
+  densPct = percentileScore(d);
+  const w = tkWeights();
+  tkComposite = new Float64Array(NL);
+  for (const [k, wk] of w) {
+    if (k === "density") { for (let i = 0; i < NL; i++) tkComposite[i] += wk * densPct[i]; }
+    else { const L = TK.layers[k]; for (let i = 0; i < NL; i++) tkComposite[i] += wk * (L[i] / 255); }
+  }
+  tkStatsCache.clear();
+}
+
+const tkStatsCache = new Map();
+/* District score = mean of its cells' composite. Linear in the layers, so this
+   equals sum(w * mean(percentile)) -- the same number build_tasking.py wrote. */
+function tkStats(level, name) {
+  const key = level + "|" + name;
+  if (tkStatsCache.has(key)) return tkStatsCache.get(key);
+  const src = level === "adm1" ? TK.oblasts : TK.raions;
+  const rec = src && src[name];
+  const idx = (level === "adm1" ? a1Idx : a2Idx).get(name);
+  const cells = (level === "adm1" ? adm1Cells : adm2Cells).get(idx);
+  let out = null;
+  if (rec && cells && cells.length) {
+    const w = tkWeights(), scores = {}, contrib = {};
+    let score = 0;
+    for (const [k, wk] of w) {
+      let s = 0;
+      if (k === "density") for (let i = 0; i < cells.length; i++) s += densPct[cells[i]];
+      else { const L = TK.layers[k]; for (let i = 0; i < cells.length; i++) s += L[cells[i]] / 255; }
+      s /= cells.length;
+      scores[k] = s; contrib[k] = wk * s; score += wk * s;
+    }
+    out = {score, scores, contrib, raw: rec.raw, anchor: rec.anchor,
+           tier: tkTier(score), n: cells.length};
+  }
+  tkStatsCache.set(key, out);
+  return out;
+}
+const tkTier = s => {
+  const b = TK.breaks;
+  let i = 0;
+  while (i < b.length && s >= b[i]) i++;
+  return i;
+};
+/* Tier labels carry no safety claim: a district scores low when little is at
+   stake near it, never because the ground is clear. */
+const TK_TIER_LABEL = ["Lowest tasking priority — NOT cleared", "Low", "Moderate",
+                       "High", "Very high", "Task first"];
+
+function tkRanked(level) {
+  const names = level === "adm1" ? A1_NAME : A2_NAME;
+  return names.map(n => ({n, t: tkStats(level, n)}))
+    .filter(r => r.t).sort((a, b) => b.t.score - a.t.score)
+    .map((r, i) => ({...r, rank: i + 1}));
+}
+
+/* ---- district aggregation ------------------------------------------------- */
+const adm1Cells = new Map(), adm2Cells = new Map();
+for (let i = 0; i < NL; i++) {
+  const a1 = UA.a1Land[i], a2 = UA.a2Land[i];
+  if (a1 >= 0) { if (!adm1Cells.has(a1)) adm1Cells.set(a1, []); adm1Cells.get(a1).push(i); }
+  if (a2 >= 0) { if (!adm2Cells.has(a2)) adm2Cells.set(a2, []); adm2Cells.get(a2).push(i); }
+}
+for (const m of [adm1Cells, adm2Cells])
+  for (const [k, v] of m) m.set(k, Int32Array.from(v));
+
+const A1_NAME = DATA.adm1_names, A2_NAME = DATA.adm2_names;
+const a1Idx = new Map(A1_NAME.map((n, i) => [n, i]));
+const a2Idx = new Map(A2_NAME.map((n, i) => [n, i]));
+const statsCache = new Map();
+
+function regionStats(level, name) {
+  const key = level + "|" + name;
+  if (statsCache.has(key)) return statsCache.get(key);
+  const idx = (level === "adm1" ? a1Idx : a2Idx).get(name);
+  const cells = (level === "adm1" ? adm1Cells : adm2Cells).get(idx);
+  let out;
+  if (!cells || !cells.length) {
+    out = {mean: 0, q05: 0, q95: 0, area: 0, n: 0, density: 0};
+  } else {
+    const s = districtInterval(cells);
+    const area = cells.length * CELL_AREA;
+    out = {...s, area, n: cells.length, density: s.mean / area};
+  }
+  statsCache.set(key, out);
+  return out;
+}
+function ranked(level) {
+  const names = level === "adm1" ? A1_NAME : A2_NAME;
+  return names.map(n => ({n, s: regionStats(level, n)}))
+    .filter(r => r.s.n > 0).sort((a, b) => b.s.mean - a.s.mean);
+}
+
+/* Prior-only district stats, snapshotted before observations are replayed, so
+   the panel can show how far the evidence actually moved the number. */
+const priorCache = new Map();
+const priorStats = (level, name) => priorCache.get(level + "|" + name);
+
+function obsRegion(o, level) {
+  const i = level === "adm1" ? UA.a1Land[o.cell] : UA.a2Land[o.cell];
+  if (i < 0) return "";
+  return (level === "adm1" ? A1_NAME : A2_NAME)[i];
+}
+
+/* ---- region tables -------------------------------------------------------- */
+// Every Ukraine figure is computed live from the posterior; only the raion ->
+// oblast parentage and the country table are read from the payload.
+const raionParent = new Map(DATA.raions.map(r => [r.n, r.p || ""]));
+const countryBy = new Map(DATA.world.map(r => [r.n, r]));
+
+/* Calibration is linear in the assumed national total, so rescaling the whole
+   field is a single multiplier -- no rebuild needed. */
+let CAL = {km2: DATA.meta.n_star / DATA.meta.mines_per_km2, den: DATA.meta.mines_per_km2};
+const BASE_TOTAL = DATA.meta.n_star;
+const scale = () => (CAL.km2 * CAL.den) / BASE_TOTAL;
+
+/* ---- view state ----------------------------------------------------------- */
+let view = "world";      // "world" | "ua"
+let mode = "density";
+let sel = null;          // {level:"country"|"adm1"|"adm2", name}
+let dots = [];           // confirmed hazard records; empty until one is loaded
+let hoverName = null;
+
+const heat = $("#heat"), base = $("#base"), stage = $("#stage");
+const hctx = heat.getContext("2d"), bctx = base.getContext("2d");
+let VP = {w: 0, h: 0, dpr: 1};
+
+/* ---- offscreen rasters ---------------------------------------------------- */
+function buildUARaster() {
+  const c = document.createElement("canvas");
+  c.width = UA.w; c.height = UA.h;
+  const ctx = c.getContext("2d");
+  const img = ctx.createImageData(UA.w, UA.h);
+  const px = img.data;
+  const sc = scale();
+  for (let i = 0; i < UA.w * UA.h; i++) {
+    // Row 0 of the raster is the SOUTH edge (origin is bottom-left), and
+    // ImageData row 0 is the top, so flip vertically while writing.
+    const row = UA.h - 1 - ((i / UA.w) | 0), col = i % UA.w;
+    const src = row * UA.w + col;
+    const o = i * 4;
+    const li = fullToLand[src];
+    if (li < 0) { px[o] = px[o+1] = px[o+2] = px[o+3] = 0; continue; }
+    // Drawn from the LIVE posterior, so logging an observation repaints the
+    // map through the same numbers the panel reports.
+    const a = ALPHA[li], b = BETA[li];
+    let col6;
+    if (mode === "priority" && tkComposite) {
+      col6 = tkTier(tkComposite[li]);
+    } else if (mode === "uncertainty") {
+      col6 = Math.min(5, Math.floor((1 / Math.sqrt(a)) / 4 * 6));
+    } else {
+      const d = cellMean(a, b) / CELL_AREA;
+      if (!(d > 0)) { hex(px, o, NODATA, 255); continue; }
+      col6 = tierOf(d);
+    }
+    hex(px, o, RAMP[col6], 235);
+  }
+  ctx.putImageData(img, 0, 0);
+  return c;
+}
+
+function buildWorldRaster() {
+  const c = document.createElement("canvas");
+  c.width = WR.w; c.height = WR.h;
+  const ctx = c.getContext("2d");
+  const img = ctx.createImageData(WR.w, WR.h);
+  const px = img.data;
+  for (let i = 0; i < WR.w * WR.h; i++) {
+    const row = WR.h - 1 - ((i / WR.w) | 0), col = i % WR.w;
+    const q = WR.dataA[row * WR.w + col];
+    const o = i * 4;
+    if (!q) { px[o] = px[o+1] = px[o+2] = px[o+3] = 0; continue; }
+    // Class in the already-log-quantised domain. Undoing the log first would
+    // push almost every cell into the bottom class, since exposure spans
+    // several orders of magnitude.
+    hex(px, o, RAMP[Math.min(5, Math.floor(q / 256 * 6))], 215);
+  }
+  ctx.putImageData(img, 0, 0);
+  return c;
+}
+
+function hex(px, o, h, a) {
+  px[o] = parseInt(h.slice(1, 3), 16);
+  px[o + 1] = parseInt(h.slice(3, 5), 16);
+  px[o + 2] = parseInt(h.slice(5, 7), 16);
+  px[o + 3] = a;
+}
+
+/* Density class breaks, in mines/km2. Fixed rather than quantile-based so the
+   colour keeps its meaning when the calibration sliders move. */
+const BREAKS = [0.02, 0.1, 0.4, 1.5, 6];
+const tierOf = d => { let i = 0; while (i < BREAKS.length && d >= BREAKS[i]) i++; return i; };
+
+let uaRaster = null, worldRaster = null;
+
+/* ---- camera --------------------------------------------------------------- */
+let cam = {x: 0, y: 0, k: 1};
+
+function fitWorld() {
+  const pad = 10;
+  cam.k = Math.min((VP.w - pad * 2) / 360, (VP.h - pad * 2) / 160);
+  cam.x = VP.w / 2; cam.y = VP.h / 2;
+}
+function fitUA() {
+  const pad = 26;
+  const w = UA.w * UA.res, h = UA.h * UA.res;
+  cam.k = Math.min((VP.w - pad * 2) / w, (VP.h - pad * 2) / h);
+  cam.x = VP.w / 2 - (UA.x0 + w / 2) * cam.k;
+  cam.y = VP.h / 2 + (UA.y0 + h / 2) * cam.k;
+}
+/* Projected coords -> screen. y flips because screen y grows downward. */
+const sx = x => view === "world" ? cam.x + x * cam.k : cam.x + x * cam.k;
+const sy = y => view === "world" ? cam.y - y * cam.k : cam.y - y * cam.k;
+function project(lat, lon) {
+  if (view === "world") return [sx(lon), sy(lat)];
+  const [x, y] = laea(lat, lon, UA.lat0, UA.lon0);
+  return [sx(x), sy(y)];
+}
+
+/* ---- render --------------------------------------------------------------- */
+function resize() {
+  const r = stage.getBoundingClientRect();
+  VP.dpr = Math.min(window.devicePixelRatio || 1, 2);
+  VP.w = r.width; VP.h = r.height;
+  for (const c of [heat, base]) {
+    c.width = Math.round(r.width * VP.dpr);
+    c.height = Math.round(r.height * VP.dpr);
+  }
+  hctx.setTransform(VP.dpr, 0, 0, VP.dpr, 0, 0);
+  bctx.setTransform(VP.dpr, 0, 0, VP.dpr, 0, 0);
+  view === "world" ? fitWorld() : fitUA();
+  render();
+}
+
+function render() {
+  hctx.clearRect(0, 0, VP.w, VP.h);
+  bctx.clearRect(0, 0, VP.w, VP.h);
+  hctx.fillStyle = "#0E1116";
+  hctx.fillRect(0, 0, VP.w, VP.h);
+
+  if (view === "world") renderWorld(); else renderUA();
+  drawDots();
+  drawObs();
+  drawScale();
+}
+
+function renderWorld() {
+  if (mode !== "uncertainty") {
+    if (!worldRaster) worldRaster = buildWorldRaster();
+    hctx.imageSmoothingEnabled = false;
+    hctx.globalAlpha = .92;
+    hctx.drawImage(worldRaster, sx(-180), sy(90), 360 * cam.k, 180 * cam.k);
+    hctx.globalAlpha = 1;
+  }
+  bctx.lineWidth = .7;
+  for (const f of GEO.world) {
+    const rec = countryBy.get(f.name);
+    const on = sel && sel.level === "country" && sel.name === f.name;
+    bctx.beginPath();
+    for (const p of f.rings) {
+      bctx.moveTo(sx(p[0]), sy(p[1]));
+      for (let i = 2; i < p.length; i += 2) bctx.lineTo(sx(p[i]), sy(p[i + 1]));
+      bctx.closePath();
+    }
+    if (rec && rec.m != null) { bctx.fillStyle = "#FFFFFF10"; bctx.fill(); }
+    bctx.strokeStyle = on ? "#FFFFFF" : (hoverName === f.name ? "#7C8799" : "#2C3440");
+    bctx.lineWidth = on ? 1.6 : .7;
+    bctx.stroke();
+  }
+}
+
+function renderUA() {
+  if (!uaRaster) uaRaster = buildUARaster();
+  hctx.imageSmoothingEnabled = false;
+  const w = UA.w * UA.res, h = UA.h * UA.res;
+  hctx.drawImage(uaRaster, sx(UA.x0), sy(UA.y0 + h), w * cam.k, h * cam.k);
+
+  const deep = cam.k * UA.res > 2.2;
+  const layer = deep ? GEO.adm2 : GEO.adm1;
+  bctx.lineWidth = .6;
+  for (const f of layer) {
+    const on = sel && sel.name === f.name;
+    bctx.beginPath();
+    for (const p of f.rings) {
+      const [x0, y0] = project(p[1], p[0]);
+      bctx.moveTo(x0, y0);
+      for (let i = 2; i < p.length; i += 2) {
+        const [x, y] = project(p[i + 1], p[i]);
+        bctx.lineTo(x, y);
+      }
+      bctx.closePath();
+    }
+    bctx.strokeStyle = on ? "#FFFFFF" : (hoverName === f.name ? "#8A93A3" : "#3A4452");
+    bctx.lineWidth = on ? 1.8 : .6;
+    bctx.stroke();
+  }
+  if (deep) {
+    // Oblast outlines stay on top of the raion mesh, and a selected oblast is
+    // still outlined here -- otherwise selecting one from the table highlights
+    // nothing once the map has zoomed past oblast level.
+    for (const f of GEO.adm1) {
+      const on = sel && sel.level === "adm1" && sel.name === f.name;
+      bctx.beginPath();
+      for (const p of f.rings) {
+        const [x0, y0] = project(p[1], p[0]);
+        bctx.moveTo(x0, y0);
+        for (let i = 2; i < p.length; i += 2) {
+          const [x, y] = project(p[i + 1], p[i]);
+          bctx.lineTo(x, y);
+        }
+        bctx.closePath();
+      }
+      bctx.strokeStyle = on ? "#FFFFFF" : "#4A5666";
+      bctx.lineWidth = on ? 2 : 1.1;
+      bctx.stroke();
+    }
+  }
+}
+
+/* Confirmed records get a shape of their own and pure white, which appears
+   nowhere in the risk ramp, so the distinction survives greyscale, a bad
+   monitor and a screenshot. */
+/* Session observations. Distinct glyph per kind, and hollow rather than solid,
+   so they never read as the solid white diamonds reserved for records from a
+   real hazard registry. */
+function drawObs() {
+  if (view !== "ua" || !OBS.length) return;
+  bctx.save();
+  bctx.lineWidth = 1.4;
+  for (const o of OBS) {
+    const f = landToFull[o.cell], cx = f % UA.w, cy = (f / UA.w) | 0;
+    const x = sx(UA.x0 + (cx + 0.5) * UA.res), y = sy(UA.y0 + (cy + 0.5) * UA.res);
+    if (x < -20 || y < -20 || x > VP.w + 20 || y > VP.h + 20) continue;
+    const s = 5;
+    bctx.beginPath();
+    if (o.kind === "confirmed") {
+      bctx.moveTo(x, y - s); bctx.lineTo(x + s, y);
+      bctx.lineTo(x, y + s); bctx.lineTo(x - s, y); bctx.closePath();
+      bctx.fillStyle = "#FFFFFF"; bctx.fill();
+      bctx.strokeStyle = "#0B0D10"; bctx.stroke();
+      bctx.beginPath(); bctx.arc(x, y, 1.4, 0, 6.2832);
+      bctx.fillStyle = "#0B0D10"; bctx.fill();
+    } else if (o.kind === "alarms") {
+      bctx.moveTo(x, y - s); bctx.lineTo(x + s, y + s * .8);
+      bctx.lineTo(x - s, y + s * .8); bctx.closePath();
+      bctx.strokeStyle = "#FFFFFF"; bctx.stroke();
+    } else {
+      bctx.rect(x - s * .8, y - s * .8, s * 1.6, s * 1.6);
+      bctx.strokeStyle = "#8A93A3"; bctx.stroke();
+    }
+  }
+  bctx.restore();
+}
+
+function drawDots() {
+  if (!$("#showdots").checked || !dots.length) return;
+  bctx.save();
+  for (const d of dots) {
+    const [x, y] = project(d.lat, d.lon);
+    if (x < -20 || y < -20 || x > VP.w + 20 || y > VP.h + 20) continue;
+    bctx.beginPath();
+    bctx.moveTo(x, y - 4.5); bctx.lineTo(x + 4.5, y);
+    bctx.lineTo(x, y + 4.5); bctx.lineTo(x - 4.5, y);
+    bctx.closePath();
+    bctx.fillStyle = "#FFFFFF"; bctx.fill();
+    bctx.lineWidth = 1.2; bctx.strokeStyle = "#0B0D10"; bctx.stroke();
+  }
+  bctx.restore();
+}
+
+function drawScale() {
+  const el = $("#scalebar");
+  const kmPerPx = view === "world" ? 111 / cam.k : 1 / cam.k;
+  let target = kmPerPx * 110;
+  const pow = Math.pow(10, Math.floor(Math.log10(target)));
+  const n = [1, 2, 5, 10].find(v => v * pow >= target * .55) * pow;
+  el.innerHTML = `${fmt(n)} km<div style="width:${(n / kmPerPx).toFixed(0)}px"></div>`;
+  $("#maphint").innerHTML = view === "world"
+    ? "Click a country &middot; only states with published<br>AP mine contamination carry an estimate"
+    : (cam.k * UA.res > 2.2 ? "Raion level &middot; click to select" : "Oblast level &middot; zoom for raions");
+}
+
+/* ---- hit testing ---------------------------------------------------------- */
+function inRing(pts, x, y) {
+  let inside = false;
+  for (let i = 0, j = pts.length - 2; i < pts.length; j = i, i += 2) {
+    const xi = pts[i], yi = pts[i + 1], xj = pts[j], yj = pts[j + 1];
+    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+function pick(lat, lon, feats) {
+  for (const f of feats) {
+    if (lon < f.bbox[0] || lon > f.bbox[2] || lat < f.bbox[1] || lat > f.bbox[3]) continue;
+    for (const p of f.rings) if (inRing(p, lon, lat)) return f;
+  }
+  return null;
+}
+/* Screen -> lat/lon. The LAEA inverse is only needed for the Ukraine view. */
+function unproject(px, py) {
+  if (view === "world") return [(cam.y - py) / cam.k, (px - cam.x) / cam.k];
+  return invLaea((px - cam.x) / cam.k, (cam.y - py) / cam.k, UA.lat0, UA.lon0);
+}
+/* Screen point -> land-cell index, or -1 outside the modelled grid. */
+function cellAt(px, py) {
+  if (view !== "ua") return -1;
+  const x = (px - cam.x) / cam.k, y = (cam.y - py) / cam.k;
+  const cx = Math.floor((x - UA.x0) / UA.res), cy = Math.floor((y - UA.y0) / UA.res);
+  if (cx < 0 || cy < 0 || cx >= UA.w || cy >= UA.h) return -1;
+  return fullToLand[cy * UA.w + cx];
+}
+
+/* ---- detail panel --------------------------------------------------------- */
+function tierBadge(d) {
+  const t = TIERS[tierOf(d)];
+  return `<span class="tier" style="background:${t.c}">${t.k} &middot; ${t.t}</span>`;
+}
+
+function renderDetail() {
+  const el = $("#detail");
+  const sc = scale();
+  let crumb = `<div class="crumb"><button data-nav="world">World</button>`;
+  if (view === "ua" || (sel && sel.level !== "country")) {
+    crumb += `<span>/</span><button data-nav="ua">Ukraine</button>`;
+    if (sel && sel.level === "adm2" && sel.parent)
+      crumb += `<span>/</span><button data-nav="adm1:${sel.parent}">${sel.parent}</button>`;
+    if (sel && sel.level !== "country") crumb += `<span>/</span><span>${sel.name}</span>`;
+  } else if (sel && sel.level === "country") {
+    crumb += `<span>/</span><span>${sel.name}</span>`;
+  }
+  crumb += `</div>`;
+
+  let body = "";
+  if (!sel) {
+    body = `<div class="dsec">
+      <div class="rname">Select a region</div>
+      <p class="note" style="margin-top:6px">Search, or click the map. The world view
+      ranks states by published AP mine contamination; Ukraine is modelled at
+      ${DATA.meta.grid_km} km resolution down to raion level.</p></div>`
+      + rankTable(view === "world" ? "world" : "oblast");
+  } else if (sel.level === "country") {
+    const r = countryBy.get(sel.name);
+    body = countryPanel(r);
+  } else {
+    body = regionPanel(sel.name, sel.level);
+  }
+  el.innerHTML = crumb + body;
+  el.querySelectorAll("[data-nav]").forEach(b => b.onclick = () => {
+    const v = b.dataset.nav;
+    if (v === "world") { view = "world"; sel = null; fitWorld(); }
+    else if (v === "ua") { view = "ua"; sel = null; fitUA(); }
+    else if (v.startsWith("adm1:")) selectRegion("adm1", v.slice(5));
+    uaRaster = null; renderLegend(); render(); renderDetail();
+  });
+  el.querySelectorAll("tr[data-sel]").forEach(tr => tr.onclick = () => {
+    const [lv, ...n] = tr.dataset.sel.split("|");
+    selectRegion(lv, n.join("|"));
+  });
+}
+
+function countryPanel(r) {
+  if (!r) return "";
+  const est = r.m != null;
+  return `<div class="dsec">
+    <div class="rname">${r.n}</div>
+    <div class="rparent">${est ? "Published AP mine contamination" : "No published AP mine contamination"}</div>
+    ${est ? `<div class="est"><span class="v">${fmt(r.m)}</span><span class="u">estimated mines</span></div>
+      <dl class="kv">
+        <dt>Contaminated area</dt><dd>${fmt(r.km2, 2)} km&sup2;</dd>
+        <dt>Source of area figure</dt><dd>${r.rep ? "reported" : r.b + " band"}</dd>
+        <dt>Severity band</dt><dd>${r.b || "—"}</dd>
+        <dt>Conflict exposure (GED)</dt><dd>${fmt(r.e)}</dd>
+      </dl>
+      <div class="panel-warn">Count = contaminated area &times; ${fmt(CAL.den)} mines/km&sup2;.
+        The density multiplier is an assumption, not a measurement.</div>`
+    : `<dl class="kv"><dt>Conflict exposure (GED)</dt><dd>${fmt(r.e)}</dd></dl>
+      <div class="panel-warn">This state reports no AP mine contamination, so no mine
+        estimate is shown. Conflict events alone do not imply mines &mdash; much of the
+        highest-exposure territory in this dataset has essentially none.</div>`}
+  </div>` + rankTable("world");
+}
+
+function regionPanel(name, level) {
+  const s = regionStats(level, name);
+  if (!s.n) return `<div class="dsec"><div class="rname">${name}</div>
+    <p class="note">No model cells fall inside this unit at ${DATA.meta.grid_km} km
+    resolution, so it carries no estimate.</p></div>`;
+  const prior = priorStats(level, name);
+  const span = Math.max(s.q95, 1e-9);
+  const inRegion = dots.filter(p => p.region === name).length;
+  const obsHere = OBS.filter(o => obsRegion(o, level) === name);
+  const nConf = obsHere.filter(o => o.kind === "confirmed")
+    .reduce((t, o) => t + o.count, 0);
+  const moved = prior && Math.abs(s.mean - prior.mean) > 0.05;
+  return `<div class="dsec">
+    <div class="rname">${name}</div>
+    <div class="rparent">${level === "adm2"
+      ? (raionParent.get(name) ? raionParent.get(name) + " oblast" : "raion") : "oblast"}
+      &middot; ${fmt(s.area)} km&sup2;</div>
+    <div style="margin-top:10px">${tierBadge(s.density)}</div>
+    <div class="est"><span class="v">${fmt(s.mean)}</span><span class="u">estimated mines (modelled)</span></div>
+    <div class="ci">90% credible interval ${fmt(s.q05)} &ndash; ${fmt(s.q95)}</div>
+    <div class="cibar">
+      <i style="left:${(s.q05 / span * 100).toFixed(1)}%;right:${(100 - s.q95 / span * 100).toFixed(1)}%"></i>
+      <u style="left:${(s.mean / span * 100).toFixed(1)}%"></u>
+    </div>
+    ${moved ? `<div class="delta">
+      <span class="lbl" style="color:inherit">Posterior shift</span>
+      <div style="margin-top:3px">prior <span class="num">${fmt(prior.mean)}</span>
+      &rarr; posterior <span class="num">${fmt(s.mean)}</span>
+      <span class="num">(${s.mean >= prior.mean ? "+" : ""}${fmt(s.mean - prior.mean, 1)})</span></div>
+      <div class="note" style="margin-top:3px">after ${fmt(obsHere.length)}
+      observation${obsHere.length === 1 ? "" : "s"} logged here${nConf ? `, ${fmt(nConf)} confirmed` : ""}.</div>
+    </div>` : ""}
+    <dl class="kv">
+      <dt>Modelled density</dt><dd>${fmt(s.density, 3)} /km&sup2;</dd>
+      <dt>Model cells</dt><dd>${fmt(s.n)} &times; ${DATA.meta.grid_km}km</dd>
+      <dt>Interval width</dt><dd>&times;${fmt(s.q95 / Math.max(s.q05, 1e-9), 1)}</dd>
+    </dl>
+    <div class="panel-warn">Estimate only. This district has not been cleared.
+      The interval is wide because the model is genuinely uncertain, not because
+      the number is nearly right.</div>
+  </div>
+  ${taskingPanel(level, name)}
+  <div class="dsec">
+    <span class="lbl">Confirmed records</span>
+    <div class="confirmed-block" style="margin-top:7px">
+      <div class="big">${fmt(inRegion + nConf)}</div>
+      <div class="note" style="margin-top:2px">confirmed hazard records in this region</div>
+    </div>
+    <p class="note">Deterministic, not modelled. ${inRegion + nConf ? "" :
+      "None &mdash; this build ships with no hazard registry, and none are invented."}
+      ${nConf ? `${fmt(nConf)} entered this session; session entries are not saved
+      and are never exported as a registry.` : ""}</p>
+  </div>` + rankTable(level === "adm2" ? "raion" : "oblast", name);
+}
+
+/* A single number nobody can decompose is not a defensible tasking decision,
+   so every criterion's raw value, percentile and exact contribution is shown. */
+function taskingPanel(level, name) {
+  if (!TK) return "";
+  const t = tkStats(level, name);
+  if (!t) return "";
+  const rk = tkRanked(level).find(r => r.n === name);
+  const total = level === "adm1" ? A1_NAME.length : A2_NAME.length;
+  const fmtRaw = (k, v) => k === "people" ? fmt(v)
+    : k === "farmland" ? fmt(v, 1) + "%"
+    : k === "density" ? fmt(v, 3)
+    : k === "access" ? fmt(v, 2) : fmt(v);
+  return `<div class="dsec">
+    <span class="lbl">Clearance priority</span>
+    <div style="display:flex;align-items:baseline;gap:9px;margin:8px 0 2px">
+      <span class="num" style="font-size:24px;font-weight:600">#${rk ? rk.rank : "—"}</span>
+      <span style="font-size:11.5px;color:var(--ink-2)">of ${total}
+        ${level === "adm1" ? "oblasts" : "raions"}</span>
+    </div>
+    <div><span class="tier" style="background:${RAMP[t.tier]}">${TK_TIER_LABEL[t.tier]}</span></div>
+    <div class="ci" style="margin-top:6px">score <span class="num">${t.score.toFixed(3)}</span>
+      &middot; rank-order-centroid weights</div>
+    <table class="rank" style="margin-top:9px">
+      <thead><tr><th>Criterion</th><th class="r">Value</th><th class="r">Pctl</th>
+        <th style="width:44px"></th></tr></thead>
+      <tbody>${TK.criteria.map(c => {
+        const on = tkEnabled.includes(c.key);
+        const s = t.scores[c.key], ct = t.contrib[c.key];
+        return `<tr style="${on ? "" : "opacity:.35"}" title="${c.note.replace(/"/g, "&quot;")}">
+          <td>${c.label}</td>
+          <td class="r num">${on || t.raw[c.key] != null ? fmtRaw(c.key, t.raw[c.key]) : "—"}</td>
+          <td class="r num">${on ? (s * 100).toFixed(0) : "—"}</td>
+          <td>${on ? `<div class="bar" style="width:${(ct / t.score * 100).toFixed(0)}%"></div>` : ""}</td>
+        </tr>`;
+      }).join("")}</tbody></table>
+    <dl class="kv" style="margin-top:8px">
+      <dt>Suggested AO anchor</dt>
+      <dd>${t.anchor.lat.toFixed(4)}, ${t.anchor.lon.toFixed(4)}</dd>
+      <dt>Mean slope</dt><dd>${fmt(t.raw.slope, 2)}&deg;</dd>
+    </dl>
+    <p class="note">The anchor is the district's highest-scoring single 5 km cell,
+      not its centroid &mdash; a centroid is usually farmland nobody has a reason
+      to sweep. Raw values are shown because percentile ranking discards magnitude.</p>
+    <div class="panel-warn">Priority is about where clearing matters most, not
+      where it is most dangerous. A low rank never means the ground is clear.</div>
+  </div>`;
+}
+
+function rankTable(kind, highlight) {
+  let rows, title;
+  if (kind === "world") {
+    rows = DATA.world.filter(r => r.m != null).slice(0, 14)
+      .map(r => ({n: r.n, v: r.m, lv: "country"}));
+    title = "States by estimated mines";
+  } else if (kind === "oblast") {
+    rows = ranked("adm1").slice(0, 14).map(r => ({n: r.n, v: r.s.mean, lv: "adm1"}));
+    title = "Oblasts by estimated mines";
+  } else {
+    rows = ranked("adm2").slice(0, 16).map(r => ({n: r.n, v: r.s.mean, lv: "adm2"}));
+    title = "Raions by estimated mines";
+  }
+  const max = Math.max(...rows.map(r => r.v), 1);
+  return `<div class="dsec"><span class="lbl">${title}</span>
+    <table class="rank" style="margin-top:7px">
+      <thead><tr><th>Region</th><th class="r">Est. mines</th><th style="width:52px"></th></tr></thead>
+      <tbody>${rows.map(r => `<tr data-sel="${r.lv}|${r.n}"
+        ${r.n === highlight ? 'style="font-weight:600"' : ""}>
+        <td>${r.n}</td><td class="r num">${fmt(r.v)}</td>
+        <td><div class="bar" style="width:${(r.v / max * 100).toFixed(1)}%"></div></td></tr>`).join("")}
+      </tbody></table></div>`;
+}
+
+/* ---- selection ------------------------------------------------------------ */
+function selectRegion(level, name) {
+  if (level === "country") {
+    sel = {level, name};
+    if (name === "Ukraine") { view = "ua"; fitUA(); }
+  } else {
+    view = "ua";
+    sel = {level, name, parent: level === "adm2" ? raionParent.get(name) : null};
+    fitUA();
+  }
+  uaRaster = null;
+  renderLegend(); render(); renderDetail();
+}
+
+/* ---- search --------------------------------------------------------------- */
+const ALIAS = {"kiev":"Kyivska","kyiv":"Kyivska","kharkov":"Kharkivska","lvov":"Lvivska",
+  "nikolaev":"Mykolaivska","odessa":"Odeska","zaporozhye":"Zaporizka","chernigov":"Chernihivska",
+  "dnipropetrovsk":"Dnipropetrovska","artemivsk":"Bakhmutskyi","donetsk":"Donetska",
+  "lugansk":"Luhanska","luhansk":"Luhanska"};
+// Built from char codes rather than written as a literal range: combining marks
+// are invisible in source and survive a copy/paste or re-encode as raw
+// characters, which turns the class into an invalid range.
+const COMBINING = new RegExp("[" + String.fromCharCode(0x300) + "-"
+  + String.fromCharCode(0x36f) + "]", "g");
+const norm = s => s.toLowerCase().normalize("NFD").replace(COMBINING, "").trim();
+const INDEX = [
+  ...A1_NAME.map(n => ({n, lv: "adm1", sub: "Oblast"})),
+  ...A2_NAME.map(n => ({n, lv: "adm2", sub: (raionParent.get(n) || "") + " oblast"})),
+  ...DATA.world.map(r => ({n: r.n, lv: "country",
+    sub: r.m != null ? "State · contaminated" : "State", v: r.m || 0})),
+];
+INDEX.forEach(e => e.key = norm(e.n));
+const indexValue = e => e.lv === "country" ? (e.v || 0) : regionStats(e.lv, e.n).mean;
+
+function search(q) {
+  const n = norm(q);
+  if (!n) return [];
+  const target = ALIAS[n];
+  return INDEX.map(e => {
+    let s = 0;
+    if (target && e.n === target) s = 100;
+    else if (e.key === n) s = 90;
+    else if (e.key.startsWith(n)) s = 70;
+    else if (e.key.includes(n)) s = 40;
+    if (!s) return null;
+    const v = indexValue(e);
+    return {e, v, s: s + Math.min(v / 1e5, 8)};
+  }).filter(Boolean).sort((a, b) => b.s - a.s).slice(0, 9)
+    .map(x => ({...x.e, disp: x.v}));
+}
+
+const qEl = $("#q"), resEl = $("#results");
+let cursor = -1, current = [];
+function showResults(list) {
+  current = list; cursor = -1;
+  if (!list.length) { resEl.hidden = true; return; }
+  resEl.innerHTML = list.map((r, i) => `<button role="option" data-i="${i}">
+    <div class="rn">${r.n}</div>
+    <div class="rm"><span>${r.sub}</span><span class="num">${
+      r.lv === "country" && !r.v ? "no estimate" : fmt(r.disp) + " est."}</span></div></button>`).join("");
+  resEl.hidden = false;
+  resEl.querySelectorAll("button").forEach(b =>
+    b.onclick = () => choose(list[+b.dataset.i]));
+}
+function choose(r) {
+  resEl.hidden = true; qEl.value = r.n;
+  selectRegion(r.lv, r.n);
+}
+qEl.oninput = () => showResults(search(qEl.value));
+qEl.onkeydown = e => {
+  if (e.key === "Escape") { resEl.hidden = true; return; }
+  if (!current.length) return;
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    e.preventDefault();
+    cursor = (cursor + (e.key === "ArrowDown" ? 1 : -1) + current.length) % current.length;
+    resEl.querySelectorAll("button").forEach((b, i) =>
+      b.setAttribute("aria-selected", i === cursor));
+  } else if (e.key === "Enter" && cursor >= 0) choose(current[cursor]);
+};
+document.addEventListener("click", e => {
+  if (!e.target.closest(".search")) resEl.hidden = true;
+});
+
+/* ---- legend --------------------------------------------------------------- */
+function renderLegend() {
+  const el = $("#legend"), sc = scale();
+  // In the world view the raster IS conflict exposure -- the model's input,
+  // not its output. Labelling it "modelled density" there would claim a mine
+  // estimate for every country that has fighting, which is the error this
+  // whole product is trying not to make.
+  const worldView = view === "world";
+  const t = worldView ? "Conflict exposure (GED)"
+    : {density: "Modelled density", priority: "Clearance priority",
+       uncertainty: "Uncertainty (CV)", exposure: "Conflict exposure"}[mode];
+  $("#legend-title").textContent = t;
+  let rows;
+  if (worldView) {
+    rows = RAMP.map((c, i) => ({c, t: i === 0 ? "Least" : i === 5 ? "Most" : "", v: ""}));
+    el.innerHTML = rows.map(r =>
+      `<div class="lrow"><span class="sw" style="background:${r.c}"></span>
+       <span>${r.t}</span><span class="lv">${r.v}</span></div>`).join("")
+      + `<p class="note">Weighted UCDP conflict-event intensity &mdash; the model's
+         <em>input</em>, not a mine estimate. Mine estimates exist only for states with
+         published AP mine contamination; open one from the table. Zoom into Ukraine
+         for the modelled field.</p>`;
+    return;
+  }
+  if (mode === "priority" && TK) {
+    const b = [0, ...TK.breaks];
+    rows = RAMP.map((c, i) => ({c, t: TK_TIER_LABEL[i],
+      v: i === 5 ? `≥ ${b[5].toFixed(2)}` : `${b[i].toFixed(2)}–${b[i + 1].toFixed(2)}`}));
+    el.innerHTML = rows.map(r =>
+      `<div class="lrow"><span class="sw" style="background:${r.c}"></span>
+       <span>${r.t}</span><span class="lv">${r.v}</span></div>`).join("")
+      + `<p class="note">Where clearing matters most, not where the risk is highest.
+         A district scores low when little is at stake near it &mdash; never because
+         the ground is clear. Classes are the national 50th/75th/90th/96th/99th
+         percentiles of land, so the top class is the worst 1%.</p>`;
+    return;
+  }
+  if (mode === "uncertainty") {
+    rows = RAMP.map((c, i) => ({c, t: ["Tightest", "", "", "", "", "Widest"][i] || "", v:
+      `CV ${(i * 4 / 6).toFixed(1)}–${((i + 1) * 4 / 6).toFixed(1)}`}));
+  } else if (mode === "exposure") {
+    rows = RAMP.map((c, i) => ({c, t: i === 0 ? "Least" : i === 5 ? "Most" : "", v: ""}));
+  } else {
+    const b = [0, ...BREAKS];
+    rows = RAMP.map((c, i) => ({
+      c, t: TIERS[i].t,
+      v: i === 5 ? `≥ ${fmt(b[5] * sc, 1)}`
+        : `${fmt(b[i] * sc, i < 3 ? 2 : 1)}–${fmt(b[i + 1] * sc, i < 3 ? 2 : 1)}`}));
+  }
+  el.innerHTML = rows.map(r =>
+    `<div class="lrow"><span class="sw" style="background:${r.c}"></span>
+     <span>${r.t}</span><span class="lv">${r.v}</span></div>`).join("")
+    + `<div class="lrow" style="margin-top:4px"><span class="sw hatch"></span>
+       <span>Not modelled</span><span class="lv"></span></div>`
+    + (mode === "density" || mode === "priority"
+       ? `<p class="note">Values are mines/km&sup2;. A low class means the model has
+          little evidence here &mdash; not that the ground is clear.</p>` : "");
+}
+
+/* ---- interaction ---------------------------------------------------------- */
+let tip = null;
+stage.addEventListener("mousemove", e => {
+  const r = stage.getBoundingClientRect();
+  const px = e.clientX - r.left, py = e.clientY - r.top;
+  const [lat, lon] = unproject(px, py);
+  $("#coord").textContent = `${lat.toFixed(4)}° ${lat >= 0 ? "N" : "S"}  ${
+    Math.abs(lon).toFixed(4)}° ${lon >= 0 ? "E" : "W"}`;
+  const feats = view === "world" ? GEO.world : (cam.k * UA.res > 2.2 ? GEO.adm2 : GEO.adm1);
+  const f = pick(lat, lon, feats);
+  const nm = f ? f.name : null;
+  if (nm !== hoverName) { hoverName = nm; render(); }
+  if (!f) { if (tip) { tip.remove(); tip = null; } return; }
+  if (!tip) { tip = document.createElement("div"); tip.className = "tip"; stage.appendChild(tip); }
+  const sc = scale();
+  let line;
+  if (view === "world") {
+    const rec = countryBy.get(nm);
+    line = rec && rec.m != null ? `${fmt(rec.m)} est. mines · ${rec.b}`
+      : "no published contamination";
+  } else {
+    const st = regionStats(cam.k * UA.res > 2.2 ? "adm2" : "adm1", nm);
+    line = st && st.n ? `${fmt(st.mean)} est. · ${fmt(st.density, 3)}/km²` : "—";
+  }
+  tip.innerHTML = `<div class="t">${nm}</div><div class="m">${line}</div>`;
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  tip.style.left = Math.min(px + 14, VP.w - tw - 6) + "px";
+  tip.style.top = Math.max(6, Math.min(py + 14, VP.h - th - 6)) + "px";
+});
+stage.addEventListener("mouseleave", () => {
+  if (tip) { tip.remove(); tip = null; }
+  hoverName = null; render();
+});
+stage.addEventListener("click", e => {
+  const r = stage.getBoundingClientRect();
+  const px = e.clientX - r.left, py = e.clientY - r.top;
+
+  if (tool === "log") {
+    const li = cellAt(px, py);
+    if (li < 0) {
+      $("#obshint").innerHTML = view === "ua"
+        ? "That point is outside the modelled land grid."
+        : "The modelled grid only covers Ukraine &mdash; zoom in first.";
+      return;
+    }
+    logObservation(li);
+    return;
+  }
+
+  const [lat, lon] = unproject(px, py);
+  const deep = cam.k * UA.res > 2.2;
+  const feats = view === "world" ? GEO.world : (deep ? GEO.adm2 : GEO.adm1);
+  const f = pick(lat, lon, feats);
+  if (!f) return;
+  selectRegion(view === "world" ? "country" : (deep ? "adm2" : "adm1"), f.name);
+});
+stage.addEventListener("dblclick", e => {
+  // Double-click logs an observation without arming the "Log on click" tool.
+  // The tool still works; this is the shortcut people actually reach for.
+  e.preventDefault();
+  const r = stage.getBoundingClientRect();
+  const li = cellAt(e.clientX - r.left, e.clientY - r.top);
+  if (li < 0) {
+    $("#obshint").innerHTML = view === "ua"
+      ? "That point is outside the modelled land grid."
+      : "Double-click logs a find once you are zoomed into Ukraine &mdash; the model grid only covers Ukraine.";
+    return;
+  }
+  logObservation(li);
+});
+stage.addEventListener("wheel", e => {
+  e.preventDefault();
+  const r = stage.getBoundingClientRect();
+  const px = e.clientX - r.left, py = e.clientY - r.top;
+  const f = Math.exp(-e.deltaY * 0.0014);
+  const k2 = Math.max(cam.k * 0.25, Math.min(cam.k * f, cam.k * 40));
+  cam.x = px - (px - cam.x) * (k2 / cam.k);
+  cam.y = py - (py - cam.y) * (k2 / cam.k);
+  cam.k = k2;
+  render();
+}, {passive: false});
+let drag = null;
+stage.addEventListener("mousedown", e => drag = {x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y});
+window.addEventListener("mouseup", () => drag = null);
+window.addEventListener("mousemove", e => {
+  if (!drag) return;
+  cam.x = drag.cx + (e.clientX - drag.x);
+  cam.y = drag.cy + (e.clientY - drag.y);
+  render();
+});
+
+$("#modes").onclick = e => {
+  const b = e.target.closest("button"); if (!b) return;
+  mode = b.dataset.mode;
+  [...$("#modes").children].forEach(x =>
+    x.setAttribute("aria-pressed", x === b));
+  $("#critgrp").hidden = !(TK && mode === "priority");
+  uaRaster = null; renderLegend(); render(); renderDetail();
+};
+
+/* ---- tasking criteria toggles --------------------------------------------- */
+function renderCrits() {
+  if (!TK) { $("#critgrp").hidden = true; return; }
+  const w = tkWeights();
+  $("#crits").innerHTML = TK.criteria.map(c => {
+    const on = tkEnabled.includes(c.key);
+    return `<label class="toggle" title="${c.note.replace(/"/g, "&quot;")}">
+      <input type="checkbox" data-crit="${c.key}"${on ? " checked" : ""}>
+      <span style="flex:1">${c.label}</span>
+      <span class="num" style="font-size:10.5px;color:var(--ink-3)">${
+        on ? w.get(c.key).toFixed(3) : "—"}</span></label>`;
+  }).join("");
+  $("#crits").querySelectorAll("input").forEach(i => i.onchange = () => {
+    const k = i.dataset.crit;
+    const next = i.checked ? [...tkEnabled, k] : tkEnabled.filter(x => x !== k);
+    if (!next.length) { i.checked = true; return; }   // never zero criteria
+    tkEnabled = next;
+    computeTasking(); renderCrits(); uaRaster = null; render(); renderDetail();
+  });
+}
+$("#showdots").onchange = render;
+
+/* ---- calibration sliders -------------------------------------------------- */
+function calLabels() {
+  $("#km2v").textContent = fmt(CAL.km2, 1) + " km²";
+  $("#denv").textContent = fmt(CAL.den) + " /km²";
+  $("#calnote").innerHTML =
+    `National total <span class="num">${fmt(CAL.km2 * CAL.den)}</span> mines.
+     Mine Action Review's 2025 verdict on Ukraine is verbatim
+     &ldquo;massive but no reliable estimate&rdquo;, so this total is an assumption.
+     Every count on this page scales linearly with it; the <em>ranking</em> between
+     districts does not move.`;
+}
+function syncCal() {
+  calLabels();
+  rebuild();                 // re-derive the prior, then replay the observations
+  uaRaster = null; renderLegend(); render(); renderDetail();
+}
+$("#km2").value = CAL.km2; $("#den").value = CAL.den;
+$("#km2").oninput = e => { CAL.km2 = +e.target.value; syncCal(); };
+$("#den").oninput = e => { CAL.den = +e.target.value; syncCal(); };
+
+/* ---- field observations --------------------------------------------------- */
+let tool = "select", obsKind = "confirmed";
+
+function setSeg(id, attr, val) {
+  [...$(id).children].forEach(b => b.setAttribute("aria-pressed", b.dataset[attr] === val));
+}
+$("#tool").onclick = e => {
+  const b = e.target.closest("button"); if (!b) return;
+  tool = b.dataset.tool;
+  setSeg("#tool", "tool", tool);
+  document.body.classList.toggle("armed", tool === "log");
+  obsHint();
+};
+$("#obskind").onclick = e => {
+  const b = e.target.closest("button"); if (!b) return;
+  obsKind = b.dataset.kind;
+  setSeg("#obskind", "kind", obsKind);
+  $("#cntwrap").hidden = obsKind === "clean";
+  $("#farwrap").hidden = obsKind !== "alarms";
+  obsHint();
+};
+$("#obssens").oninput = e => { $("#obssensv").textContent = (+e.target.value).toFixed(2); obsHint(); };
+$("#obsarea").onchange = obsHint;
+$("#obsfar").onchange = obsHint;
+$("#obscount").oninput = obsHint;
+
+function obsHint() {
+  const area = +$("#obsarea").value;
+  const cov = area / (CELL_AREA * 1e6);
+  const t = effExposure(cov, +$("#obssens").value);
+  let msg;
+  if (tool !== "log") {
+    msg = `Switch to <strong>Log on click</strong>, then click a cell in the
+      Ukraine view to fold an observation into the posterior.`;
+  } else if (view !== "ua") {
+    msg = `Zoom into Ukraine first &mdash; the modelled grid only covers Ukraine.`;
+  } else if (obsKind === "clean") {
+    msg = `Sweeping ${fmt(area)} m&sup2; of a ${fmt(CELL_AREA)} km&sup2; cell is
+      ${(cov * 100).toFixed(3)}% coverage, so effective exposure is
+      <span class="num">t = ${t.toExponential(2)}</span>. Expect the estimate to
+      barely move: a clean sweep only confirms what the prior already believed.`;
+  } else if (obsKind === "alarms") {
+    // Alarms are only evidence FOR mines when there are more of them than
+    // clutter alone would produce. Without this readout a user enters "3
+    // alarms" over a square kilometre, watches the estimate fall, and has no
+    // way to see that they just reported 4,000 times less clutter than the
+    // detector's own false-alarm rate predicts.
+    const f = (+$("#obsfar").value) * (cov * CELL_AREA);
+    const n = Math.max(1, +$("#obscount").value || 1);
+    msg = `At this false-alarm rate, sweeping ${fmt(area)} m&sup2; produces about
+      <span class="num">${fmt(f, f < 10 ? 1 : 0)}</span> alarms from clutter alone. ` +
+      (n > f * 1.2
+        ? `Reporting <span class="num">${fmt(n)}</span> is more than that, so it
+           raises the estimate.`
+        : n < f * 0.8
+          ? `Reporting <span class="num">${fmt(n)}</span> is <em>fewer</em> than that,
+             which is evidence <em>against</em> mines here &mdash; the estimate will fall.`
+          : `Reporting <span class="num">${fmt(n)}</span> is about what clutter alone
+             gives, so the estimate will hardly move.`);
+  } else {
+    msg = `A confirmed mine adds <span class="num">+1</span> to the cell's shape
+      parameter, which moves a low-prior cell a great deal and a high-prior cell
+      very little. Coverage ${(cov * 100).toFixed(3)}%,
+      <span class="num">t = ${t.toExponential(2)}</span>.`;
+  }
+  $("#obshint").innerHTML = msg;
+}
+
+function logObservation(li) {
+  const before = {a: ALPHA[li], b: BETA[li]};
+  const level = cam.k * UA.res > 2.2 ? "adm2" : "adm1";
+  const o = {
+    cell: li, kind: obsKind,
+    count: obsKind === "clean" ? 0 : Math.max(1, +$("#obscount").value || 1),
+    sweptM2: +$("#obsarea").value,
+    sens: +$("#obssens").value,
+    far: obsKind === "alarms" ? +$("#obsfar").value : 0,
+    ts: Date.now(),
+  };
+  const rName = obsRegion(o, level);
+  const dBefore = rName ? regionStats(level, rName).mean : 0;
+  applyObs(o, true);
+  // The density criterion is a percentile over the LIVE posterior, so the
+  // tasking layers have to be rebuilt or the queue silently stays at the prior.
+  // Done once per logged observation, not inside applyObs, which also runs in
+  // the replay loop.
+  computeTasking();
+  const dAfter = rName ? regionStats(level, rName).mean : 0;
+
+  lastEffect = {
+    o, rName, level,
+    cellBefore: cellMean(before.a, before.b), cellAfter: cellMean(ALPHA[li], BETA[li]),
+    pBefore: pAny(before.a, before.b), pAfter: pAny(ALPHA[li], BETA[li]),
+    dBefore, dAfter,
+  };
+  uaRaster = null;
+  renderObsUI(); render(); renderDetail();
+}
+
+function renderObsUI() {
+  $("#undo").disabled = !OBS.length;
+  $("#clearobs").disabled = !OBS.length;
+  const list = $("#obslist");
+  list.hidden = !OBS.length;
+  list.innerHTML = OBS.slice().reverse().slice(0, 40).map((o, k) => {
+    const g = o.kind === "confirmed" ? "◆" : o.kind === "alarms" ? "△" : "□";
+    const nm = obsRegion(o, "adm2") || obsRegion(o, "adm1") || "—";
+    const lbl = o.kind === "confirmed" ? `${o.count} confirmed`
+      : o.kind === "alarms" ? `${o.count} alarm${o.count === 1 ? "" : "s"}` : "clean sweep";
+    return `<div class="obsrow"><span class="g">${g}</span>
+      <span>${nm}</span><span class="d">${lbl}</span></div>`;
+  }).join("");
+
+  const el = $("#obsresult");
+  if (!lastEffect) { el.innerHTML = ""; return; }
+  const L = lastEffect;
+  const ratio = L.cellAfter / Math.max(L.cellBefore, 1e-12);
+  el.innerHTML = `<div class="delta">
+    <span class="lbl" style="color:inherit">Last update</span>
+    <dl class="kv" style="margin-top:5px">
+      <dt>Cell expected mines</dt><dd>${fmt(L.cellBefore, 3)} &rarr; ${fmt(L.cellAfter, 3)}</dd>
+      <dt>Change</dt><dd>&times;${fmt(ratio, 3)}</dd>
+      <dt>Cell P(any mine)</dt><dd>${(L.pBefore * 100).toFixed(2)}% &rarr; ${(L.pAfter * 100).toFixed(2)}%</dd>
+      ${L.rName ? `<dt>${L.rName}</dt><dd>${fmt(L.dBefore)} &rarr; ${fmt(L.dAfter)}</dd>` : ""}
+    </dl>
+    <p class="note" style="margin-top:5px">${
+      ratio > 1.05 ? "Evidence of a mine raised this cell, and the leak term raised its neighbours."
+      : ratio < 0.95 ? "A clean sweep lowered the estimate — but not to zero, and never to cleared."
+      : "Barely moved. At this coverage the sweep carries almost no information, which is the honest result."
+    }</p></div>`;
+}
+
+$("#undo").onclick = () => {
+  OBS.pop(); lastEffect = null;
+  rebuild(); uaRaster = null; renderObsUI(); render(); renderDetail();
+};
+$("#clearobs").onclick = () => {
+  OBS = []; lastEffect = null;
+  rebuild(); uaRaster = null; renderObsUI(); render(); renderDetail();
+};
+
+/* Two queues, because they answer different questions and conflating them is
+   the easy mistake:
+
+   CLEARANCE QUEUE   which district to send the robot to, ordered by the
+                     land-use tasking score, each with the AO anchor it should
+                     start from. This is the queue that drives the robot.
+   SWEEP ROUTE       once it is there, which cells to sweep, ordered by
+                     expected finds plus value of information against battery.
+*/
+function clearanceQueue(level, n) {
+  return tkRanked(level).slice(0, n).map(r => ({
+    rank: r.rank,
+    district: r.n,
+    parent: level === "adm2" ? (TK.raions[r.n] || {}).parent || "" : "",
+    score: +r.t.score.toFixed(4),
+    tier: TK_TIER_LABEL[r.t.tier],
+    anchor_lat: r.t.anchor.lat,
+    anchor_lon: r.t.anchor.lon,
+    estimated_mines: Math.round(regionStats(level, r.n).mean),
+    contribution: Object.fromEntries(
+      Object.entries(r.t.contrib).map(([k, v]) => [k, +v.toFixed(4)])),
+    raw: r.t.raw,
+  }));
+}
+
+$("#queue").onclick = () => {
+  if (!TK) { sweepRouteOnly(); return; }
+  const level = "adm2";
+  const q = clearanceQueue(level, 20);
+  const w = tkWeights();
+  const doc = {
+    frame_id: "WGS84 lat/lon — project to a local metric frame before planning",
+    method: "rank-order-centroid weights over percentile-normalised layers",
+    weights: Object.fromEntries([...w].map(([k, v]) => [k, +v.toFixed(4)])),
+    reach_km: TK.reach_km,
+    density_source: OBS.length
+      ? `live posterior, including ${OBS.length} observation(s) logged this session`
+      : "UCDP GED v25.1 prior",
+    generated: new Date().toISOString(),
+    WARNING: "MODEL OUTPUT - NOT A CLEARANCE RECORD. This orders districts for " +
+             "survey tasking. It is not a safe route and nothing here has been cleared.",
+    order: q,
+  };
+  sel = null;
+  $("#detail").innerHTML = `<div class="dsec">
+    <div class="rname">Clearance queue</div>
+    <p class="note">Raions in tasking order, each with the 5 km cell the robot
+      should anchor on. Matches <span class="num">dist/robot/tasking_priority.json</span>.
+      ${OBS.length ? `<strong>Includes ${fmt(OBS.length)} observation${OBS.length === 1 ? "" : "s"}
+      logged this session</strong> &mdash; the density criterion follows the live posterior,
+      so new detections reorder this queue.` : ""}</p>
+    <table class="rank" style="margin-top:8px">
+      <thead><tr><th>#</th><th>Raion</th><th class="r">Score</th><th class="r">Est. mines</th></tr></thead>
+      <tbody>${q.slice(0, 12).map(r => `<tr data-sel="adm2|${r.district}">
+        <td class="num">${r.rank}</td><td>${r.district}<br>
+        <span class="note">${r.parent}</span></td>
+        <td class="r num">${r.score.toFixed(3)}</td>
+        <td class="r num">${fmt(r.estimated_mines)}</td></tr>`).join("")}</tbody></table>
+    <pre class="queue">${JSON.stringify(doc, null, 1)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;")}</pre>
+    <p class="note">Below: the within-AO sweep route, which optimises something
+      else entirely &mdash; expected finds and variance reduction against travel.</p>
+  </div>` + sweepRouteHTML();
+  $("#detail").querySelectorAll("tr[data-sel]").forEach(tr => tr.onclick = () => {
+    const [lv, ...n] = tr.dataset.sel.split("|");
+    selectRegion(lv, n.join("|"));
+  });
+};
+
+function sweepRouteOnly() {
+  sel = null;
+  $("#detail").innerHTML = sweepRouteHTML();
+}
+
+function sweepRouteHTML() {
+  const cov = +$("#obsarea").value / (CELL_AREA * 1e6);
+  const t = effExposure(cov, +$("#obssens").value);
+  const out = [];
+  for (let i = 0; i < NL; i++) {
+    const a = ALPHA[i], b = BETA[i];
+    const voi = (a / (b * b)) * (t / (b + t));
+    out.push([i, a * t / b, voi, pAny(a, b)]);
+  }
+  out.sort((p, q) => (q[1] + q[2]) - (p[1] + p[2]));
+  const wp = out.slice(0, 40).map(([i, ef, voi, pa], k) => {
+    const full = landToFull[i], cx = full % UA.w, cy = (full / UA.w) | 0;
+    const x = UA.x0 + (cx + 0.5) * UA.res, y = UA.y0 + (cy + 0.5) * UA.res;
+    const ll = invLaea(x, y, UA.lat0, UA.lon0);
+    return {order: k + 1, lat: +ll[0].toFixed(5), lon: +ll[1].toFixed(5),
+            cell_x: cx, cell_y: cy,
+            expected_find: +ef.toFixed(4), voi: +voi.toExponential(3),
+            p_any: +pa.toFixed(4),
+            region: obsRegion({cell: i}, "adm2") || obsRegion({cell: i}, "adm1")};
+  });
+  const doc = {
+    frame: "WGS84 lat/lon — project to a local metric frame before planning",
+    grid_km: UA.res,
+    generated: new Date().toISOString(),
+    assumed_sweep_m2: +$("#obsarea").value,
+    sensitivity: +$("#obssens").value,
+    WARNING: "MODEL OUTPUT - NOT A CLEARANCE RECORD. These are survey priorities, " +
+             "not a safe route. Nothing here has been cleared.",
+    queue: wp,
+  };
+  return `<div class="dsec">
+    <div class="rname">Sweep route</div>
+    <p class="note">Top 40 cells by expected finds + value of information, at the
+      sweep parameters set in the sidebar. Same shape as the robot's
+      <span class="num">next_mission.json</span>. Select the block to copy it.</p>
+    <pre class="queue">${JSON.stringify(doc, null, 1)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;")}</pre></div>`;
+}
+
+/* ---- hazard registry loader ----------------------------------------------- */
+$("#registry").onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  const txt = await f.text();
+  let recs = [];
+  try {
+    if (f.name.endsWith(".csv")) {
+      const [head, ...lines] = txt.trim().split(/\r?\n/);
+      const cols = head.split(",").map(s => s.trim().toLowerCase());
+      recs = lines.map(l => {
+        const v = l.split(",");
+        const o = {}; cols.forEach((c, i) => o[c] = (v[i] || "").trim());
+        return o;
+      });
+    } else {
+      const j = JSON.parse(txt);
+      recs = (j.features || j).map(x => x.properties
+        ? {...x.properties, lon: x.geometry.coordinates[0], lat: x.geometry.coordinates[1]}
+        : x);
+    }
+  } catch (err) {
+    $("#dotnote").textContent = "Could not read that file: " + err.message;
+    return;
+  }
+  const OK = new Set(["operator_confirmed", "eod_disposed"]);
+  const kept = [], rejected = [];
+  for (const r of recs) {
+    const p = String(r.provenance || "").toLowerCase();
+    const lat = +r.lat, lon = +r.lon;
+    if (!OK.has(p) || !isFinite(lat) || !isFinite(lon)) { rejected.push(r); continue; }
+    kept.push({lat, lon, provenance: p, region: r.region || ""});
+  }
+  dots = kept;
+  $("#dotnote").innerHTML = `<strong>${fmt(kept.length)}</strong> confirmed records loaded.
+    ${rejected.length ? `<strong>${fmt(rejected.length)}</strong> rejected &mdash; a record
+    must carry provenance <span class="num">operator_confirmed</span> or
+    <span class="num">eod_disposed</span>. Sensor anomalies and synthetic records are
+    refused, not silently dropped.` : ""}`;
+  render(); renderDetail();
+};
+
+/* ---- disclaimer ----------------------------------------------------------- */
+const ACK = "mp-ack-v1";
+let acked = false;
+try { acked = (Date.now() - (+localStorage.getItem(ACK) || 0)) < 30 * 864e5; } catch (e) {}
+if (!acked) $("#scrim").hidden = false;
+$("#ack").onclick = () => {
+  $("#scrim").hidden = true;
+  try { localStorage.setItem(ACK, String(Date.now())); } catch (e) {}
+};
+
+/* ---- boot ----------------------------------------------------------------- */
+$("#searchnote").innerHTML =
+  `${fmt(DATA.oblasts.length)} oblasts &middot; ${fmt(DATA.raions.length)} raions &middot;
+   ${fmt(DATA.world.length)} states. Try &ldquo;Bakhmut&rdquo;, &ldquo;Kharkiv&rdquo; or &ldquo;Kherson&rdquo;.`;
+$("#dotnote").innerHTML =
+  `<strong>0 loaded.</strong> This build ships no hazard registry and invents none.
+   Confirmed records are deterministic, never modelled, and are drawn as white diamonds
+   &mdash; a shape and colour used nowhere else on the map.`;
+$("#chip-src").textContent = `${DATA.meta.ged} · ${DATA.meta.coverage} · ${DATA.meta.grid_km} km grid`;
+
+// resize() must run before any render: it is what establishes the viewport
+// size the camera fits to. Fitting against a zero-size stage yields a negative
+// zoom and nothing draws.
+calLabels();
+rebuild();
+renderCrits();
+obsHint();
+renderObsUI();
+renderLegend();
+new ResizeObserver(resize).observe(stage);
+resize();
+renderDetail();
+</script>
