@@ -72,13 +72,13 @@ classifier's: at 300 trials neither method can see what the phones cannot reach.
 - `benchmark.py` — the numbers above. `python benchmark.py --trials 60` for a quick check.
 - `phones.py` — phyphox reader and live hand-test tool
 - `robot.py` — dimOS mover (Go2) and manual mover (handheld rig)
+- `dimos_patsiuk/` — dimOS module + blueprint that adds the `precise_move` skill
 - `sim.py` — fake world, phones and dog
 - `flagged_spots.json` — the "drone survey" input (remove `sim_truth` for real runs)
 - `unoq/` — optional Arduino UNO Q status display (App Lab app: `sketch/` + `python/`)
-- `DIMOS_PORT.md` — what was verified against the real dimOS install, and the blocker
-  that stops the dog executing a 5 cm scan step. **Read before touching hardware.**
+- `DIMOS_PORT.md` — what was verified against the real dimOS install, and how the
+  20 cm planner trap is bypassed. **Read before touching hardware.**
 - `tools/min_move_test.py` — measures the smallest move your dog actually performs.
-  That number decides whether the cross scan works or must become a continuous traverse.
 
 `pip install -r requirements.txt`
 
@@ -94,12 +94,25 @@ classifier's: at 300 trials neither method can see what the phones cannot reach.
 4. **Handheld rig:** tape a grid on the floor, then
    `python field_scan.py --manual --low http://LOW:8080 --high http://HIGH:8080`
 5. **Dog:** read [DIMOS_PORT.md](DIMOS_PORT.md) first — the dog path is **not yet proven on
-   hardware** and the default 5 cm step provably cannot work. Start dimOS
-   (`dimos run unitree-go2-agentic --robot-ip <DOG_IP>`), confirm the skills with
-   `dimos mcp list-tools`, then measure the smallest move the dog really executes:
-   `python tools/min_move_test.py --dimos /path/to/dimos`
-   Only then set `--step` above that number and run
-   `python field_scan.py --low http://LOW:8080 --high http://HIGH:8080 --dimos /path/to/dimos --step <measured>`
+   hardware**. Install the scan blueprint into the dimOS venv, then:
+
+   ```
+   VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install -e dimos_patsiuk
+   dimos run patsiuk-dimos.scan --robot-ip <DOG_IP>
+   dimos mcp list-tools | grep precise_move
+   python tools/min_move_test.py --dimos /root/dimensional-applications/.venv/bin/dimos
+   ```
+
+   Only after a 5 cm step actually moves the dog:
+
+   ```
+   python field_scan.py --low http://LOW:8080 --high http://HIGH:8080 \
+       --dimos /root/dimensional-applications/.venv/bin/dimos
+   ```
+
+   The default `--skill precise_move` is what makes the 5 cm cross possible. Do not
+   pass `--skill move_to` unless `min_move_test.py --skill move_to` proved small
+   planner steps really execute.
 
 `field_scan.py` runs `mover.preflight()` before it touches anything, so a missing
 `dimos` CLI, a sleeping dog or a wrong skill name fails immediately with a clear

@@ -1,21 +1,24 @@
 """
 min_move_test.py - measure the SMALLEST move the dog actually executes.
 
-This is the one number the scan design depends on. dimOS's global planner accepts
-a goal as reached within 0.20 m (global_planner.py: _goal_tolerance = 0.2, and both
-Go2 controller blueprints set "goal_tolerance": 0.20). So a commanded 5 cm step may
-report "Navigation goal reached" WITHOUT THE DOG MOVING AT ALL - and the scan would
-silently collect every reading from the same spot.
+This is the one number the scan design depends on.
 
-Run it with a tape measure on the floor. It commands one move at a time, you type in
-how far the dog really went, and it tells you the smallest usable step.
+Default skill is precise_move (dimos run patsiuk-dimos.scan). That bypasses the
+planner, so a 5 cm step is *supposed* to work; this test is how you find out
+whether it actually did.
 
-    python tools/min_move_test.py                      # real dog, via dimos CLI
+Pass --skill move_to to measure the stock planner path. That path has a 0.20 m
+arrival tolerance, so a commanded 5 cm step may report "Navigation goal reached"
+WITHOUT THE DOG MOVING AT ALL.
+
+    python tools/min_move_test.py                      # precise_move, real dog
+    python tools/min_move_test.py --skill move_to      # stock planner
     python tools/min_move_test.py --dry-run            # print the commands only
 
 Before running: clear ~2 m in front of the dog, have it standing, and know how to stop it.
-Start dimOS first:   dimos run unitree-go2-agentic --robot-ip <DOG_IP>
+Start dimOS first:   dimos run patsiuk-dimos.scan --robot-ip <DOG_IP>
 Check it is up:      dimos mcp status
+                     dimos mcp list-tools | grep precise_move
 """
 import argparse
 import json
@@ -24,11 +27,15 @@ import sys
 
 # Commanded distances (metres). 0.05 is the current --step in field_scan.py.
 DEFAULT_STEPS = [0.05, 0.10, 0.15, 0.20, 0.30, 0.50]
+PLANNER_SKILLS = frozenset({"move_to"})
 
 
-def call_move(dimos, dx, dy, timeout, dry_run):
-    payload = json.dumps({"x": round(dx, 3), "y": round(dy, 3), "relative": True})
-    cmd = [*dimos, "mcp", "call", "move_to", "--json-args", payload, "--timeout", str(timeout)]
+def call_move(dimos, skill, dx, dy, timeout, dry_run):
+    args = {"x": round(dx, 3), "y": round(dy, 3)}
+    if skill in PLANNER_SKILLS:
+        args["relative"] = True
+    payload = json.dumps(args)
+    cmd = [*dimos, "mcp", "call", skill, "--json-args", payload, "--timeout", str(timeout)]
     print(f"    $ {' '.join(cmd)}")
     if dry_run:
         return "(dry run)"
@@ -56,6 +63,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dimos", default="dimos",
                     help="dimos binary (e.g. /root/dimensional-applications/.venv/bin/dimos)")
+    ap.add_argument("--skill", default="precise_move",
+                    help="move skill: precise_move (default) or move_to")
     ap.add_argument("--steps", type=float, nargs="+", default=DEFAULT_STEPS,
                     help="commanded distances in metres")
     ap.add_argument("--axis", choices=["forward", "left"], default="forward")
@@ -66,25 +75,25 @@ def main():
 
     dimos = a.dimos.split()
     print(__doc__)
-    print(f"axis: {a.axis}   commanded steps (cm): {[round(s*100) for s in a.steps]}")
+    print(f"skill: {a.skill}   axis: {a.axis}   "
+          f"commanded steps (cm): {[round(s*100) for s in a.steps]}")
     if not a.dry_run:
         input("\nClear the space, dog standing. Press Enter to start (Ctrl-C to abort) ")
 
     rows = []
     for step in a.steps:
         dx, dy = (step, 0.0) if a.axis == "forward" else (0.0, step)
-        print(f"\n--- commanding {step*100:.0f} cm {a.axis} ---")
-        out = call_move(dimos, dx, dy, a.timeout, a.dry_run)
+        print(f"\n--- commanding {step*100:.0f} cm {a.axis} via {a.skill} ---")
+        out = call_move(dimos, a.skill, dx, dy, a.timeout, a.dry_run)
         print(f"    dimos said: {out.splitlines()[0] if out else '(no output)'}")
         if a.dry_run:
             continue
-        actual = ask_float(f"    measured movement in cm (0 if it did not move): ")
+        actual = ask_float("    measured movement in cm (0 if it did not move): ")
         rows.append({"commanded_cm": step * 100, "measured_cm": actual,
-                     "moved": actual >= 1.0, "dimos_output": out})
-        # walk back so the next trial starts from the same place
+                     "moved": actual >= 1.0, "skill": a.skill, "dimos_output": out})
         if actual >= 1.0:
             print("    returning to start...")
-            call_move(dimos, -dx, -dy, a.timeout, a.dry_run)
+            call_move(dimos, a.skill, -dx, -dy, a.timeout, a.dry_run)
 
     if a.dry_run or not rows:
         return
@@ -101,14 +110,17 @@ def main():
     if not moved:
         print("\n  The dog did not move at ANY commanded distance.")
         print("  Check the dog is actually connected (dimos mcp status) before concluding.")
+        if a.skill == "precise_move":
+            print("  If precise_move is missing from `dimos mcp list-tools`, you started")
+            print("  the stock blueprint. Use: dimos run patsiuk-dimos.scan --robot-ip <IP>")
     else:
         smallest = min(r["commanded_cm"] for r in moved)
         print(f"\n  Smallest step the dog actually executes: {smallest:.0f} cm")
         if smallest > 5:
-            print(f"  -> field_scan.py's default --step 0.05 (5 cm) WILL NOT WORK.")
+            print("  -> field_scan.py's default --step 0.05 (5 cm) WILL NOT WORK.")
             print(f"  -> Either pass --step {smallest/100:.2f} (and re-check the fit still")
-            print(f"     resolves the anomaly), or switch to a continuous traverse that")
-            print(f"     stamps each magnetometer sample with the dog's pose from TF.")
+            print("     resolves the anomaly), or switch to a continuous traverse that")
+            print("     stamps each magnetometer sample with the dog's pose from TF.")
         else:
             print("  -> the 5 cm cross scan is viable as designed.")
     print(f"\n  saved: {a.out}")

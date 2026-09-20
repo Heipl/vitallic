@@ -1,5 +1,7 @@
 __pycache__/
 *.pyc
+*.egg-info/
 # per-run outputs; the committed PNGs are the reference results
 results.json
 benchmark.json
+

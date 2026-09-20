@@ -10,7 +10,7 @@ body centre, low phone at --h-low, high phone at --h-high above the ground.
 Examples
   python field_scan.py --sim                                   # no hardware at all
   python field_scan.py --manual --low http://IP1:8080 --high http://IP2:8080
-  python field_scan.py --low http://IP1:8080 --high http://IP2:8080   # with the dog
+  python field_scan.py --low http://IP1:8080 --high http://IP2:8080 --dimos /path/to/dimos
   add --calibrate to print moments for known objects and pick --threshold
 """
 import argparse
@@ -147,7 +147,10 @@ def main():
     ap.add_argument("--avg", type=float, default=0.8, help="seconds per reading (adaptive, up to 4 s)")
     ap.add_argument("--threshold", type=float, default=0.016, help="moment (A*m^2) for MINE_SIZED")
     ap.add_argument("--calibrate", action="store_true", help="just print fits for known objects")
-    ap.add_argument("--skill", default="move_to", help="dimOS move skill (verified name: move_to)")
+    ap.add_argument("--skill", default="precise_move",
+                    help="dimOS move skill. Default precise_move bypasses the 20 cm "
+                         "planner trap (requires: dimos run patsiuk-dimos.scan). "
+                         "Pass move_to to use the stock planner skill.")
     ap.add_argument("--observe-skill", default="observe")
     ap.add_argument("--dimos", default="dimos",
                     help="path to the dimos binary, e.g. "
@@ -182,18 +185,20 @@ def main():
             mover = ManualMover()
         else:
             from robot import DimosMover
-            # Catch the 20 cm trap here rather than after the dog is already standing in
-            # the arena: dimOS reports "goal reached" for any move shorter than its
-            # arrival tolerance, without moving. See robot.py's module docstring.
-            if a.step < DimosMover.GOAL_TOLERANCE_M and not a.allow_small_moves:
+            # move_to reports "goal reached" for any step shorter than the planner's
+            # 0.20 m arrival tolerance, without moving. precise_move does not go
+            # through the planner, so the 5 cm cross is allowed. See DIMOS_PORT.md.
+            if (a.skill in DimosMover.PLANNER_SKILLS
+                    and a.step < DimosMover.GOAL_TOLERANCE_M
+                    and not a.allow_small_moves):
                 raise SystemExit(
                     f"--step {a.step:.2f} m is below dimOS's "
-                    f"{DimosMover.GOAL_TOLERANCE_M:.2f} m arrival tolerance, so the dog would "
-                    "never actually move between scan points and every reading would come "
-                    "from the same spot.\n"
-                    "Run `python tools/min_move_test.py` to measure your dog's real minimum, "
-                    "then raise --step above it (and check the fit still resolves the "
-                    "anomaly), or use --manual/--sim for now.")
+                    f"{DimosMover.GOAL_TOLERANCE_M:.2f} m arrival tolerance, so "
+                    f"{a.skill} would never actually move between scan points.\n"
+                    "Default is --skill precise_move: start "
+                    "`dimos run patsiuk-dimos.scan --robot-ip <DOG_IP>` and leave "
+                    "--skill alone. If you insist on move_to, run "
+                    "`python tools/min_move_test.py --skill move_to` first.")
             mover = DimosMover(skill=a.skill, observe_skill=a.observe_skill, dimos=a.dimos,
                                allow_small_moves=a.allow_small_moves)
     try:

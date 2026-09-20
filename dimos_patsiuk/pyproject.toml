@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "patsiuk-dimos"
+version = "0.1.0"
+description = "Patsiuk dimOS module: scan-sized moves that bypass the A* planner"
+requires-python = ">=3.10"
+# dimos itself is deliberately not a dependency: this installs INTO the existing
+# dimOS venv, and listing it would try to resolve a package that is not on PyPI.
+
+[project.entry-points."dimos.blueprints"]
+scan = "patsiuk_dimos.blueprint:patsiuk_scan"
+
+[tool.setuptools.packages.find]
+include = ["patsiuk_dimos*"]

@@ -2,9 +2,28 @@
 
 Everything here was checked against the **real dimOS install** (`dimos 0.0.14`, in WSL at
 `/root/dimensional-applications/.venv`) by reading the installed package source — not guessed
-from docs. Nothing in this file has been confirmed on the live dog yet, because that needs
-dimOS running and the robot moving. The one test that settles the design is
-`tools/min_move_test.py`.
+from docs. Nothing here has been confirmed on the live dog yet. The one test that settles
+the design is `tools/min_move_test.py`.
+
+## What the scan runs on now
+
+`field_scan.py` defaults to `--skill precise_move`. That skill lives in
+`dimos_patsiuk/` and is exposed by a custom blueprint that wraps stock
+`unitree-go2-agentic`:
+
+```
+VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install -e dimos_patsiuk
+# one-time, already done on this machine: dimos list now shows patsiuk-dimos.scan
+
+# also required, NOT yet done: the Go2 connection extra
+VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install "dimos[unitree]"
+
+dimos run patsiuk-dimos.scan --robot-ip <DOG_IP>
+dimos mcp list-tools | grep precise_move
+```
+
+`observe` and `move_to` stay available on that blueprint. Pass `--skill move_to`
+only if you want the stock planner path (and then the 20 cm trap below applies).
 
 ## What was already right
 
@@ -15,109 +34,112 @@ dimos mcp call <tool> --json-args '{"k": v}'     # also: -a key=value
 dimos mcp call <tool> --timeout N
 dimos mcp list-tools | status | modules
 dimos run <blueprint> ; dimos status ; dimos stop ; dimos restart
-dimos topic echo|send ; dimos shell        # IPython attached to the coordinator
+dimos topic echo|send ; dimos shell
 ```
 
-## What was wrong
+`observe` is real (`dimos/agents/skills/observe_skill.py`) but returns an **Image**, not text.
 
-`robot.py` defaulted to a skill named `relative_move`, with `forward=` / `left=` arguments.
-**No such skill exists anywhere in the package.** The real one is in
-`dimos/robot/unitree/unitree_skill_container.py`:
+## Why `move_to` cannot do a 5 cm scan
 
-```python
-@skill
-def move_to(self, x=0.0, y=0.0, degrees=None, relative=False) -> str
-```
-
-With `relative=True`, **x is forward and y is left, in metres** — which happens to match
-`field_scan.py`'s arena frame exactly. So the correct call is:
+`move_to` always calls `self._navigation.set_goal()`
+(`unitree_skill_container.py`). The planner's arrival test is:
 
 ```
-dimos mcp call move_to --json-args '{"x": 0.30, "y": 0.0, "relative": true}'
-```
-
-`observe` is real (`dimos/agents/skills/observe_skill.py`) but returns an **Image**, not text,
-so what `dimos mcp call observe` prints still needs checking on a live server.
-
-Other skills on the same container: `wait(seconds)`, `current_time()`,
-`execute_sport_command(command_name)`, and an RPC `stop()`.
-
-## The blocker: a 5 cm step cannot be executed
-
-`dimos/navigation/replanning_a_star/global_planner.py`:
-
-```python
 _goal_tolerance: float = 0.2          # metres
-_rotation_tolerance = math.radians(15)
+if distance(goal, odom) < 0.2 and |angle_diff| < 15deg:
+    "Close enough to goal. Accepting as arrived."
 ```
 
-and the arrival test (~line 224):
+Both Go2 controller blueprints set `"goal_tolerance": 0.20` explicitly. A commanded
+5 cm step therefore returns "Navigation goal reached" **without the dog moving**.
+All 17 scan points would be sampled at one physical position, the dipole design
+matrix would go degenerate, and the run would print confident nonsense.
 
-```python
-if distance(goal, odom) < self._goal_tolerance and |angle_diff| < self._rotation_tolerance:
-    logger.info("Close enough to goal. Accepting as arrived.")
+Raising `--step` to clear 20 cm is not a workaround. At 20 cm the fit is statistically
+tied with a peak-signal metal detector; at 30 cm it is worse and calls every piece of
+scrap a mine. The anomaly from a shallow target is only ~20–30 cm wide.
+
+`field_scan.py` still refuses `--step < 0.20` when `--skill move_to`. It does not
+refuse that for `precise_move`.
+
+The planner also picks its own route, so `plan_move()`'s "never step on a flagged
+spot" proof is void under `move_to`. `precise_move` drives the body directly, so
+that proof holds again — once hardware confirms the dog actually follows the
+commanded legs.
+
+## How `precise_move` bypasses the planner
+
+`MovementManager` (in the base `unitree_go2` blueprint, therefore also in
+`unitree-go2-agentic`) takes two velocity inputs:
+
+```
+nav_cmd_vel:  In[Twist]     # the planner
+tele_cmd_vel: In[Twist]     # teleop; `_on_teleop` cancels the nav goal
+cmd_vel:      Out[Twist]    # to the robot
 ```
 
-Both Go2 controller blueprints set it explicitly — `unitree_go2_rpp_controller.py:112` and
-`unitree_go2_holonomic_controller.py:116`, both `"goal_tolerance": 0.20`.
+Publishing `tele_cmd_vel` therefore outranks the planner: no arrival tolerance,
+no replanned route. That is how the WASD keyboard-teleop blueprints already drive
+the dog.
 
-`field_scan.py` used `--step 0.05`; the whole 9-point cross spans 0.40 m. **Every commanded
-move is inside the arrival tolerance, so `move_to` returns "Navigation goal reached" without
-the dog moving.** All 17 scan points would then be sampled at one physical position, the
-dipole design matrix goes degenerate, and the run prints confident nonsense.
+It cannot be done from the CLI. `UnitreeConnection` arms a 0.2 s deadman timer on
+every velocity message (`robot/unitree/connection.py`), so you have to republish
+faster than 5 Hz. Each `dimos topic send` takes far longer than that. Hence a
+module: the loop runs in-process at 20 Hz, closed-loop on
+`tfbuffer.get("world", "base_link")`, and `field_scan.py` calls it over MCP the
+same way it called `move_to`.
 
-This is now caught rather than suffered: `field_scan.py` refuses to start in dog mode when
-`--step` is below the tolerance, and `DimosMover.move()` refuses a sub-tolerance leg.
+The heading is held on purpose. The gradiometer assumes one heading for the whole
+run so the dog's magnetism stays constant at the phones.
 
-## The second problem: the safety guarantee does not survive
+**The topic name is a guess until `dimos spy` confirms it.** Default remap is
+`tele_cmd_vel`. If the live name differs:
 
-`move_to` hands the goal to a **replanning A\*** planner (`set_goal` then `_wait_for_goal`),
-which picks its own route and replans around obstacles. `field_scan.py`'s `plan_move()` proves
-an L-shaped path clears every flagged spot — but the planner is free to route the dog straight
-over one. **Treat "the dog never steps on a flagged spot" as void** until the mover drives the
-body directly instead of through the planner.
+```
+PATSIUK_CMD_VEL_TOPIC=<real name> dimos run patsiuk-dimos.scan --robot-ip <IP>
+```
 
-## Speed
+## Missing extra on this install
 
-`_wait_for_goal` does `time.sleep(1.0)` up front, `settle=2.0`, `timeout=100`. That is ≥3 s per
-call before any walking. 17 points × 4 spots = 68 moves ≈ 3.5 min of pure settle time.
+`dimos list` shows `unitree-go2-agentic`, but loading any Go2 blueprint currently
+fails with `No module named 'unitree_webrtc_connect'`. The `dimos` package
+declares `Requires-Dist: unitree-webrtc-connect>=2.1.2; extra == "unitree"`, and
+that extra is not installed. Stock `unitree-go2-agentic` is broken the same way
+as `patsiuk-dimos.scan`. Fix:
 
-## Recommended design: continuous traverse
+```
+VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install "dimos[unitree]"
+```
 
-Fixes all three problems at once, and is how real magnetometer surveys actually work:
+then `python dimos_patsiuk/check_install.py` should print OK.
 
-1. Walk legs the planner can do (≥ the measured minimum, likely 0.3–0.5 m) with
-   `move_to(relative=True)`.
-2. Stream both phones continuously at ~50 Hz for the whole traverse instead of stopping.
-3. Stamp every magnetometer sample with the dog's pose from TF (`world` → `base_link`) —
-   `UnitreeSkillContainer` already reads it via `self.tfbuffer.get("world", "base_link")`.
-4. Fit the dipole to the resulting track, which has far more than 17 points.
+Also: `dimos whoami` currently says not logged in. Run `dimos login` before the
+agentic blueprint.
 
-Better implemented as a real dimOS **Module** with `tf: In[TFMessage]` and an `@skill`, rather
-than shelling out to the CLI — that is also a much better fit for the Dimensional challenge
-(perception → reasoning → action).
-
-## Bringing it up
+## Bringing it up (tomorrow)
 
 ```bash
-# terminal 1 - start dimOS against the dog
-/root/dimensional-applications/.venv/bin/dimos go2tool          # find the robot IP
-/root/dimensional-applications/.venv/bin/dimos run unitree-go2-agentic --robot-ip <DOG_IP>
+# 0. mirrored WSL networking (recommended) so the dog and WSL share a LAN
+#    write %USERPROFILE%\.wslconfig with networkingMode=mirrored, then wsl --shutdown
 
-# terminal 2 - confirm it is live and the skills are really there
-/root/dimensional-applications/.venv/bin/dimos mcp status
+# 1. Go2 extra + scan blueprint
+VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install "dimos[unitree]"
+VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install -e /mnt/c/Users/aliek/shit/vitallic/dimos_patsiuk
+/root/dimensional-applications/.venv/bin/python /mnt/c/Users/aliek/shit/vitallic/dimos_patsiuk/check_install.py
+
+# 2. find the dog, start the blueprint
+/root/dimensional-applications/.venv/bin/dimos login          # if whoami says not logged in
+/root/dimensional-applications/.venv/bin/dimos go2tool
+/root/dimensional-applications/.venv/bin/dimos run patsiuk-dimos.scan --robot-ip <DOG_IP>
+
+# 3. confirm skills, then measure
 /root/dimensional-applications/.venv/bin/dimos mcp list-tools
-```
-
-`unitree-go2-agentic` is the blueprint that wires up the skills we need —
-`dimos/robot/unitree/go2/blueprints/agentic/_common_agentic.py` registers
-`NavigationSkillContainer`, `ObserveSkill`, `PersonFollowSkillContainer`,
-`UnitreeSkillContainer`, `WebInput` and `SpeakSkill`.
-
-Then measure the real minimum move before anything else:
-
-```bash
-python tools/min_move_test.py --dimos /root/dimensional-applications/.venv/bin/dimos
+/root/dimensional-applications/.venv/bin/python /mnt/c/Users/aliek/shit/vitallic/tools/min_move_test.py \
+    --dimos /root/dimensional-applications/.venv/bin/dimos
 ```
 
 Clear ~2 m in front of the dog, have it standing, keep a tape measure and a way to stop it.
+
+If `precise_move` is missing from `list-tools`, you started the stock blueprint by
+mistake. If 5 cm does not actually move the dog, the next design is a continuous
+traverse that stamps magnetometer samples with TF pose — not a larger `--step`.
