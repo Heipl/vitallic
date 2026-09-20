@@ -141,6 +141,34 @@ table.rank tr{cursor:pointer}
 table.rank tr:hover td{color:var(--accent)}
 table.rank .bar{height:3px;background:var(--r4);border-radius:1px;min-width:1px}
 
+/* ---- tasking criteria ---- */
+.crit{display:grid;gap:1px}
+.crow{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;
+  padding:4px 5px;border:1px solid transparent;border-radius:2px}
+.crow:hover{background:var(--bg)}
+.crow.sel{background:var(--bg);border-color:var(--rule)}
+.crow.off{opacity:.42}
+.crow input{margin:0;accent-color:var(--accent)}
+.crow button{display:block;width:100%;text-align:left;padding:0}
+.crow .cn{font-size:11.5px;line-height:1.35;display:flex;gap:5px}
+.crow .cn i{font-style:normal;font-family:var(--mono);font-size:10px;color:var(--ink-3);
+  min-width:11px}
+.crow .wbar{height:3px;background:var(--r4);border-radius:1px;margin-top:3px;min-width:1px}
+.crow .cw{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+
+table.crits{width:100%;border-collapse:collapse;font-size:11px;margin-top:7px}
+table.crits th{text-align:left;font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;padding:0 0 4px}
+table.crits th.r,table.crits td.r{text-align:right}
+table.crits td{padding:3px 0;border-top:1px solid var(--rule-2);vertical-align:middle}
+table.crits td.w{width:56px}
+table.crits .pb{height:4px;background:var(--rule-2);border-radius:1px;overflow:hidden}
+table.crits .pb i{display:block;height:100%;background:var(--r4)}
+table.crits tr.off{opacity:.4}
+.anchor{margin-top:9px;padding:7px 8px;border:1px solid var(--rule);border-radius:2px;
+  background:var(--bg);font-size:11px}
+.anchor .num{font-size:12px}
+
 /* ---- status ---- */
 .status{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
   padding:6px 16px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px));
@@ -215,6 +243,7 @@ table.rank .bar{height:3px;background:var(--r4);border-radius:1px;min-width:1px}
         <div class="modes" id="modes">
           <button data-mode="density" aria-pressed="true">Modelled density<small>mines/km&sup2;</small></button>
           <button data-mode="priority" aria-pressed="false">Survey priority<small>ordinal</small></button>
+          <button data-mode="tasking" aria-pressed="false">Clearance priority<small>7 criteria</small></button>
           <button data-mode="uncertainty" aria-pressed="false">Uncertainty<small>CV</small></button>
           <button data-mode="exposure" aria-pressed="false">Conflict exposure<small>GED input</small></button>
         </div>
@@ -226,6 +255,12 @@ table.rank .bar{height:3px;background:var(--r4);border-radius:1px;min-width:1px}
       </div>
 
       <div class="sep"></div>
+
+      <div class="grp" id="taskgrp" hidden>
+        <span class="lbl">Tasking criteria &mdash; in order</span>
+        <div class="crit" id="crit"></div>
+        <p class="note" id="critnote"></p>
+      </div>
 
       <div class="grp">
         <span class="lbl">Confirmed hazard records</span>
@@ -294,6 +329,12 @@ table.rank .bar{height:3px;background:var(--r4);border-radius:1px;min-width:1px}
         location from a distance and report it to the national mine action authority
         or emergency services.</li>
     </ul>
+    <p>The <strong>clearance priority</strong> layer orders districts for tasking
+      by combining the modelled hazard with what is at stake around it &mdash;
+      people, farmland, schools, hospitals, roads &mdash; and whether a clearance
+      team could physically work there. <strong>It is an order of work, not a
+      measure of danger.</strong> A district low on that list is not clearer and
+      not safer; it is emptier, or harder to reach.</p>
     <p style="font-size:11.5px">Known limits, stated plainly: the prior ends in 2024;
       only 23% of Ukraine's conflict events are located to an exact point; mines are laid
       where fighting was <em>prevented</em>, which conflict data cannot see; and Mine Action
@@ -317,13 +358,13 @@ window.addEventListener("error", function (ev) {
   if (!el) return;
   if (String(ev.message).indexOf("template-not-built") !== -1) {
     el.innerHTML = '<div class="dsec"><div class="rname">This is the template</div>' +
-      '<p class="note">You are looking at <span class="num">build/template.html</span>, ' +
+      '<p class="note">You are looking at <span class="num">build2/template.html</span>, ' +
       'which carries no data — the map is empty because nothing has been packed ' +
       'into it yet, not because there is no hazard.</p>' +
       '<p class="note" style="margin-top:8px">Open the built file instead:<br>' +
       '<span class="num">dist/landmine-bayes.html</span></p>' +
       '<p class="note" style="margin-top:8px">Rebuild it with ' +
-      '<span class="num">python build/export_html.py</span>.</p></div>';
+      '<span class="num">python build2/export_html.py</span>.</p></div>';
     return;
   }
   el.innerHTML = '<div class="dsec"><div class="rname">Render error</div>' +
@@ -336,7 +377,7 @@ window.addEventListener("error", function (ev) {
 </script>
 <script>
 "use strict";
-// Opened straight from build/template.html, DATA is still the null placeholder.
+// Opened straight from build2/template.html, DATA is still the null placeholder.
 // Stop with a message the handler above turns into plain English, rather than
 // letting a blank map stand.
 if (!DATA) throw new Error("template-not-built");
@@ -433,6 +474,88 @@ let CAL = {km2: DATA.meta.n_star / DATA.meta.mines_per_km2, den: DATA.meta.mines
 const BASE_TOTAL = DATA.meta.n_star;
 const scale = () => (CAL.km2 * CAL.den) / BASE_TOTAL;
 
+/* ---- clearance tasking -----------------------------------------------------
+   Where to send the robot next, as opposed to where the mines are. Seven
+   criteria in the order they were briefed -- mine density, people, farmland,
+   schools, hospitals, major roads, terrain accessibility -- combined with
+   rank-order-centroid weights.
+
+   The layers ship as percentile bytes rather than as one finished score so the
+   page can re-weight them when a criterion is switched off, and so any single
+   layer can be put on the map to show what is actually driving a district up
+   the list. The arithmetic below mirrors mineprior/tasking.py, which is where
+   it is tested. */
+const TASK = DATA.task || null;
+const TKEYS = TASK ? TASK.meta.criteria.map(c => c.key) : [];
+const TCRIT = {};
+const TBREAKS = TASK ? TASK.meta.tier_breaks : [];
+const TTIERS = ["Lowest tasking priority — NOT cleared", "Lower tasking priority",
+  "Moderate tasking priority", "High tasking priority", "Higher tasking priority",
+  "Highest tasking priority"];
+const tOn = new Set(TKEYS);      // criteria currently included in the score
+
+if (TASK) {
+  for (const c of TASK.meta.criteria) TCRIT[c.key] = c;
+  TASK.lay = {};
+  for (const k of TKEYS) TASK.lay[k] = b64u8(TASK.layers[k]);
+  TASK.by = {adm1: new Map(TASK.oblasts.map(r => [r.n, r])),
+             adm2: new Map(TASK.raions.map(r => [r.n, r]))};
+}
+
+/* Rank-order centroid: w_k = (1/n) * sum_{i=k..n} 1/i -- the average of every
+   weight vector consistent with the stated ranking, and nothing more. */
+function roc(n) {
+  const w = [];
+  for (let k = 1; k <= n; k++) {
+    let s = 0;
+    for (let i = k; i <= n; i++) s += 1 / i;
+    w.push(s / n);
+  }
+  return w;
+}
+/* Switching a criterion off renormalises over the rest. Leaving a hole would
+   make scores from two different settings incomparable. */
+function tWeights() {
+  const keys = TKEYS.filter(k => tOn.has(k)), w = roc(keys.length), out = {};
+  keys.forEach((k, i) => out[k] = w[i]);
+  return out;
+}
+function tScore(rec, w) {
+  let s = 0;
+  for (const k in w) s += w[k] * (rec.s[k] || 0);
+  return s;
+}
+function tTier(v) { let i = 0; while (i < TBREAKS.length && v >= TBREAKS[i]) i++; return i; }
+
+let tCache = {};
+function tRanked(level) {
+  if (tCache[level]) return tCache[level];
+  const w = tWeights();
+  const rows = (level === "adm1" ? TASK.oblasts : TASK.raions)
+    .map(r => ({r, v: tScore(r, w)}))
+    .sort((a, b) => b.v - a.v);
+  rows.forEach((x, i) => x.rank = i + 1);
+  tCache[level] = rows;
+  return rows;
+}
+function tRankOf(level, name) {
+  return tRanked(level).find(x => x.r.n === name);
+}
+
+/* Raw per-district figures, in the units they were measured in. Shown next to
+   every percentile because a percentile alone cannot tell you whether the top
+   district holds ten times the mines of the next one or a thousand times. */
+function tRawText(k, q, sc) {
+  if (k === "density") return fmt(q.density * sc, 3) + " /km²";
+  if (k === "people") return fmt(q.people) + " residents";
+  if (k === "farmland") return fmt(q.farmland, 1) + "% cropland";
+  if (k === "schools") return fmt(q.schools) + (q.schools === 1 ? " school" : " schools");
+  if (k === "hospitals") return fmt(q.hospitals) + (q.hospitals === 1 ? " hospital" : " hospitals");
+  if (k === "roads") return fmt(q.roads) + " km";
+  if (k === "access") return fmt(q.access, 2) + " · " + fmt(q.slope, 1) + "° slope";
+  return "—";
+}
+
 /* ---- view state ----------------------------------------------------------- */
 let view = "world";      // "world" | "ua"
 let mode = "density";
@@ -452,6 +575,11 @@ function buildUARaster() {
   const img = ctx.createImageData(UA.w, UA.h);
   const px = img.data;
   const sc = scale();
+  // Hoisted out of the per-cell loop: at 50,000 cells, rebuilding the weight
+  // vector inside it would be 50,000 identical calculations per frame.
+  const crit = mode.startsWith("crit:") ? mode.slice(5) : null;
+  const tw = mode === "tasking" ? tWeights() : null;
+  const twk = tw ? Object.keys(tw) : [];
   for (let i = 0; i < UA.w * UA.h; i++) {
     // Row 0 of the raster is the SOUTH edge (origin is bottom-left), and
     // ImageData row 0 is the top, so flip vertically while writing.
@@ -462,6 +590,12 @@ function buildUARaster() {
     let col6, a = 235;
     if (mode === "uncertainty") {
       col6 = Math.min(5, Math.floor(UA.cvA[src] / 256 * 6));
+    } else if (crit) {
+      col6 = Math.min(5, Math.floor(TASK.lay[crit][src] / 256 * 6));
+    } else if (tw) {
+      let v = 0;
+      for (const k of twk) v += tw[k] * TASK.lay[k][src] / 255;
+      col6 = tTier(v);
     } else {
       const d = dequant(UA.dens[src]) * UA.dmax * sc;
       if (d <= 0) { hex(px, o, NODATA, 255); continue; }
@@ -717,8 +851,10 @@ function renderDetail() {
       <div class="rname">Select a region</div>
       <p class="note" style="margin-top:6px">Search, or click the map. The world view
       ranks states by published AP mine contamination; Ukraine is modelled at
-      ${DATA.meta.grid_km} km resolution down to raion level.</p></div>`
-      + rankTable(view === "world" ? "world" : "oblast");
+      ${DATA.meta.grid_km} km resolution down to raion level${TASK
+        ? ", and ranked for clearance tasking below" : ""}.</p></div>`
+      + (view === "world" ? rankTable("world")
+         : taskTable("adm2") + rankTable("oblast"));
   } else if (sel.level === "country") {
     const r = countryBy.get(sel.name);
     body = countryPanel(r);
@@ -787,8 +923,9 @@ function regionPanel(r, level, sc) {
     <div class="panel-warn">Estimate only. This district has not been cleared.
       The interval is wide because the model is genuinely uncertain, not because
       the number is nearly right.</div>
-  </div>
-  <div class="dsec">
+  </div>`
+  + taskPanel(r.n, level)
+  + `<div class="dsec">
     <span class="lbl">Confirmed records</span>
     <div class="confirmed-block" style="margin-top:7px">
       <div class="big">${fmt(inRegion)}</div>
@@ -796,7 +933,75 @@ function regionPanel(r, level, sc) {
     </div>
     <p class="note">Deterministic, not modelled. ${dots.length ? "" :
       "None are loaded &mdash; this build ships with no hazard registry, and none are invented."}</p>
-  </div>` + rankTable(level === "adm2" ? "raion" : "oblast", r.n);
+  </div>`
+  // Keep the tasking list in view when it is the list being worked from, so
+  // clicking a district off it does not hide the rest of the queue.
+  + (mode === "tasking" || mode.startsWith("crit:")
+      ? taskTable(level === "adm2" ? "adm2" : "adm1", r.n) : "")
+  + rankTable(level === "adm2" ? "raion" : "oblast", r.n);
+}
+
+/* The tasking order itself: the list a dispatcher reads down. */
+function taskTable(level, highlight) {
+  if (!TASK) return "";
+  const all = tRanked(level), rows = all.slice(0, 15);
+  const max = rows.length ? rows[0].v : 1;
+  const what = level === "adm1" ? "oblasts" : "raions";
+  return `<div class="dsec"><span class="lbl">Robot tasking order &mdash; ${what}</span>
+    <p class="note" style="margin-top:4px">Where to work first, over ${tOn.size} of
+      ${TKEYS.length} criteria. Top ${rows.length} of ${all.length}. This is an order
+      of work: districts further down are not clearer, only emptier or harder to reach.</p>
+    <table class="rank" style="margin-top:7px">
+      <thead><tr><th style="width:20px">#</th><th>District</th>
+        <th class="r">Score</th><th style="width:44px"></th></tr></thead>
+      <tbody>${rows.map(x => `<tr data-sel="${level}|${x.r.n}"
+        ${x.r.n === highlight ? 'style="font-weight:600"' : ""}>
+        <td class="num">${x.rank}</td>
+        <td>${x.r.n}${x.r.p ? ` <span style="color:var(--ink-3)">&middot; ${x.r.p}</span>` : ""}</td>
+        <td class="r num">${x.v.toFixed(3)}</td>
+        <td><div class="bar" style="width:${(x.v / max * 100).toFixed(1)}%"></div></td></tr>`).join("")}
+      </tbody></table></div>`;
+}
+
+/* Why this district sits where it does: every criterion, its raw value, its
+   national percentile and what it actually contributed to the score. A single
+   number nobody can decompose is not a defensible tasking decision. */
+function taskPanel(name, level) {
+  if (!TASK) return "";
+  const lv = level === "adm2" ? "adm2" : "adm1";
+  const rec = TASK.by[lv].get(name);
+  if (!rec) return "";
+  const entry = tRankOf(lv, name);
+  const n = tRanked(lv).length, w = tWeights(), sc = scale(), t = tTier(entry.v);
+  const rows = TASK.meta.criteria.map((c, i) => {
+    const on = tOn.has(c.key), s = rec.s[c.key] || 0;
+    return `<tr class="${on ? "" : "off"}" title="${c.note}">
+      <td><span class="num" style="color:var(--ink-3)">${i + 1}</span> ${c.label}</td>
+      <td class="r num">${tRawText(c.key, rec.q, sc)}</td>
+      <td class="r w"><span class="num">${Math.round(s * 100)}%</span>
+        <div class="pb"><i style="width:${(s * 100).toFixed(0)}%"></i></div></td>
+      <td class="r num">${on ? (w[c.key] * s).toFixed(3) : "&mdash;"}</td></tr>`;
+  }).join("");
+  return `<div class="dsec">
+    <span class="lbl">Clearance tasking priority</span>
+    <div style="margin-top:8px">
+      <span class="tier" style="background:${RAMP[t]}">T${t + 1} &middot; ${TTIERS[t]}</span>
+    </div>
+    <div class="est"><span class="v">${entry.v.toFixed(3)}</span>
+      <span class="u">weighted score &middot; rank ${entry.rank} of ${n}
+      ${lv === "adm2" ? "raions" : "oblasts"}</span></div>
+    <table class="crits">
+      <thead><tr><th>Criterion, in priority order</th><th class="r">In district</th>
+        <th class="r">Pct</th><th class="r">Adds</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    <div class="anchor">First area of operations
+      <span class="num">${rec.a.lat.toFixed(4)}&deg; N ${rec.a.lon.toFixed(4)}&deg; E</span>
+      &mdash; the highest-scoring 5 km cell here, not the district centroid, which is
+      usually farmland nobody has a reason to sweep.</div>
+    <div class="panel-warn">Priority is not risk. This district ranks where it does
+      for what is at stake around the modelled contamination and whether a team could
+      work there &mdash; not because any of it has been surveyed.</div>
+  </div>`;
 }
 
 function rankTable(kind, highlight) {
@@ -913,11 +1118,14 @@ function renderLegend() {
   // estimate for every country that has fighting, which is the error this
   // whole product is trying not to make.
   const worldView = view === "world";
+  const crit = mode.startsWith("crit:") ? mode.slice(5) : null;
   const t = worldView ? "Conflict exposure (GED)"
+    : crit ? TCRIT[crit].label
     : {density: "Modelled density", priority: "Survey priority",
-       uncertainty: "Uncertainty (CV)", exposure: "Conflict exposure"}[mode];
+       tasking: "Clearance priority", uncertainty: "Uncertainty (CV)",
+       exposure: "Conflict exposure"}[mode];
   $("#legend-title").textContent = t;
-  let rows;
+  let rows, note = "";
   if (worldView) {
     rows = RAMP.map((c, i) => ({c, t: i === 0 ? "Least" : i === 5 ? "Most" : "", v: ""}));
     el.innerHTML = rows.map(r =>
@@ -934,21 +1142,74 @@ function renderLegend() {
       `CV ${(i * 4 / 6).toFixed(1)}–${((i + 1) * 4 / 6).toFixed(1)}`}));
   } else if (mode === "exposure") {
     rows = RAMP.map((c, i) => ({c, t: i === 0 ? "Least" : i === 5 ? "Most" : "", v: ""}));
+  } else if (crit) {
+    rows = RAMP.map((c, i) => ({c, t: i === 0 ? "Lowest" : i === 5 ? "Highest" : "",
+      v: `${Math.round(i * 100 / 6)}–${Math.round((i + 1) * 100 / 6)}%`}));
+    note = `<p class="note">One tasking criterion on its own, as a national
+      percentile of 5&nbsp;km cells. ${TCRIT[crit].note}<br>
+      <span class="num">${TCRIT[crit].source}</span></p>`;
+  } else if (mode === "tasking") {
+    const b = [0, ...TBREAKS];
+    rows = RAMP.map((c, i) => ({c, t: TTIERS[i],
+      v: i === 5 ? `≥ ${b[5].toFixed(2)}` : `${b[i].toFixed(2)}–${b[i + 1].toFixed(2)}`}));
+    note = `<p class="note">Weighted score over
+      ${tOn.size} of ${TKEYS.length} criteria. This ranks <em>work</em>, not danger:
+      a cell scores low when little is at stake around it, never because the
+      ground is clear.</p>`;
   } else {
     const b = [0, ...BREAKS];
     rows = RAMP.map((c, i) => ({
       c, t: TIERS[i].t,
       v: i === 5 ? `≥ ${fmt(b[5] * sc, 1)}`
         : `${fmt(b[i] * sc, i < 3 ? 2 : 1)}–${fmt(b[i + 1] * sc, i < 3 ? 2 : 1)}`}));
+    note = `<p class="note">Values are mines/km&sup2;. A low class means the model has
+      little evidence here &mdash; not that the ground is clear.</p>`;
   }
   el.innerHTML = rows.map(r =>
     `<div class="lrow"><span class="sw" style="background:${r.c}"></span>
      <span>${r.t}</span><span class="lv">${r.v}</span></div>`).join("")
     + `<div class="lrow" style="margin-top:4px"><span class="sw hatch"></span>
        <span>Not modelled</span><span class="lv"></span></div>`
-    + (mode === "density" || mode === "priority"
-       ? `<p class="note">Values are mines/km&sup2;. A low class means the model has
-          little evidence here &mdash; not that the ground is clear.</p>` : "");
+    + (mode === "density" || mode === "priority" || mode === "tasking" || crit ? note : "");
+}
+
+/* ---- tasking criteria list ------------------------------------------------ */
+function renderCrit() {
+  if (!TASK) return;
+  $("#taskgrp").hidden = false;
+  const w = tWeights();
+  $("#crit").innerHTML = TASK.meta.criteria.map((c, i) => {
+    const on = tOn.has(c.key);
+    const wt = on ? w[c.key] : 0;
+    return `<div class="crow ${on ? "" : "off"} ${mode === "crit:" + c.key ? "sel" : ""}"
+      data-k="${c.key}">
+      <input type="checkbox" ${on ? "checked" : ""} aria-label="Include ${c.label}">
+      <button title="Show this criterion on the map">
+        <span class="cn"><i>${i + 1}</i>${c.label}</span>
+        <div class="wbar" style="width:${(wt * 100 / 0.38 * 0.98).toFixed(1)}%"></div>
+      </button>
+      <span class="cw">${on ? wt.toFixed(2) : "—"}</span>
+    </div>`;
+  }).join("");
+  $("#crit").querySelectorAll(".crow").forEach(row => {
+    const k = row.dataset.k;
+    row.querySelector("input").onchange = e => {
+      // Never let the last criterion be switched off: an empty weight vector
+      // has no score to show, and a blank priority map reads as "nothing here".
+      if (!e.target.checked && tOn.size === 1) { e.target.checked = true; return; }
+      e.target.checked ? tOn.add(k) : tOn.delete(k);
+      if (!e.target.checked && mode === "crit:" + k) mode = "tasking";
+      tCache = {};
+      uaRaster = null; renderCrit(); renderLegend(); render(); renderDetail(); syncModes();
+    };
+    row.querySelector("button").onclick = () => setMode(mode === "crit:" + k ? "tasking" : "crit:" + k);
+  });
+  const src = [...new Set(TASK.meta.sources.map(s => s.source.split(",")[0]))].slice(1);
+  $("#critnote").innerHTML =
+    `Weights are rank-order centroid over that order &mdash; the average of every
+     weighting consistent with it, so the ranking is asserted and no invented
+     precision beyond it. Click a criterion to map it; untick to drop it and
+     renormalise.<br><span class="num">${src.join(" · ")}</span>`;
 }
 
 /* ---- interaction ---------------------------------------------------------- */
@@ -972,8 +1233,19 @@ stage.addEventListener("mousemove", e => {
     line = rec && rec.m != null ? `${fmt(rec.m)} est. mines · ${rec.b}`
       : "no published contamination";
   } else {
-    const rec = (cam.k * UA.res > 2.2 ? raionBy : oblastBy).get(nm);
+    const deep = cam.k * UA.res > 2.2;
+    const rec = (deep ? raionBy : oblastBy).get(nm);
     line = rec ? `${fmt(rec.m * sc)} est. · ${fmt(rec.d * sc, 3)}/km²` : "—";
+    const crit = mode.startsWith("crit:") ? mode.slice(5) : null;
+    if (TASK && (mode === "tasking" || crit)) {
+      const lv = deep ? "adm2" : "adm1", trec = TASK.by[lv].get(nm);
+      if (trec) {
+        const e2 = tRankOf(lv, nm);
+        line = crit
+          ? `${Math.round((trec.s[crit] || 0) * 100)}th pct · ${tRawText(crit, trec.q, sc)}`
+          : `tasking ${e2.v.toFixed(3)} · rank ${e2.rank}`;
+      }
+    }
   }
   tip.innerHTML = `<div class="t">${nm}</div><div class="m">${line}</div>`;
   const tw = tip.offsetWidth, th = tip.offsetHeight;
@@ -1014,12 +1286,26 @@ window.addEventListener("mousemove", e => {
   render();
 });
 
+/* A criterion preview is a sub-view of the tasking layer, so the tasking
+   button stays pressed while one is showing. */
+function syncModes() {
+  const group = mode.startsWith("crit:") ? "tasking" : mode;
+  [...$("#modes").children].forEach(x =>
+    x.setAttribute("aria-pressed", x.dataset.mode === group));
+}
+function setMode(m) {
+  mode = m;
+  // The tasking layers are Ukraine-only, so picking one from the world view
+  // would otherwise appear to do nothing at all.
+  if ((m === "tasking" || m.startsWith("crit:")) && view === "world") {
+    view = "ua"; sel = null; fitUA();
+  }
+  uaRaster = null;
+  syncModes(); renderCrit(); renderLegend(); render(); renderDetail();
+}
 $("#modes").onclick = e => {
   const b = e.target.closest("button"); if (!b) return;
-  mode = b.dataset.mode;
-  [...$("#modes").children].forEach(x =>
-    x.setAttribute("aria-pressed", x === b));
-  uaRaster = null; renderLegend(); render(); renderDetail();
+  setMode(b.dataset.mode);
 };
 $("#showdots").onchange = render;
 
@@ -1107,6 +1393,8 @@ $("#chip-src").textContent = `${DATA.meta.ged} · ${DATA.meta.coverage} · ${DAT
 // size the camera fits to. Fitting against a zero-size stage yields a negative
 // zoom and nothing draws.
 calLabels();
+renderCrit();
+syncModes();
 renderLegend();
 new ResizeObserver(resize).observe(stage);
 resize();

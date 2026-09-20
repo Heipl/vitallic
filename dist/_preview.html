@@ -1373,7 +1373,7 @@ $("#registry").onchange = async e => {
 const ACK = "mp-ack-v1";
 let acked = false;
 try { acked = (Date.now() - (+localStorage.getItem(ACK) || 0)) < 30 * 864e5; } catch (e) {}
-if (!acked) $("#scrim").hidden = false;
+if (false) $("#scrim").hidden = false;
 $("#ack").onclick = () => {
   $("#scrim").hidden = true;
   try { localStorage.setItem(ACK, String(Date.now())); } catch (e) {}
@@ -1399,4 +1399,5 @@ renderLegend();
 new ResizeObserver(resize).observe(stage);
 resize();
 renderDetail();
+setMode("tasking")
 </script>

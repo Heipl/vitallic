@@ -39,10 +39,20 @@ SOURCES = {
         "OpenStreetMap contributors via HOT/HDX, ODbL",
         "hospitals and clinics",
     ),
-    "ne_10m_roads.zip": (
-        "https://naciscdn.org/naturalearth/10m/cultural/ne_10m_roads.zip",
-        "Natural Earth, public domain",
-        "major roads",
+    # GRIP4 rather than Natural Earth 10 m roads: NE carries only 1,122 road
+    # features over the whole of Ukraine and classifies 40% of them as
+    # "Unknown", so a length-per-district figure built from it would be mostly
+    # an artefact of how the 1:10 m cartography was digitised. GRIP4 is a
+    # purpose-built road-density product with an explicit type hierarchy.
+    "grip4_density_tp1.zip": (
+        "https://dataportaal.pbl.nl/downloads/GRIP4/GRIP4_density_tp1.zip",
+        "GRIP4, Meijer et al. 2018 (CC BY 4.0)",
+        "major roads: highways",
+    ),
+    "grip4_density_tp2.zip": (
+        "https://dataportaal.pbl.nl/downloads/GRIP4/GRIP4_density_tp2.zip",
+        "GRIP4, Meijer et al. 2018 (CC BY 4.0)",
+        "major roads: primary roads",
     ),
     # GMTED2010 30 arc-second mean elevation. Tiles are 20 deg of latitude by
     # 30 deg of longitude, so Ukraine (44.4-52.4 N, 22.1-40.2 E) needs four:

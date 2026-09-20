@@ -76,8 +76,8 @@ CRITERIA: tuple[Criterion, ...] = (
         "accident here is survivable.",
     ),
     Criterion(
-        "roads", "Major roads", "km of road within 10 km",
-        "Natural Earth 10 m roads, public domain",
+        "roads", "Major roads", "km of highway/primary road within 10 km",
+        "GRIP4 road density, Meijer et al. 2018 (CC BY 4.0)",
         "Access for the clearance convoy, and the corridor civilians and "
         "returning traffic actually use.",
     ),

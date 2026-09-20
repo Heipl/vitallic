@@ -19,7 +19,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from mineprior import model as M
 from mineprior.geo import UKRAINE_LAEA
 
-ROOT = Path(r"C:\Users\rinoa\landmine-bayes")
+ROOT = Path(__file__).resolve().parents[1]
+HERE = Path(__file__).resolve().parent
 DATA, OUT = ROOT / "data", ROOT / "dist"
 OUT.mkdir(exist_ok=True)
 
@@ -118,6 +119,36 @@ log(f"  regions: {len(payload['oblasts'])} oblasts, {len(payload['raions'])} rai
     f"{len(payload['world'])} countries "
     f"({sum(1 for r in payload['world'] if r['m'] is not None)} with a mine estimate)")
 
+# --- clearance tasking -------------------------------------------------------
+# The seven criterion layers ride along as percentile bytes rather than as one
+# pre-combined score, so the page can re-weight them when a criterion is
+# switched off without needing a rebuild -- and so a viewer can look at any
+# single layer and see what is actually driving a district up the list.
+tasking_json = DATA / "out" / "tasking.json"
+if tasking_json.exists():
+    tk = json.loads(tasking_json.read_text(encoding="utf-8"))
+    tg = np.load(DATA / "out" / "tasking_grid.npz")
+    keys = [c["key"] for c in tk["meta"]["criteria"]]
+
+    def trim_task(r):
+        out = {"n": r["name"], "s": r["scores"], "q": r["raw"], "a": r["anchor"]}
+        if r.get("parent"):
+            out["p"] = r["parent"]
+        return out
+
+    payload["task"] = {
+        "meta": tk["meta"],
+        "oblasts": [trim_task(r) for r in tk["oblasts"]],
+        "raions": [trim_task(r) for r in tk["raions"]],
+        "layers": {k: b64(tg[k][r0:r1, c0:c1]) for k in keys},
+    }
+    log(f"  tasking {len(keys)} criterion layers, "
+        f"{len(payload['task']['raions'])} raions ranked; "
+        f"top: {tk['raions'][0]['name']} ({tk['raions'][0]['score']:.3f})")
+else:
+    log("  tasking layers absent -- run build2/build_tasking.py "
+        "(the page hides the tasking panel rather than showing an empty one)")
+
 # --- robot AO ----------------------------------------------------------------
 ao_json = ROOT / "dist" / "robot" / "ao_posterior.json"
 if ao_json.exists():
@@ -149,7 +180,7 @@ payload["meta"] = {
 }
 
 # --- assemble ----------------------------------------------------------------
-tpl = (ROOT / "build" / "template.html").read_text(encoding="utf-8")
+tpl = (HERE / "template.html").read_text(encoding="utf-8")
 blob = json.dumps(payload, separators=(",", ":"))
 html = tpl.replace("/*__DATA__*/null", blob)
 dest = OUT / "landmine-bayes.html"
