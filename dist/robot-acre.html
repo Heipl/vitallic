@@ -44,7 +44,9 @@ h1,h2{margin:0;font-weight:600}
   border-radius:2px;color:var(--ink-2);white-space:nowrap}
 .chip.warn{background:var(--warn-bg);color:var(--warn-ink);border-color:var(--warn-rule);font-weight:500}
 .main{display:grid;grid-template-columns:300px 1fr;gap:1px;background:var(--rule);min-height:0}
-.rail{background:var(--panel);overflow-y:auto;padding:14px}
+.rail{background:var(--panel);overflow-y:auto;padding:14px;display:flex;flex-direction:column}
+.grp.run{position:sticky;bottom:0;margin-top:auto;margin-bottom:0;padding-top:10px;
+  background:var(--panel);border-top:1px solid var(--rule)}
 .stage{position:relative;min-height:0;overflow:hidden;background:#1a1814}
 .stage img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.85) contrast(1.05)}
 canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
@@ -132,7 +134,7 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
         <div class="queue" id="queue"></div>
       </div>
 
-      <div class="grp">
+      <div class="grp run">
         <span class="lbl">Run</span>
         <button class="btn" id="play" type="button">Play</button>
         <button class="btn ghost" id="reset" type="button">Reset</button>
