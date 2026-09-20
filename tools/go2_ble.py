@@ -306,15 +306,18 @@ async def _connect_once(
     timeout: float,
     on_progress: Callable[[str], None],
 ) -> Any:
-    """Find the dog, then GATT-connect before BlueZ forgets the advertisement."""
-    from bleak import BleakClient, BleakScanner
+    """Find the dog, then GATT-connect before BlueZ forgets the advertisement.
 
-    if sys.platform.startswith("linux"):
-        mac = await _linux_btctl_connect(address, name, timeout, on_progress)
-        on_progress(f"bleak attach {mac}")
-        client = BleakClient(mac, timeout=timeout)
-        await asyncio.wait_for(client.connect(), timeout=timeout)
-        return client
+    BleakScanner is tried first on every platform, including Linux. Driving
+    `bluetoothctl` over a pipe does NOT reliably emit "[NEW]/[CHG] Device" lines:
+    its readline UI suppresses async discovery events when stdout is not a TTY,
+    so _linux_btctl_connect's pump sees only the prompt and reports
+    "bluetoothctl scan missed <name>" for a device that is advertising strongly.
+    BleakScanner talks to BlueZ over D-Bus and is unaffected (tools/ble_scan_go2.py
+    finds the dog at rssi -59 while the bluetoothctl path reports a miss).
+    bluetoothctl is kept as a Linux fallback since it also does pair/trust.
+    """
+    from bleak import BleakClient, BleakScanner
 
     await _stop_stale_bluez_scan()
     found = asyncio.Event()
@@ -331,12 +334,23 @@ async def _connect_once(
         try:
             await asyncio.wait_for(found.wait(), timeout=timeout)
         except asyncio.TimeoutError:
-            raise RuntimeError(f"scan missed {name or address}; dog on and advertising?")
-        device = box["dev"]
-        on_progress(f"connecting {device.name} {device.address}")
-        client = BleakClient(device, timeout=timeout)
-        await client.connect()
+            box.pop("dev", None)
+        if "dev" in box:
+            device = box["dev"]
+            on_progress(f"connecting {device.name} {device.address}")
+            client = BleakClient(device, timeout=timeout)
+            await client.connect()
+            return client
+
+    if sys.platform.startswith("linux"):
+        on_progress("BleakScanner missed it; falling back to bluetoothctl")
+        mac = await _linux_btctl_connect(address, name, timeout, on_progress)
+        on_progress(f"bleak attach {mac}")
+        client = BleakClient(mac, timeout=timeout)
+        await asyncio.wait_for(client.connect(), timeout=timeout)
         return client
+
+    raise RuntimeError(f"scan missed {name or address}; dog on and advertising?")
 
 
 async def discover_ble(
