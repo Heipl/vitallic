@@ -67,7 +67,9 @@ BODY_FRAME = "base_link"
 # Lives here rather than in blueprint.py so this module stays importable without
 # the Go2 connection stack. The concrete topic differs between blueprints, so
 # check `dimos spy` against the live robot and override if it does not match.
-CMD_VEL_TOPIC = os.environ.get("VITALLIC_CMD_VEL_TOPIC", "tele_cmd_vel")
+# unitree-go2-basic exposes GO2Connection.cmd_vel. The agentic stack used
+# tele_cmd_vel on MovementManager; override if `dimos spy` disagrees.
+CMD_VEL_TOPIC = os.environ.get("VITALLIC_CMD_VEL_TOPIC", "cmd_vel")
 
 
 class PreciseMoveConfig(ModuleConfig):

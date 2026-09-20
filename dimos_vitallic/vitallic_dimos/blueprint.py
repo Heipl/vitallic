@@ -1,31 +1,30 @@
-"""The stock agentic Go2 blueprint plus the precise_move skill.
+"""Go2 connection + MCP skills. No LLM, no OpenAI key.
 
 Run it with:
 
     dimos run vitallic-dimos.scan --robot-ip <DOG_IP>
 
-`unitree-go2-agentic` is kept underneath unchanged, so `move_to`, `observe` and
-everything `field_scan.py` already relies on stay exactly where they were. The
-only addition is `PreciseMove`, whose velocity output is remapped onto the input
-`MovementManager` treats as teleop -- the one that outranks the planner.
+This wraps stock `unitree-go2-basic` (WebRTC + viewer) and an MCP server so
+`precise_move` / `blind_move` are callable. It does **not** include `McpClient`
+or the agentic stack, which is what demanded OPENAI_API_KEY.
 
-THE TOPIC NAME IS A GUESS UNTIL YOU CHECK IT. `MovementManager` declares the port
-as `tele_cmd_vel`, and that is the default here, but the concrete topic differs
-between blueprints (the rpp controller binds `/cmd_vel` while
-`unitree_go2_mid360_record` remaps KeyboardTeleop's `cmd_vel` to `tele_cmd_vel`).
-List what is actually live with `dimos spy`, and if it differs:
+Velocity from PreciseMove is remapped onto GO2Connection.cmd_vel (there is no
+MovementManager / tele_cmd_vel on the basic blueprint). Override if `dimos spy`
+shows a different name:
 
     VITALLIC_CMD_VEL_TOPIC=<real name> dimos run vitallic-dimos.scan --robot-ip <IP>
 """
 
 from __future__ import annotations
 
+from dimos.agents.mcp.mcp_server import McpServer
 from dimos.core.coordination.blueprints import autoconnect
-from dimos.robot.unitree.go2.blueprints.agentic.unitree_go2_agentic import unitree_go2_agentic
+from dimos.robot.unitree.go2.blueprints.basic.unitree_go2_basic import unitree_go2_basic
 
 from vitallic_dimos.precise_move import CMD_VEL_TOPIC, PreciseMove
 
 vitallic_scan = autoconnect(
-    unitree_go2_agentic,
+    unitree_go2_basic,
+    McpServer.blueprint(),
     PreciseMove.blueprint(),
 ).remappings([(PreciseMove, "cmd_vel", CMD_VEL_TOPIC)])

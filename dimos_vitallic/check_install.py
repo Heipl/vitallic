@@ -62,7 +62,7 @@ def main() -> int:
     except Exception as exc:
         if "unitree_webrtc_connect" in str(exc):
             print("  FAIL: the dimos 'unitree' extra is not installed, so no Go2")
-            print("        blueprint can load -- stock unitree-go2-agentic included.")
+            print("        blueprint can load -- stock unitree-go2-basic included.")
             print("        Fix with:")
             print("          VIRTUAL_ENV=/root/dimensional-applications/.venv \\")
             print('            uv pip install "dimos[unitree]"')

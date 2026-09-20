@@ -11,7 +11,7 @@ VIRTUAL_ENV=/root/dimensional-applications/.venv uv pip install -e .
 python check_install.py
 ```
 
-Then:
+Then (no OpenAI key; this blueprint has no LLM):
 
 ```
 dimos run vitallic-dimos.scan --robot-ip <DOG_IP>
