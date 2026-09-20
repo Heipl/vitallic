@@ -99,6 +99,34 @@ run so the dog's magnetism stays constant at the phones.
 PATSIUK_CMD_VEL_TOPIC=<real name> dimos run patsiuk-dimos.scan --robot-ip <IP>
 ```
 
+## Provisioning wifi: use dimOS's own tool
+
+**`dimos go2tool connect-wifi` is the primary path.** dimOS ships first-party BLE
+provisioning; `tools/go2_ble.py` is a hand-rolled reimplementation of the same
+protocol and should be treated as the fallback, not the default.
+
+```bash
+dimos go2tool discover --ble -t 15          # does dimOS's scanner see the dog?
+dimos go2tool connect-wifi --mac 94:BA:06:F6:D6:87     --ssid '<SSID>' --password '<PASS>' --country US
+dimos go2tool discover --lan -t 20          # did it join?
+```
+
+`connect-wifi` takes `--mac`, `--serial` or `--name`, and is fully
+non-interactive when one of those plus `--ssid`/`--password` is given. `discover`
+does BLE and LAN together by default.
+
+Account binding does NOT block this. Another team provisioned a bound robot this
+way without the app, so "the robot is bound to someone else" is not a reason BLE
+provisioning fails - do not chase that as a cause.
+
+Known-good setup for the BLE phase: the phone runs a 2.4 GHz hotspot for the DOG
+to join AND USB-tethers the laptop onto that same network. The laptop's wifi
+radio then stays off, so BLE has the antenna to itself while the laptop is still
+on the dog's subnet. `tools/provision_now.sh --tether` matches that arrangement.
+
+The Go2's radio is 2.4 GHz only; a 5 GHz-only hotspot accepts the credentials and
+the dog never appears.
+
 ## `blind_move`: motion with zero telemetry
 
 `precise_move` closes its loop on `tfbuffer.get("world", "base_link")`. On a Go2
