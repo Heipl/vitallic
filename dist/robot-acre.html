@@ -817,9 +817,14 @@ function drawSiteIcons(){
     [-12,22],[-26,10],[-8,-8],[10,-6],[16,10],[-20,-2],[22,-22],[-30,20],
     [0,14],[-14,8],[8,-16]
   ];
-  for (const [dx,dy] of people) drawPerson(sx(B.x)+dx, sy(B.y)+dy, 1.05);
-  drawSchool(sx(C.x), sy(C.y)-22, 1.15);
-  drawFarm(sx(A.x), sy(A.y)-20, 1.15);
+  const bx = sx(B.x), by = sy(B.y);
+  ctx.save();
+  ctx.fillStyle = "rgba(244,231,200,.28)";
+  ctx.beginPath(); ctx.arc(bx, by, 42, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+  for (const [dx,dy] of people) drawPerson(bx+dx*1.15, by+dy*1.15, 1.55);
+  drawSchool(sx(C.x), sy(C.y)-28, 1.45);
+  drawFarm(sx(A.x), sy(A.y)-26, 1.45);
 }
 
 function drawMines(done){
