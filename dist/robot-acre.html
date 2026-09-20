@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Robot acre — priority BFS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ink:#171A21; --ink-2:#4A5060; --ink-3:#787F91;
+  --bg:#F5F6F8; --panel:#FFFFFF; --rule:#DDE0E7; --rule-2:#EDEFF3;
+  --accent:#41627F; --accent-ink:#FFFFFF;
+  --warn-bg:#FDF2E4; --warn-ink:#7A4A12; --warn-rule:#E8C79A;
+  --shell:#ECEEF2;
+  --map-ink:#E8E4D4;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ink:#E6E9EF; --ink-2:#A3AAB9; --ink-3:#727A8B;
+  --bg:#0B0D11; --panel:#14171D; --rule:#272B34; --rule-2:#1D212880;
+  --accent:#8FB2CE; --accent-ink:#0B0D11;
+  --warn-bg:#2A1F10; --warn-ink:#E8C08A; --warn-rule:#5C4420;
+  --shell:#0F1216;
+}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+h1,h2{margin:0;font-weight:600}
+.lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.app{display:grid;grid-template-rows:auto 1fr auto;height:100%;background:var(--shell)}
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:9px 16px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.brand{display:flex;align-items:baseline;gap:9px;min-width:0}
+.brand b{font-size:14px;font-weight:700}
+.brand span,.brand a{font-size:11px;color:var(--ink-3);text-decoration:none}
+.brand a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+.vintage{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:10.5px;padding:2.5px 7px;border:1px solid var(--rule);
+  border-radius:2px;color:var(--ink-2);white-space:nowrap}
+.chip.warn{background:var(--warn-bg);color:var(--warn-ink);border-color:var(--warn-rule);font-weight:500}
+.main{display:grid;grid-template-columns:300px 1fr;gap:1px;background:var(--rule);min-height:0}
+.rail{background:var(--panel);overflow-y:auto;padding:14px}
+.stage{position:relative;min-height:0;overflow:hidden;background:#1a1814}
+.stage img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.85) contrast(1.05)}
+canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
+.grp{margin-bottom:16px}
+.grp>.lbl{display:block;margin-bottom:7px}
+.note{font-size:10.5px;line-height:1.45;color:var(--ink-3);margin:5px 0 0}
+.sep{height:1px;background:var(--rule);margin:11px 0}
+.kv{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:11.5px}
+.kv dt{color:var(--ink-3)}
+.kv dd{margin:0;font-family:var(--mono);text-align:right}
+.btn{display:inline-block;padding:7px 12px;background:var(--accent);color:var(--accent-ink);
+  border-radius:2px;font-weight:600;font-size:12px;margin-right:6px;margin-top:4px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule)}
+.queue{display:grid;gap:6px}
+.qrow{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;
+  padding:7px 8px;border:1px solid var(--rule);border-radius:2px;background:var(--bg)}
+.qrow.on{border-color:var(--accent);box-shadow:inset 2px 0 0 var(--accent)}
+.qrow.done{opacity:.55}
+.qrow .rk{font-family:var(--mono);font-size:11px;font-weight:600}
+.qrow .nm{font-weight:600;font-size:12px}
+.qrow .sub{font-size:10.5px;color:var(--ink-3);font-family:var(--mono)}
+.qrow .sc{font-family:var(--mono);font-size:10.5px;text-align:right}
+.bar{height:4px;background:var(--rule);border-radius:1px;margin-top:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:#CD4071}
+.status{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:6px 16px;background:var(--panel);border-top:1px solid var(--rule);font-size:10.5px;color:var(--ink-3)}
+.status b{color:var(--warn-ink);background:var(--warn-bg);border:1px solid var(--warn-rule);
+  padding:2px 7px;border-radius:2px;font-weight:600;letter-spacing:.04em}
+.hud{position:absolute;left:12px;bottom:12px;color:var(--map-ink);font-family:var(--mono);
+  font-size:10.5px;text-shadow:0 1px 3px #000a;pointer-events:none;line-height:1.55}
+.legend-float{position:absolute;right:12px;top:12px;background:#161A21E8;color:#E6E9EF;
+  border:1px solid #2C3440;border-radius:2px;padding:8px 10px;font-size:11px;max-width:220px}
+.legend-float .t{font-weight:600;margin-bottom:4px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+@media (max-width:820px){
+  .main{grid-template-columns:1fr;grid-template-rows:auto minmax(320px,1fr)}
+  .rail{max-height:40vh}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <b>Acre survey (hypothetical)</b>
+      <span>BFS on 1×1 lattice · visit by mission queue score</span>
+      <a href="landmine-bayes.html">← national prior</a>
+    </div>
+    <div class="vintage">
+      <span class="chip">1 acre plot, no field data</span>
+      <span class="chip warn">Not an accredited survey product</span>
+    </div>
+  </header>
+
+  <div class="main">
+    <aside class="rail">
+      <div class="grp">
+        <span class="lbl">What this is</span>
+        <p class="note">A fake, zoomed-in acre. Four potential landmines sit on lattice
+          points taken from the user’s example coordinates. Visit <em>order</em> comes from
+          the preexisting robot mission queue in <span class="num">dist/robot/next_mission.json</span>:
+          higher <span class="num">expected_find</span> is more important; earlier queue index
+          breaks ties. The dog never occupies a mine cell — BFS stops on a 4-neighbour.</p>
+      </div>
+
+      <div class="grp">
+        <span class="lbl">Policy</span>
+        <dl class="kv">
+          <dt>Planner</dt><dd>greedy + 15% explore</dd>
+          <dt>Path</dt><dd>BFS, 4-connected</dd>
+          <dt>Lattice</dt><dd>1 × 1</dd>
+          <dt>Origin</dt><dd class="num">(0, 0)</dd>
+        </dl>
+        <p class="note">Next target = remaining mine with max expected_find, then min queue index.
+          Other mines are obstacles until visited.</p>
+      </div>
+
+      <div class="grp">
+        <span class="lbl">Mission queue (unique cells)</span>
+        <div class="queue" id="queue"></div>
+      </div>
+
+      <div class="grp">
+        <span class="lbl">Run</span>
+        <button class="btn" id="play" type="button">Play</button>
+        <button class="btn ghost" id="reset" type="button">Reset</button>
+        <p class="note" id="stat">Idle.</p>
+      </div>
+    </aside>
+
+    <div class="stage" id="stage">
+      <img class="bg" src="robot/battlefield-acre.png" alt="Hypothetical battlefield acre, overhead photograph">
+      <canvas id="cv"></canvas>
+      <div class="legend-float">
+        <div class="t">Overlay</div>
+        <div><span class="sw" style="background:#FD9668"></span>Potential mine (size = score)</div>
+        <div><span class="sw" style="background:#8FB2CE"></span>BFS path (not a clearance)</div>
+        <div><span class="sw" style="background:#1A1F26;outline:1px solid #aaa"></span>Blocked crater cells</div>
+      </div>
+      <div class="hud" id="hud"></div>
+    </div>
+  </div>
+
+  <footer class="status">
+    <b>MODEL OUTPUT — NOT A CLEARANCE RECORD</b>
+    <span>Hypothetical lattice demo. No area on this map has been declared free of explosive ordnance. The path is not a safe route.</span>
+  </footer>
+</div>
+
+<script>
+/* Hypothetical acre lattice. Units are survey ticks; if the long side is ~64 m
+   then one tick ≈ 10 cm. Coordinates are the ones requested, not GPS. */
+const W = 640, H = 360;
+const ORIGIN = {x: 0, y: 0};
+
+/* Unique cells from dist/robot/next_mission.json, first four, mapped onto the
+   example lattice points. Scores are the real expected_find / queue index. */
+const MINES = [
+  {id:"A", x:200, y:100, queue:0,  expected_find:6.735223365689387e-5, p_any:2.3765870570321553e-4, exploration:false, cell:"(88,34)"},
+  {id:"B", x:50,  y:300, queue:13, expected_find:2.557326014479297e-5,  p_any:9.024431151206556e-5,  exploration:true,  cell:"(66,94)"},
+  {id:"C", x:400, y:200, queue:14, expected_find:6.738518347176948e-5,  p_any:2.3777495840742878e-4, exploration:false, cell:"(69,66)"},
+  {id:"D", x:600, y:200, queue:22, expected_find:6.735209450560625e-5,  p_any:2.376582147531302e-4,  exploration:false, cell:"(14,27)"},
+];
+
+const MAX_FIND = Math.max(...MINES.map(m => m.expected_find));
+
+function priorityScore(m){
+  return m.expected_find;
+}
+function better(a, b){
+  const da = priorityScore(a) - priorityScore(b);
+  if (da !== 0) return da > 0 ? a : b;
+  return a.queue <= b.queue ? a : b;
+}
+
+/* Extra blocked cells (craters) so BFS has to go around — not targets. */
+function craterBlocked(){
+  const s = new Set();
+  function addRect(x0,y0,x1,y1){
+    for (let y=y0;y<=y1;y++) for (let x=x0;x<=x1;x++) s.add(x+"|"+y);
+  }
+  addRect(90, 70, 130, 130);     // sits on the naive path toward A
+  addRect(250, 160, 290, 220);
+  addRect(470, 170, 520, 210);
+  addRect(20, 180, 70, 230);
+  return s;
+}
+const CRATERS = craterBlocked();
+
+function key(x,y){ return x+"|"+y; }
+function inBound(x,y){ return x>=0 && y>=0 && x<W && y<H; }
+
+function mineSet(mines){
+  const s = new Set();
+  for (const m of mines) s.add(key(m.x, m.y));
+  return s;
+}
+
+const DIRS = [[1,0],[-1,0],[0,1],[0,-1]];
+
+/** BFS on the 1×1 lattice. Never steps on blocked cells. Returns path including start. */
+function bfs(start, goals, blocked){
+  const goal = new Set(goals.map(g => key(g.x,g.y)));
+  const sk = key(start.x, start.y);
+  if (goal.has(sk)) return [start];
+  const q = [start];
+  let qi = 0;
+  const prev = new Map();
+  prev.set(sk, null);
+  while (qi < q.length){
+    const cur = q[qi++];
+    for (const [dx,dy] of DIRS){
+      const nx = cur.x+dx, ny = cur.y+dy;
+      const k = key(nx,ny);
+      if (!inBound(nx,ny) || prev.has(k) || blocked.has(k)) continue;
+      prev.set(k, cur);
+      const nxt = {x:nx, y:ny};
+      if (goal.has(k)){
+        const path = [nxt];
+        let p = cur;
+        while (p){ path.push(p); p = prev.get(key(p.x,p.y)); }
+        path.reverse();
+        return path;
+      }
+      q.push(nxt);
+    }
+  }
+  return null;
+}
+
+function approachGoals(mine, blocked){
+  const g = [];
+  for (const [dx,dy] of DIRS){
+    const x = mine.x+dx, y = mine.y+dy;
+    if (inBound(x,y) && !blocked.has(key(x,y))) g.push({x,y});
+  }
+  return g;
+}
+
+function planTour(mines){
+  const remaining = mines.slice();
+  let pos = {...ORIGIN};
+  const legs = [];
+  const order = [];
+  while (remaining.length){
+    let pick = remaining[0];
+    for (const m of remaining) pick = better(pick, m);
+    const blocked = new Set(CRATERS);
+    for (const m of mines) blocked.add(key(m.x, m.y)); // never stand on any mine
+    const goals = approachGoals(pick, blocked);
+    const path = bfs(pos, goals, blocked);
+    if (!path) throw new Error("no BFS path to mine "+pick.id);
+    legs.push({mine: pick, path});
+    order.push(pick);
+    pos = path[path.length-1];
+    remaining.splice(remaining.indexOf(pick), 1);
+  }
+  return {legs, order};
+}
+
+/* --- render --- */
+const cv = document.getElementById("cv");
+const ctx = cv.getContext("2d");
+const stage = document.getElementById("stage");
+const tour = planTour(MINES);
+
+function resize(){
+  const r = stage.getBoundingClientRect();
+  const dpr = Math.max(1, devicePixelRatio||1);
+  cv.width = Math.floor(r.width*dpr);
+  cv.height = Math.floor(r.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  cssW = r.width; cssH = r.height;
+  draw();
+}
+let cssW=1, cssH=1;
+function sx(x){ return (x / (W-1)) * cssW; }
+function sy(y){ return (1 - y / (H-1)) * cssH; } // y up
+
+let anim = {t: 0, playing: false, last: 0};
+const SPEED = 90; // cells per second
+
+function flatPath(){
+  const pts = [];
+  for (let i=0;i<tour.legs.length;i++){
+    const path = tour.legs[i].path;
+    const start = (i && pts.length && path[0].x===pts.at(-1).x && path[0].y===pts.at(-1).y) ? 1 : 0;
+    for (let j=start;j<path.length;j++) pts.push({...path[j], mine: tour.legs[i].mine.id, leg:i});
+  }
+  return pts;
+}
+const FLAT = flatPath();
+
+function visitedIds(t){
+  const done = new Set();
+  let idx = 0;
+  for (let i=0;i<tour.legs.length;i++){
+    const len = tour.legs[i].path.length - (i?1:0);
+    const end = idx + len - 1;
+    if (t >= end) done.add(tour.legs[i].mine.id);
+    idx = end;
+  }
+  return done;
+}
+
+function currentLeg(t){
+  let idx = 0;
+  for (let i=0;i<tour.legs.length;i++){
+    const len = tour.legs[i].path.length - (i?1:0);
+    const end = idx + len - 1;
+    if (t <= end + 0.0001) return {i, local: t-idx, startIdx: idx, end};
+    idx = end;
+  }
+  return {i: tour.legs.length-1, local: 0, startIdx: idx, end: idx};
+}
+
+function posAt(t){
+  const tmax = FLAT.length-1;
+  const u = Math.max(0, Math.min(tmax, t));
+  const i = Math.floor(u);
+  const f = u - i;
+  const a = FLAT[i], b = FLAT[Math.min(i+1, tmax)];
+  return {x: a.x + (b.x-a.x)*f, y: a.y + (b.y-a.y)*f, heading: Math.atan2(b.y-a.y, b.x-a.x)};
+}
+
+function drawGrid(){
+  ctx.save();
+  ctx.strokeStyle = "rgba(255,255,255,.07)";
+  ctx.lineWidth = 1;
+  const step = 20;
+  for (let x=0;x<W;x+=step){
+    ctx.beginPath(); ctx.moveTo(sx(x), sy(0)); ctx.lineTo(sx(x), sy(H-1)); ctx.stroke();
+  }
+  for (let y=0;y<H;y+=step){
+    ctx.beginPath(); ctx.moveTo(sx(0), sy(y)); ctx.lineTo(sx(W-1), sy(y)); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawCraters(){
+  ctx.fillStyle = "rgba(12,10,8,.45)";
+  for (const k of CRATERS){
+    const [x,y] = k.split("|").map(Number);
+    ctx.fillRect(sx(x)-1.2, sy(y)-1.2, 2.4, 2.4);
+  }
+}
+
+function drawPath(upto){
+  ctx.save();
+  ctx.strokeStyle = "#8FB2CE";
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  for (let i=0;i<=upto && i<FLAT.length;i++){
+    const p = FLAT[i];
+    const X = sx(p.x), Y = sy(p.y);
+    if (i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawMines(done){
+  for (const m of MINES){
+    const r = 6 + 10 * (m.expected_find / MAX_FIND);
+    const X = sx(m.x), Y = sy(m.y);
+    ctx.beginPath();
+    ctx.fillStyle = done.has(m.id) ? "#FFFFFF" : "#CD4071";
+    ctx.strokeStyle = "#0B0D10";
+    ctx.lineWidth = 1.5;
+    ctx.arc(X, Y, r, 0, Math.PI*2);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#F5F1E6";
+    ctx.font = "600 11px IBM Plex Sans, sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "bottom";
+    const tag = m.id+"  q#"+m.queue+(m.exploration?" explore":"");
+    ctx.fillText(tag, X+r+4, Y-2);
+    ctx.font = "10px IBM Plex Mono, monospace";
+    ctx.fillStyle = "rgba(245,241,230,.9)";
+    ctx.fillText("E[find] "+m.expected_find.toExponential(2), X+r+4, Y+12);
+  }
+  // origin
+  ctx.fillStyle = "#FD9668";
+  ctx.beginPath(); ctx.arc(sx(0), sy(0), 5, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = "#F5F1E6";
+  ctx.font = "600 11px IBM Plex Sans, sans-serif";
+  ctx.fillText("origin", sx(0)+8, sy(0)-6);
+}
+
+function drawDog(p){
+  const X = sx(p.x), Y = sy(p.y);
+  ctx.save();
+  ctx.translate(X,Y);
+  ctx.rotate(-p.heading); // canvas y is down; heading was in lattice (y up)
+  // body
+  ctx.fillStyle = "#C4B39A";
+  ctx.strokeStyle = "#2A241C";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.roundRect(-11, -6, 20, 12, 4);
+  ctx.fill(); ctx.stroke();
+  // head
+  ctx.fillStyle = "#A89274";
+  ctx.beginPath(); ctx.roundRect(6, -4.5, 10, 9, 3); ctx.fill(); ctx.stroke();
+  // ears
+  ctx.fillStyle = "#6B5A45";
+  ctx.fillRect(8, -7, 3, 3);
+  ctx.fillRect(8, 4, 3, 3);
+  // legs (trot)
+  const ph = (anim.t*8) % (Math.PI*2);
+  ctx.strokeStyle = "#3A3228";
+  ctx.lineWidth = 2;
+  const legs = [[-7,5],[2,5],[-7,-5],[2,-5]];
+  legs.forEach((L,i)=>{
+    const swing = Math.sin(ph + (i%2?0:Math.PI)) * 4;
+    ctx.beginPath();
+    ctx.moveTo(L[0], L[1]>0?6:-6);
+    ctx.lineTo(L[0]+swing, L[1]>0?12:-12);
+    ctx.stroke();
+  });
+  ctx.restore();
+}
+
+function draw(){
+  ctx.clearRect(0,0,cssW,cssH);
+  drawGrid();
+  drawCraters();
+  const t = anim.t;
+  const done = visitedIds(t);
+  drawPath(Math.min(FLAT.length-1, Math.floor(t)));
+  drawMines(done);
+  drawDog(posAt(t));
+  const leg = tour.legs[currentLeg(t).i];
+  document.getElementById("hud").innerHTML =
+    "cell ("+Math.round(posAt(t).x)+", "+Math.round(posAt(t).y)+") · " +
+    "next/current "+leg.mine.id+" · path "+Math.min(FLAT.length-1, Math.floor(t))+"/"+ (FLAT.length-1);
+  paintQueue(done, leg.mine.id);
+}
+
+function paintQueue(done, currentId){
+  const el = document.getElementById("queue");
+  const ranked = MINES.slice().sort((a,b)=>{
+    const d = priorityScore(b)-priorityScore(a);
+    return d!==0 ? d : a.queue-b.queue;
+  });
+  el.innerHTML = ranked.map((m,i)=>{
+    const cls = done.has(m.id) ? "done" : (m.id===currentId ? "on" : "");
+    const pct = (100*m.expected_find/MAX_FIND).toFixed(0);
+    return `<div class="qrow ${cls}">
+      <span class="rk">${i+1}</span>
+      <div>
+        <div class="nm">${m.id} · (${m.x},${m.y}) ${m.exploration?'<span class="chip">explore</span>':''}</div>
+        <div class="sub">queue index ${m.queue} · AO cell ${m.cell}</div>
+        <div class="bar"><i style="width:${pct}%"></i></div>
+      </div>
+      <div class="sc">E[find]<br>${m.expected_find.toExponential(2)}</div>
+    </div>`;
+  }).join("");
+}
+
+function tick(now){
+  if (!anim.playing){ anim.last = now; return; }
+  const dt = Math.min(0.05, (now - anim.last)/1000);
+  anim.last = now;
+  anim.t += dt * SPEED;
+  if (anim.t >= FLAT.length-1){
+    anim.t = FLAT.length-1;
+    anim.playing = false;
+    document.getElementById("play").textContent = "Play";
+    document.getElementById("stat").textContent = "Tour complete. Still not a clearance.";
+  } else {
+    document.getElementById("stat").textContent = "BFS walking the lattice…";
+  }
+  draw();
+  requestAnimationFrame(tick);
+}
+
+document.getElementById("play").onclick = ()=>{
+  if (anim.t >= FLAT.length-1) anim.t = 0;
+  anim.playing = !anim.playing;
+  document.getElementById("play").textContent = anim.playing ? "Pause" : "Play";
+  anim.last = performance.now();
+  if (anim.playing) requestAnimationFrame(tick);
+};
+document.getElementById("reset").onclick = ()=>{
+  anim.playing = false; anim.t = 0;
+  document.getElementById("play").textContent = "Play";
+  document.getElementById("stat").textContent = "Reset.";
+  draw();
+};
+
+window.addEventListener("resize", resize);
+resize();
+
+// Self-check: path never occupies a mine lattice point.
+(function assertSafe(){
+  const occ = new Set(MINES.map(m => key(m.x,m.y)));
+  for (const p of FLAT){
+    if (occ.has(key(p.x,p.y))) throw new Error("path stepped on a mine at "+p.x+","+p.y);
+  }
+  const order = tour.order.map(m=>m.id).join("");
+  if (order !== "CADB") throw new Error("unexpected visit order "+order+" (want C,A,D,B by expected_find then queue)");
+})();
+</script>
