@@ -33,6 +33,9 @@ async def run(args: argparse.Namespace) -> int:
     ble = load_ble(Path(args.ble_py).expanduser().resolve())
     # Do not scan-then-later-connect: BlueZ drops the device after StopDiscovery.
     print(f"scan+connect name={args.name} mac={args.mac} already={args.already_connected}")
+    if not args.already_connected:
+        print("If connect times out, turn Wi-Fi OFF on this Linux laptop (keep Bluetooth).")
+        print("BLE and 2.4 GHz Wi-Fi share one radio. The Windows PC can stay on the hotspot.")
     serial = await ble.retry(
         lambda: ble.provision_wifi(
             args.mac,
@@ -40,6 +43,7 @@ async def run(args: argparse.Namespace) -> int:
             args.password,
             args.country,
             timeout=args.timeout,
+            connect_retries=1,
             name=None if args.already_connected else args.name,
             already_connected=args.already_connected,
             on_progress=print,
@@ -70,8 +74,8 @@ def main() -> int:
         help="skip scan; Bleak attaches to a bluetoothctl connection (--mac required)",
     )
     ap.add_argument("--country", default="US")
-    ap.add_argument("--timeout", type=float, default=20.0)
-    ap.add_argument("--retries", type=int, default=3)
+    ap.add_argument("--timeout", type=float, default=30.0)
+    ap.add_argument("--retries", type=int, default=2)
     ap.add_argument("--ble-py", default=str(here / "go2_ble.py"))
     args = ap.parse_args()
     try:

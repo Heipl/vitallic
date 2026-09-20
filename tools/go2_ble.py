@@ -137,25 +137,206 @@ async def _stop_stale_bluez_scan() -> None:
         pass
 
 
-async def _run_btctl(*args: str, timeout: float = 15.0) -> str:
-    proc = await asyncio.create_subprocess_exec(
-        "bluetoothctl",
-        *args,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.STDOUT,
-    )
+def _mac_from_btctl_line(line: str, name: str | None) -> str | None:
+    if "Device " not in line:
+        return None
+    if name and name not in line:
+        return None
+    parts = line.replace("[NEW]", " ").replace("[CHG]", " ").split()
+    for i, part in enumerate(parts):
+        if part == "Device" and i + 1 < len(parts) and parts[i + 1].count(":") == 5:
+            return parts[i + 1]
+    return None
+
+
+async def _spawn_btctl() -> asyncio.subprocess.Process:
+    for argv in (["stdbuf", "-oL", "bluetoothctl"], ["bluetoothctl"]):
+        try:
+            return await asyncio.create_subprocess_exec(
+                *argv,
+                stdin=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.STDOUT,
+            )
+        except FileNotFoundError:
+            continue
+    raise RuntimeError("bluetoothctl not found")
+
+
+async def _linux_btctl_connect(
+    address: str | None,
+    name: str | None,
+    timeout: float,
+    on_progress: Callable[[str], None],
+) -> str:
+    """Scan and connect with one bluetoothctl process. Do not mix with BleakScanner."""
+    await _stop_stale_bluez_scan()
+    proc = await _spawn_btctl()
+    assert proc.stdin is not None and proc.stdout is not None
+    lines: list[str] = []
+
+    async def pump() -> None:
+        while True:
+            raw = await proc.stdout.readline()
+            if not raw:
+                return
+            line = raw.decode("utf-8", "replace").rstrip()
+            if not line:
+                continue
+            lines.append(line)
+            on_progress(f"btctl {line}")
+
+    async def send(cmd: str) -> None:
+        on_progress(f"btctl > {cmd}")
+        proc.stdin.write((cmd + "\n").encode())
+        await proc.stdin.drain()
+
+    async def wait_pred(pred: Callable[[], bool], seconds: float) -> bool:
+        loop = asyncio.get_running_loop()
+        end = loop.time() + seconds
+        while loop.time() < end:
+            if pred():
+                return True
+            await asyncio.sleep(0.12)
+        return pred()
+
+    pump_task = asyncio.create_task(pump())
+    connected: str | None = None
     try:
-        out, _ = await asyncio.wait_for(proc.communicate(), timeout=timeout)
-    except asyncio.TimeoutError:
-        proc.kill()
-        await proc.wait()
-        raise RuntimeError(f"bluetoothctl {' '.join(args)} timed out")
-    text = (out or b"").decode("utf-8", "replace")
-    if "Connection successful" in text:
-        return text
-    if proc.returncode not in (0, None):
-        raise RuntimeError(text.strip()[:400] or f"bluetoothctl exit {proc.returncode}")
-    return text
+        await send("power on")
+        await send("agent on")
+        await send("default-agent")
+        await send("menu scan")
+        await send("transport le")
+        await send("back")
+        await send("scan on")
+
+        def found_mac() -> str | None:
+            for line in lines:
+                mac = _mac_from_btctl_line(line, name)
+                if mac:
+                    return mac
+            return None
+
+        if not await wait_pred(lambda: found_mac() is not None, timeout):
+            raise RuntimeError(f"bluetoothctl scan missed {name or address}")
+
+        seen = found_mac()
+        assert seen is not None
+        on_progress(f"seen {name} {seen}")
+        await send(f"info {seen}")
+        await asyncio.sleep(0.5)
+
+        candidates: list[str] = []
+        for mac in (seen, address):
+            if mac and mac.upper() not in {c.upper() for c in candidates}:
+                candidates.append(mac)
+
+        for mac in candidates:
+            n_before = len(lines)
+            await send(f"connect {mac}")
+
+            def ok(n: int = n_before) -> bool:
+                return any(
+                    "Connection successful" in line or "Connected: yes" in line
+                    for line in lines[n:]
+                )
+
+            def bad(n: int = n_before) -> bool:
+                return any("Failed to connect" in line for line in lines[n:])
+
+            if await wait_pred(lambda: ok() or bad(), min(12.0, timeout)):
+                if ok():
+                    connected = mac
+                    await send(f"trust {mac}")
+                    break
+            on_progress(f"connect {mac} failed")
+            await send(f"pair {mac}")
+            await asyncio.sleep(2.0)
+            n_pair = len(lines)
+            await send(f"connect {mac}")
+            if await wait_pred(
+                lambda: any(
+                    "Connection successful" in line or "Connected: yes" in line
+                    for line in lines[n_pair:]
+                ),
+                8.0,
+            ):
+                connected = mac
+                await send(f"trust {mac}")
+                break
+
+        await send("scan off")
+        if connected is None:
+            raise RuntimeError(
+                "bluetoothctl could not connect "
+                f"(tried {', '.join(candidates)}). Disconnect this laptop "
+                "from 2.4 GHz Wi-Fi and retry; BLE shares that radio."
+            )
+        return connected
+    finally:
+        try:
+            proc.stdin.write(b"quit\n")
+            await proc.stdin.drain()
+        except Exception:
+            pass
+        try:
+            proc.kill()
+        except Exception:
+            pass
+        try:
+            await asyncio.wait_for(proc.wait(), timeout=3.0)
+        except Exception:
+            pass
+        pump_task.cancel()
+
+
+async def _connect_already(address: str, timeout: float, on_progress: Callable[[str], None]) -> Any:
+    from bleak import BleakClient
+
+    on_progress(f"attaching to existing BlueZ connection {address}")
+    client = BleakClient(address, timeout=timeout)
+    await asyncio.wait_for(client.connect(), timeout=timeout)
+    return client
+
+
+async def _connect_once(
+    address: str | None,
+    name: str | None,
+    timeout: float,
+    on_progress: Callable[[str], None],
+) -> Any:
+    """Find the dog, then GATT-connect before BlueZ forgets the advertisement."""
+    from bleak import BleakClient, BleakScanner
+
+    if sys.platform.startswith("linux"):
+        mac = await _linux_btctl_connect(address, name, timeout, on_progress)
+        on_progress(f"bleak attach {mac}")
+        client = BleakClient(mac, timeout=timeout)
+        await asyncio.wait_for(client.connect(), timeout=timeout)
+        return client
+
+    await _stop_stale_bluez_scan()
+    found = asyncio.Event()
+    box: dict[str, Any] = {}
+
+    def on_detect(device: Any, _adv: Any) -> None:
+        if "dev" in box:
+            return
+        if _is_target(device, address, name):
+            box["dev"] = device
+            found.set()
+
+    async with BleakScanner(detection_callback=on_detect):
+        try:
+            await asyncio.wait_for(found.wait(), timeout=timeout)
+        except asyncio.TimeoutError:
+            raise RuntimeError(f"scan missed {name or address}; dog on and advertising?")
+        device = box["dev"]
+        on_progress(f"connecting {device.name} {device.address}")
+        client = BleakClient(device, timeout=timeout)
+        await client.connect()
+        return client
 
 
 async def discover_ble(
@@ -272,70 +453,6 @@ def _is_target(device: Any, address: str | None, name: str | None) -> bool:
     if address and getattr(device, "address", "").upper() == address.upper():
         return True
     return False
-
-
-async def _connect_already(address: str, timeout: float, on_progress: Callable[[str], None]) -> Any:
-    from bleak import BleakClient
-
-    on_progress(f"attaching to existing BlueZ connection {address}")
-    client = BleakClient(address, timeout=timeout)
-    await asyncio.wait_for(client.connect(), timeout=timeout)
-    return client
-
-
-async def _connect_once(
-    address: str | None,
-    name: str | None,
-    timeout: float,
-    on_progress: Callable[[str], None],
-) -> Any:
-    """Find the dog, then GATT-connect before BlueZ forgets the advertisement."""
-    from bleak import BleakClient, BleakScanner
-
-    await _stop_stale_bluez_scan()
-    found = asyncio.Event()
-    box: dict[str, Any] = {}
-
-    def on_detect(device: Any, _adv: Any) -> None:
-        if "dev" in box:
-            return
-        if _is_target(device, address, name):
-            box["dev"] = device
-            found.set()
-
-    scanner: Any = BleakScanner(detection_callback=on_detect)
-    await scanner.start()
-    try:
-        try:
-            await asyncio.wait_for(found.wait(), timeout=timeout)
-        except asyncio.TimeoutError:
-            raise RuntimeError(f"scan missed {name or address}; dog on and advertising?")
-        device = box["dev"]
-        on_progress(f"found {device.name} {device.address}")
-        # Bleak Device1.Connect while Discovering fails on this adapter (empty
-        # error). bluetoothctl Connect while the device is still in the object
-        # tree leaves it Connected, so BlueZ will not delete it at scan-stop.
-        if sys.platform.startswith("linux"):
-            on_progress("bluetoothctl connect (scan still on)")
-            try:
-                out = await _run_btctl("connect", device.address, timeout=timeout)
-                on_progress("bluetoothctl: " + " ".join(out.split())[:240])
-            except FileNotFoundError:
-                on_progress("bluetoothctl not found")
-            except Exception as exc:
-                on_progress(f"bluetoothctl failed: {type(exc).__name__}: {exc!r}")
-        await scanner.stop()
-        scanner = None
-        on_progress(f"bleak attach {device.address}")
-        client = BleakClient(device.address, timeout=timeout)
-        await asyncio.wait_for(client.connect(), timeout=timeout)
-        return client
-    finally:
-        if scanner is not None:
-            try:
-                await scanner.stop()
-            except Exception:
-                pass
 
 
 async def _connect_with_retry(
