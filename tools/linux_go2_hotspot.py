@@ -31,29 +31,17 @@ def load_ble(path: Path):
 
 async def run(args: argparse.Namespace) -> int:
     ble = load_ble(Path(args.ble_py).expanduser().resolve())
-
-    def on_dev(d) -> None:
-        print(f"  BLE {d.name} {d.address} serial={d.serial}")
-
-    address = args.mac
-    if args.scan:
-        print(f"Scanning {args.timeout:.0f}s ...")
-        devices = await ble.find_robots(timeout=args.timeout, on_device=on_dev)
-        match = next(
-            (d for d in devices if d.name == DEFAULT_NAME or d.address.upper() == DEFAULT_MAC.upper()),
-            None,
-        )
-        if match is None:
-            print("No Go2_60658 found. Dog on? Within a couple metres?", file=sys.stderr)
-            return 1
-        address = match.address
-        print(f"using {match.name} {address}")
-    else:
-        print(f"using --mac {address}")
-
+    # Do not scan-then-later-connect: BlueZ drops the device after StopDiscovery.
+    print(f"scan+connect name={args.name} mac={args.mac}")
     serial = await ble.retry(
         lambda: ble.provision_wifi(
-            address, args.ssid, args.password, args.country, on_progress=print
+            args.mac,
+            args.ssid,
+            args.password,
+            args.country,
+            timeout=args.timeout,
+            name=args.name,
+            on_progress=print,
         ),
         attempts=args.retries,
         on_error=lambda i, e: print(f"  attempt {i} failed: {e}", file=sys.stderr),
@@ -69,9 +57,14 @@ def main() -> int:
     ap.add_argument("--ssid", required=True)
     ap.add_argument("--password", required=True)
     ap.add_argument("--mac", default=DEFAULT_MAC)
-    ap.add_argument("--scan", action="store_true", help="scan instead of using --mac")
+    ap.add_argument("--name", default=DEFAULT_NAME)
+    ap.add_argument(
+        "--scan",
+        action="store_true",
+        help="ignored; connect always re-scans so BlueZ still has the device",
+    )
     ap.add_argument("--country", default="US")
-    ap.add_argument("--timeout", type=float, default=12.0)
+    ap.add_argument("--timeout", type=float, default=20.0)
     ap.add_argument("--retries", type=int, default=3)
     ap.add_argument("--ble-py", default=str(here / "go2_ble.py"))
     args = ap.parse_args()

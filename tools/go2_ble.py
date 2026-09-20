@@ -243,21 +243,75 @@ class _Session:
         self.last = None
 
 
+def _is_target(device: Any, address: str | None, name: str | None) -> bool:
+    """Match a live advertisement. Linux often shows a different MAC than Windows."""
+    if name and getattr(device, "name", None) == name:
+        return True
+    if address and getattr(device, "address", "").upper() == address.upper():
+        return True
+    return False
+
+
+async def _connect_once(
+    address: str | None,
+    name: str | None,
+    timeout: float,
+    on_progress: Callable[[str], None],
+) -> Any:
+    """Find the dog, then GATT-connect before BlueZ forgets the advertisement."""
+    from bleak import BleakClient, BleakScanner
+
+    await _stop_stale_bluez_scan()
+    found = asyncio.Event()
+    box: dict[str, Any] = {}
+
+    def on_detect(device: Any, _adv: Any) -> None:
+        if "dev" in box:
+            return
+        if _is_target(device, address, name):
+            box["dev"] = device
+            found.set()
+
+    scanner: Any = BleakScanner(detection_callback=on_detect)
+    await scanner.start()
+    try:
+        try:
+            await asyncio.wait_for(found.wait(), timeout=timeout)
+        except asyncio.TimeoutError:
+            raise RuntimeError(f"scan missed {name or address}; dog on and advertising?")
+        device = box["dev"]
+        on_progress(f"connecting {device.name} {device.address}")
+        client = BleakClient(device, timeout=timeout)
+        try:
+            await client.connect()
+            return client
+        except Exception as exc:
+            on_progress(f"connect-while-scanning failed ({exc}); stopping scan")
+            await scanner.stop()
+            scanner = None
+            client = BleakClient(device, timeout=timeout)
+            await client.connect()
+            return client
+    finally:
+        if scanner is not None:
+            try:
+                await scanner.stop()
+            except Exception:
+                pass
+
+
 async def _connect_with_retry(
     address: str,
     timeout: float,
     attempts: int,
     on_progress: Callable[[str], None],
+    name: str | None = None,
 ) -> Any:
-    """Open a BleakClient, retrying only the connection step."""
-    from bleak import BleakClient
-
+    """Scan until the dog is visible, then connect to that live Bleak device."""
     last_exc: BaseException | None = None
     for i in range(attempts):
-        client = BleakClient(address, timeout=timeout)
         try:
-            await client.connect()
-            return client
+            return await _connect_once(address, name, timeout, on_progress)
         except Exception as e:
             last_exc = e
             on_progress(f"connect attempt {i + 1}/{attempts} failed: {e}")
@@ -276,6 +330,7 @@ async def provision_wifi(
     timeout: float = 30.0,
     connect_retries: int = 3,
     on_progress: Callable[[str], None] | None = None,
+    name: str | None = None,
 ) -> str | None:
     """Provision a Unitree robot's wifi over BLE. Returns the serial number on success.
 
@@ -286,7 +341,9 @@ async def provision_wifi(
     """
     progress = on_progress or (lambda _msg: None)
 
-    client = await _connect_with_retry(address, timeout, connect_retries, progress)
+    client = await _connect_with_retry(
+        address, timeout, connect_retries, progress, name=name
+    )
     try:
         session = _Session(client)
         try:
