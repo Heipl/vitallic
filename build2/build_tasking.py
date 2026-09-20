@@ -324,9 +324,17 @@ assert set(RAW_LAYERS) == set(T.KEYS), "layer set does not match the criteria"
 scores = {k: T.percentile_score(v, mask=land) for k, v in RAW_LAYERS.items()}
 WEIGHTS = T.weights_for(T.KEYS)
 composite = np.where(land, T.composite(scores, WEIGHTS), 0.0)
+# Freeze the class breaks from the default weighting. Evenly spaced breaks put
+# most of the country in the top three classes -- a mean of seven percentile
+# layers piles up around 0.5 -- and a map where everything is urgent ranks
+# nothing.
+breaks = T.priority_breaks(composite, mask=land)
 log("\nweights (rank-order centroid over the stated order):")
 for k, w in WEIGHTS.items():
     log(f"  {k:10} {w:.3f}   {T.BY_KEY[k].label}")
+log("  class breaks at national quantiles "
+    f"{T.BREAK_QUANTILES}: "
+    + ", ".join(f"{b:.3f}" for b in breaks))
 
 # ---------------------------------------------------------------------------
 # District aggregates
@@ -430,7 +438,7 @@ meta = {
     "reach_km": REACH_KM,
     "slope_limit_deg": T.SLOPE_LIMIT_DEG,
     "grid_km": grid.res,
-    "tier_breaks": list(T.TIER_BREAKS),
+    "tier_breaks": [round(b, 4) for b in breaks],
     "criteria": [{"key": c.key, "label": c.label, "unit": c.unit, "source": c.source,
                   "note": c.note, "weight": round(WEIGHTS[c.key], 4)} for c in T.CRITERIA],
     "sources": SOURCES,

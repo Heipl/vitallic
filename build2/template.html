@@ -161,7 +161,9 @@ table.crits th{text-align:left;font-size:9.5px;letter-spacing:.07em;text-transfo
   color:var(--ink-3);font-weight:600;padding:0 0 4px}
 table.crits th.r,table.crits td.r{text-align:right}
 table.crits td{padding:3px 0;border-top:1px solid var(--rule-2);vertical-align:middle}
-table.crits td.w{width:56px}
+table.crits td.val{width:74px;padding-left:8px}
+table.crits td.w{width:46px;padding-left:10px}
+table.crits td.add{width:42px;padding-left:10px}
 table.crits .pb{height:4px;background:var(--rule-2);border-radius:1px;overflow:hidden}
 table.crits .pb i{display:block;height:100%;background:var(--r4)}
 table.crits tr.off{opacity:.4}
@@ -546,13 +548,13 @@ function tRankOf(level, name) {
    every percentile because a percentile alone cannot tell you whether the top
    district holds ten times the mines of the next one or a thousand times. */
 function tRawText(k, q, sc) {
-  if (k === "density") return fmt(q.density * sc, 3) + " /km²";
-  if (k === "people") return fmt(q.people) + " residents";
-  if (k === "farmland") return fmt(q.farmland, 1) + "% cropland";
-  if (k === "schools") return fmt(q.schools) + (q.schools === 1 ? " school" : " schools");
-  if (k === "hospitals") return fmt(q.hospitals) + (q.hospitals === 1 ? " hospital" : " hospitals");
+  if (k === "density") return fmt(q.density * sc, 2) + " /km²";
+  if (k === "people") return fmt(q.people);
+  if (k === "farmland") return fmt(q.farmland, 1) + "%";
+  if (k === "schools") return fmt(q.schools);
+  if (k === "hospitals") return fmt(q.hospitals);
   if (k === "roads") return fmt(q.roads) + " km";
-  if (k === "access") return fmt(q.access, 2) + " · " + fmt(q.slope, 1) + "° slope";
+  if (k === "access") return fmt(q.access, 2) + " · " + fmt(q.slope, 1) + "°";
   return "—";
 }
 
@@ -945,7 +947,6 @@ function regionPanel(r, level, sc) {
 function taskTable(level, highlight) {
   if (!TASK) return "";
   const all = tRanked(level), rows = all.slice(0, 15);
-  const max = rows.length ? rows[0].v : 1;
   const what = level === "adm1" ? "oblasts" : "raions";
   return `<div class="dsec"><span class="lbl">Robot tasking order &mdash; ${what}</span>
     <p class="note" style="margin-top:4px">Where to work first, over ${tOn.size} of
@@ -959,7 +960,7 @@ function taskTable(level, highlight) {
         <td class="num">${x.rank}</td>
         <td>${x.r.n}${x.r.p ? ` <span style="color:var(--ink-3)">&middot; ${x.r.p}</span>` : ""}</td>
         <td class="r num">${x.v.toFixed(3)}</td>
-        <td><div class="bar" style="width:${(x.v / max * 100).toFixed(1)}%"></div></td></tr>`).join("")}
+        <td><div class="bar" style="width:${(x.v * 100).toFixed(1)}%"></div></td></tr>`).join("")}
       </tbody></table></div>`;
 }
 
@@ -977,10 +978,10 @@ function taskPanel(name, level) {
     const on = tOn.has(c.key), s = rec.s[c.key] || 0;
     return `<tr class="${on ? "" : "off"}" title="${c.note}">
       <td><span class="num" style="color:var(--ink-3)">${i + 1}</span> ${c.label}</td>
-      <td class="r num">${tRawText(c.key, rec.q, sc)}</td>
-      <td class="r w"><span class="num">${Math.round(s * 100)}%</span>
+      <td class="r num val">${tRawText(c.key, rec.q, sc)}</td>
+      <td class="r w"><span class="num">${Math.round(s * 100)}</span>
         <div class="pb"><i style="width:${(s * 100).toFixed(0)}%"></i></div></td>
-      <td class="r num">${on ? (w[c.key] * s).toFixed(3) : "&mdash;"}</td></tr>`;
+      <td class="r num add">${on ? (w[c.key] * s).toFixed(3) : "&mdash;"}</td></tr>`;
   }).join("");
   return `<div class="dsec">
     <span class="lbl">Clearance tasking priority</span>
@@ -994,6 +995,10 @@ function taskPanel(name, level) {
       <thead><tr><th>Criterion, in priority order</th><th class="r">In district</th>
         <th class="r">Pct</th><th class="r">Adds</th></tr></thead>
       <tbody>${rows}</tbody></table>
+    <p class="note">Values are totals inside the district. The percentile scores
+      each 5 km cell against the whole country, counting people, schools,
+      hospitals and roads within 10 km of it &mdash; a minefield 6 km from a
+      village is still that village's problem.</p>
     <div class="anchor">First area of operations
       <span class="num">${rec.a.lat.toFixed(4)}&deg; N ${rec.a.lon.toFixed(4)}&deg; E</span>
       &mdash; the highest-scoring 5 km cell here, not the district centroid, which is
@@ -1152,10 +1157,10 @@ function renderLegend() {
     const b = [0, ...TBREAKS];
     rows = RAMP.map((c, i) => ({c, t: TTIERS[i],
       v: i === 5 ? `≥ ${b[5].toFixed(2)}` : `${b[i].toFixed(2)}–${b[i + 1].toFixed(2)}`}));
-    note = `<p class="note">Weighted score over
-      ${tOn.size} of ${TKEYS.length} criteria. This ranks <em>work</em>, not danger:
-      a cell scores low when little is at stake around it, never because the
-      ground is clear.</p>`;
+    note = `<p class="note">Weighted score over ${tOn.size} of ${TKEYS.length}
+      criteria. Classes are national percentiles of modelled land, so the top
+      class is its worst 1%. This ranks <em>work</em>, not danger: ground scores
+      low when little is at stake around it, never because it is clear.</p>`;
   } else {
     const b = [0, ...BREAKS];
     rows = RAMP.map((c, i) => ({

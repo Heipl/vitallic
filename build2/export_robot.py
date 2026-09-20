@@ -23,8 +23,9 @@ from mineprior.geo import ENU, Grid, UKRAINE_LAEA
 from mineprior.sweeplog import (Detection, Provenance, ProvenanceError, Sweep,
                                 SweepLog, export_registered)
 
-DATA = Path(r"C:\Users\rinoa\landmine-bayes\data")
-OUT = Path(r"C:\Users\rinoa\landmine-bayes\dist\robot")
+ROOT = Path(__file__).resolve().parents[1]
+DATA = ROOT / "data"
+OUT = ROOT / "dist" / "robot"
 OUT.mkdir(parents=True, exist_ok=True)
 
 AO_SIZE_M = 200.0
@@ -55,8 +56,14 @@ def log(*a):
 
 
 # ---------------------------------------------------------------------------
-# Pick the AO from the national prior
+# Pick the AO: top of the tasking order, or the raw hazard peak
 # ---------------------------------------------------------------------------
+# The highest-prior cell is the most contaminated ground the model knows of,
+# which is not the same as the ground worth clearing first -- that is what the
+# tasking order in dist/robot/tasking_priority.json decides, by weighing the
+# hazard against who and what is around it. Use the order when it has been
+# built, and say which rule was used either way, because "why is the robot
+# here" must never be a guess.
 
 g = np.load(DATA / "out" / "ukraine_grid.npz")
 alpha_n, beta_n, land = g["alpha"], g["beta"], g["land"]
@@ -64,15 +71,27 @@ nat = Grid(x0=float(g["x0"]), y0=float(g["y0"]), res=float(g["res"]),
            width=int(g["width"]), height=int(g["height"]))
 mean_n = np.where(land, M.mean(np.maximum(alpha_n, 1e-9), np.maximum(beta_n, 1e-9)), 0.0)
 
-cy, cx = np.unravel_index(int(np.argmax(mean_n)), mean_n.shape)
-x_c = nat.x0 + (cx + 0.5) * nat.res
-y_c = nat.y0 + (cy + 0.5) * nat.res
-lat0, lon0 = UKRAINE_LAEA.inverse(x_c, y_c)
-lat0, lon0 = float(lat0), float(lon0)
+tasking = OUT / "tasking_priority.json"
+if tasking.exists():
+    top = json.loads(tasking.read_text(encoding="utf-8"))["order"][0]
+    lat0, lon0 = float(top["anchor_lat"]), float(top["anchor_lon"])
+    x_c, y_c = UKRAINE_LAEA.forward(lat0, lon0)
+    cx, cy = nat.index_of(float(x_c), float(y_c))
+    cx, cy = int(cx), int(cy)
+    AO_SOURCE = (f"clearance tasking order, rank 1: {top['raion']} raion, "
+                 f"{top['oblast']} oblast (score {top['score']:.3f})")
+else:
+    cy, cx = np.unravel_index(int(np.argmax(mean_n)), mean_n.shape)
+    lat0, lon0 = UKRAINE_LAEA.inverse(nat.x0 + (cx + 0.5) * nat.res,
+                                      nat.y0 + (cy + 0.5) * nat.res)
+    lat0, lon0 = float(lat0), float(lon0)
+    AO_SOURCE = ("highest-prior 5 km cell (no tasking order built -- run "
+                 "build2/build_tasking.py)")
 
 parent_mean = float(mean_n[cy, cx])
 parent_density = parent_mean / (nat.res ** 2)       # mines per km^2
-log(f"AO anchored on the highest-prior 5 km cell: {lat0:.4f} N, {lon0:.4f} E")
+log(f"AO anchored on the {AO_SOURCE}")
+log(f"  {lat0:.4f} N, {lon0:.4f} E")
 log(f"  parent cell: {parent_mean:.1f} mines over {nat.res**2:.0f} km^2 "
     f"= {parent_density:.2f} mines/km^2")
 
@@ -88,7 +107,7 @@ ao = Grid(x0=-half, y0=-half, res=AO_RES_M,
 fld = PosteriorField.from_density(
     ao, enu, parent_density,
     prior_source=("UCDP GED v25.1 national 5 km prior, cell "
-                  f"({cx},{cy}); FLAT within the parent cell"),
+                  f"({cx},{cy}) chosen by {AO_SOURCE}; FLAT within the parent cell"),
     prior_is_flat=True)
 fld.meta["ao_size_m"] = AO_SIZE_M
 fld.corr_length_m = 8.0
@@ -276,6 +295,7 @@ plan = mission.plan_route(fld, robot_xy=robot_xy, n_waypoints=60, coverage=cover
 (OUT / "next_mission.json").write_text(json.dumps({
     "frame_id": "world",
     "origin_lat": lat0, "origin_lon": lon0,
+    "ao_selected_by": AO_SOURCE,
     "resolution_m": AO_RES_M,
     "waypoints": plan,
     "WARNING": ("MODEL OUTPUT - NOT A CLEARANCE RECORD. These waypoints are survey "

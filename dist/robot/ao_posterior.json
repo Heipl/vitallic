@@ -1,7 +1,7 @@
 {
  "frame_id": "world",
- "origin_lat": 48.585867349750664,
- "origin_lon": 37.97916327216249,
+ "origin_lat": 48.5775,
+ "origin_lon": 38.1146,
  "origin_x_m": -100.0,
  "origin_y_m": -100.0,
  "resolution_m": 2.0,
@@ -12,10 +12,10 @@
  "grid_order": "row = y (north), col = x (east); origin is the BOTTOM-LEFT corner",
  "cost_scale": "0..100 = P(at least one mine present) x 100; -1 = outside modelled domain",
  "prior_is_flat_below_5km": true,
- "prior_source": "UCDP GED v25.1 national 5 km prior, cell (294,137); FLAT within the parent cell",
+ "prior_source": "UCDP GED v25.1 national 5 km prior, cell (296,137) chosen by clearance tasking order, rank 1: Bakhmutskyi raion, Donetska oblast (score 0.805); FLAT within the parent cell",
  "corr_length_m": 8.0,
  "leak": 0.35,
- "generated_utc": "2026-09-20T03:19:57Z",
+ "generated_utc": "2026-09-20T02:45:16Z",
  "WARNING": "MODEL OUTPUT - NOT A CLEARANCE RECORD. No cell in this grid has been declared free of explosive ordnance. This is non-technical survey support information only.",
  "ao_size_m": 200.0
 }

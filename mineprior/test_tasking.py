@@ -81,11 +81,22 @@ check("half the cell under forest halves it", T.accessibility(0.0, 0.5), 0.5)
 check("9 deg of slope with a third blocked",
       T.accessibility(9.0, 1 / 3), 0.5 * (2 / 3))
 
-print("\n[6] display tiers are fixed, so a colour keeps its meaning")
+print("\n[6] display tiers are frozen, so a colour keeps its meaning")
 check("a score below the first break is tier 0", T.tier_of(0.19), 0)
 check("a score on a break takes the tier above", T.tier_of(0.20), 1)
 check("the top of the scale is tier 5", T.tier_of(1.0), 5)
 assert_true("six tiers, five breaks", len(T.TIER_BREAKS) == 5)
+check("a build's own breaks override the fallback",
+      T.tier_of(0.19, [0.1, 0.2, 0.3, 0.4, 0.5]), 1)
+ground = np.linspace(0, 1, 1000)
+pb = T.priority_breaks(ground)
+assert_true("breaks land on the stated quantiles of the scored ground",
+            bool(np.allclose(pb, T.BREAK_QUANTILES, atol=2e-3)))
+counts = np.bincount(T.tier_of(ground, pb), minlength=6)
+assert_true("the bottom class is half the ground", abs(counts[0] - 500) <= 2)
+assert_true("the top class is its worst 1%", abs(counts[5] - 10) <= 2)
+assert_true("classes never overlap and account for everything",
+            int(counts.sum()) == ground.size)
 
 print("\n[7] ranking: a hole in one input layer must not drop a district")
 regions = [

@@ -206,14 +206,41 @@ some manufacturers claim on prepared ground; at 5 km resolution the mean slope
 of a cell understates the worst slope inside it, so the softer end is honest."""
 
 TIER_BREAKS: tuple[float, ...] = (0.20, 0.35, 0.50, 0.65, 0.80)
-"""Composite-score breaks for the six display tiers. Fixed, not quantile-based:
-if the breaks moved with the data, switching a criterion off would recolour
-every district and the colour would stop meaning a number."""
+"""Fallback breaks for the six display tiers, used when a build does not supply
+its own.
+
+A weighted mean of seven percentile layers concentrates near 0.5 -- averaging
+independent uniforms is a Bates distribution, not a uniform one -- so an evenly
+spaced scale like this one puts most of the country in the top three classes
+and the map reads as "everywhere is urgent", which ranks nothing.
+build_tasking.py therefore freezes `priority_breaks` of the national composite
+into the payload instead.
+
+Frozen at build time, and deliberately not recomputed as criteria are switched
+off: if the breaks moved with the settings, a colour would stop meaning a
+number and two screenshots of the same district would disagree."""
+
+BREAK_QUANTILES: tuple[float, ...] = (0.50, 0.75, 0.90, 0.96, 0.99)
+"""Where the six display classes fall in the national distribution of ground.
+
+Deliberately not an even split. A tasking map is read to answer "where do we
+go first", so the top class has to be small enough to act on: this puts the
+bottom class at half the country and the top class at its worst 1% of land,
+about 1,500 km^2, which is the order of a season's work for a national
+programme rather than a wish."""
 
 
-def tier_of(score) -> np.ndarray:
+def tier_of(score, breaks=None) -> np.ndarray:
     """Index 0..5 of the display tier for a composite score."""
-    return np.searchsorted(np.asarray(TIER_BREAKS), np.asarray(score), side="right")
+    b = TIER_BREAKS if breaks is None else breaks
+    return np.searchsorted(np.asarray(b), np.asarray(score), side="right")
+
+
+def priority_breaks(score, mask=None) -> list[float]:
+    """Class breaks at BREAK_QUANTILES of the scored ground."""
+    v = np.asarray(score, dtype=np.float64)
+    v = v[np.ones(v.shape, bool) if mask is None else np.asarray(mask, bool)]
+    return [float(np.quantile(v, q)) for q in BREAK_QUANTILES]
 
 
 def rank_regions(regions: Sequence[Mapping], weights: Mapping[str, float]) -> list[dict]:

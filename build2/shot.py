@@ -12,6 +12,8 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
+import time
 from pathlib import Path
 
 D = Path(__file__).resolve().parents[1] / "dist"
@@ -50,15 +52,32 @@ tmp.write_text(patched, encoding="utf-8")
 shot = D / (sys.argv[2] if len(sys.argv) > 2 else "shot.png")
 if shot.exists():
     shot.unlink()
-proc = subprocess.run([
+proc = subprocess.Popen([
     find_browser(),
     "--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-sandbox",
-    # Containers rarely have a usable /dev/shm or a writable default profile
-    # directory, and Chrome hangs rather than failing when either is missing.
-    "--disable-dev-shm-usage", f"--user-data-dir={Path(os.environ.get('TMPDIR', '/tmp')) / 'mp-shot-profile'}",
+    # Containers rarely have a usable /dev/shm, and a profile directory shared
+    # with a still-running Chrome blocks on its lock instead of failing, so
+    # every shot gets its own throwaway profile.
+    "--disable-dev-shm-usage", f"--user-data-dir={tempfile.mkdtemp(prefix='mp-shot-')}",
     "--window-size=1500,950", f"--screenshot={shot}",
     "--virtual-time-budget=9000", tmp.as_uri(),
-], capture_output=True, timeout=300)
-if not shot.exists():
-    sys.stderr.write(proc.stderr.decode("utf-8", "replace")[-2000:])
+], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+# Headless Chrome in a container routinely writes the PNG and then never
+# exits, so waiting on the process instead of on the file means waiting
+# forever for a screenshot that is already on disk.
+deadline = time.time() + 180
+size = -1
+while time.time() < deadline:
+    if proc.poll() is not None:
+        break
+    if shot.exists():
+        now = shot.stat().st_size
+        if now > 0 and now == size:          # two quiet ticks: write finished
+            break
+        size = now
+    time.sleep(1.0)
+if proc.poll() is None:
+    proc.kill()
+    proc.wait(timeout=30)
 print(f"{shot} {shot.stat().st_size:,} bytes" if shot.exists() else "no screenshot")
