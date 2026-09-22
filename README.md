@@ -1,6 +1,6 @@
 # Vitallic: the dog that checks drone-flagged metal
 
-# See Master (Not Main) for Interactive HTML Files
+# See Master (Not Main) for additional Interactive HTML Files
 
 A drone survey flags every piece of metal in a field. Today a **person still has to
 walk up to each flag** to find out whether it is a mine or a tin can.
@@ -101,13 +101,13 @@ the difference is only what carries the sensor.
 | Schematic | `schematics/dog/architecture.svg`, `schematics/dog/mounting.svg` | `schematics/no_dog/architecture.svg`, `wiring_unoq.svg`, `wiring_uno_r3.png` |
 | Positioning | dimOS pose / commanded steps | dead reckoning from timed moves |
 
-Note the asymmetry: on the dog build the Arduino does **no sensing or driving** —
+On the dog build the Arduino does **no sensing or driving** —
 the phones are self-contained sensors and dimOS drives the robot, so the UNO Q is
 an optional LED status display with nothing wired to it. On the rover build the
 Arduino *is* the robot: it drives the motors, reads the sonars and pulses the coil.
 
 There is a third path that needs neither: `field_scan.py --manual` runs the whole
-pipeline with you carrying the two-phone rig over a taped grid.
+pipeline with user carrying the two-phone rig over a taped grid.
 
 ## Walking survey (`sweep.py`)
 
@@ -172,7 +172,7 @@ python field_scan.py --sim --lat 42.3601 --lon -71.0942 --heading 0
 density, which is false. That assumption dominates the error, not the counting
 statistics, and the API says so in the payload. Present it that way.
 
-## Test order (do not skip steps)
+## Test order
 
 1. `python dipole.py` then `python benchmark.py` — physics and numbers, no hardware.
 2. `python field_scan.py --sim` — whole pipeline, no hardware.
@@ -180,7 +180,7 @@ statistics, and the API says so in the payload. Present it that way.
    remote access. Everything on ONE hotspot.
    `python phones.py http://LOW:8080 http://HIGH:8080`. Sweep over a steel pot and over
    keys. You need changes of several µT at 5–10 cm, and noise well under 0.5 µT.
-   **If this step fails, nothing downstream works — find out now.**
+   **If this step fails, nothing downstream works**
 4. **Handheld rig:** tape a grid on the floor, then
    `python field_scan.py --manual --low http://LOW:8080 --high http://HIGH:8080`
 5. **Dog:** read [DIMOS_PORT.md](DIMOS_PORT.md) first — the dog path is **not yet proven on
@@ -208,7 +208,7 @@ statistics, and the API says so in the payload. Present it that way.
 `dimos` CLI, a sleeping dog or a wrong skill name fails immediately with a clear
 message instead of halfway through a demo.
 
-## Mounting (measure and pass these)
+## Mounting 
 
 - Phones flat, screen up, top of phone pointing forward along the boom.
 - `--h-low` / `--h-high`: height of each phone above the ground with the dog standing
