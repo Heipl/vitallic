@@ -48,7 +48,7 @@ fitted moment they separate.
 The 35 mines both methods miss are below the **sensor's** detection floor, not the
 classifier's: at 300 trials neither method can see what the phones cannot reach.
 
-## Honest scope (say it before judges ask)
+## Honest scope (Not that judges actually read this)
 
 - **Ferrous (steel) targets only**: UXO and steel-cased mines, not plastic mines.
 - Detection reach at the 1.0 µT floor, measured by `benchmark.py`:
