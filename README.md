@@ -1,5 +1,8 @@
 # Vitallic: the dog that checks drone-flagged metal
 
+> **HackMIT 2026 version.** This repository is the project as it was built at the
+> hackathon. Development continues in a private repository.
+
 # See Master (Not Main) for additional Interactive HTML Files
 
 A drone survey flags every piece of metal in a field. Today a **person still has to
